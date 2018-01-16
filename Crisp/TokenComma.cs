@@ -1,6 +1,6 @@
 ﻿namespace Crisp
 {
-    class TokenEndOfInput : Token
+    class TokenComma : Token
     {
     }
 }

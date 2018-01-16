@@ -42,13 +42,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExpressionAdd.cs" />
+    <Compile Include="ExpressionAssignment.cs" />
+    <Compile Include="ExpressionCall.cs" />
+    <Compile Include="ExpressionEquals.cs" />
+    <Compile Include="ExpressionFunction.cs" />
+    <Compile Include="ExpressionIdentifier.cs" />
+    <Compile Include="ExpressionLet.cs" />
     <Compile Include="ExpressionLiteralInteger.cs" />
+    <Compile Include="ExpressionMultiply.cs" />
+    <Compile Include="ExpressionSequence.cs" />
+    <Compile Include="ObjectFunctionWriteLn.cs" />
     <Compile Include="IExpression.cs" />
     <Compile Include="IAst.cs" />
     <Compile Include="IStatement.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="IObject.cs" />
+    <Compile Include="NullExpression.cs" />
+    <Compile Include="ObjectBoolean.cs" />
+    <Compile Include="ObjectFunction.cs" />
+    <Compile Include="ObjectFunctionNative.cs" />
+    <Compile Include="Precidence.cs" />
     <Compile Include="Repl.cs" />
+    <Compile Include="RuntimeErrorException.cs" />
     <Compile Include="SyntaxErrorException.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Lexer.cs" />
@@ -57,11 +73,28 @@
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TokenAdd.cs" />
+    <Compile Include="TokenAssignment.cs" />
+    <Compile Include="TokenComma.cs" />
     <Compile Include="TokenEndOfInput.cs" />
+    <Compile Include="TokenEquals.cs" />
+    <Compile Include="TokenFn.cs" />
+    <Compile Include="TokenIdentifier.cs" />
+    <Compile Include="TokenInfixOperator.cs" />
+    <Compile Include="TokenLBrace.cs" />
+    <Compile Include="TokenLet.cs" />
     <Compile Include="TokenLiteralInteger.cs" />
+    <Compile Include="TokenLParen.cs" />
+    <Compile Include="TokenMultiply.cs" />
+    <Compile Include="TokenRBrace.cs" />
+    <Compile Include="TokenRParen.cs" />
+    <Compile Include="TokenSemicolon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Sys.crisp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

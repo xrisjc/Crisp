@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Crisp
+﻿namespace Crisp
 {
     class Parser
     {
@@ -19,7 +13,7 @@ namespace Crisp
             NextToken();
         }
 
-        public IExpression ParseExpression(int rbp = 0)
+        public IExpression Parse(Precidence rbp = Precidence.Lowest)
         {
             var t = current;
             NextToken();
@@ -31,6 +25,51 @@ namespace Crisp
                 left = t.Led(this, left);
             }
             return left;
+        }
+
+        public bool Match<T>()
+            where T : Token
+        {
+            if (current is T)
+            {
+                NextToken();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool Match<T>(out T token)
+            where T : Token
+        {
+            if (current is T)
+            {
+                token = current as T;
+                NextToken();
+                return true;
+            }
+            else
+            {
+                token = null;
+                return false;
+            }
+        }
+
+        public T Expect<T>()
+            where T : Token
+        {
+            if (current is T)
+            {
+                var token = current as T;
+                NextToken();
+                return token;
+            }
+            else
+            {
+                throw new SyntaxErrorException($"Exepected token of type {typeof(T)}");
+            }
         }
 
         void NextToken()

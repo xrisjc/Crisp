@@ -1,0 +1,15 @@
+﻿
+writeLn(1000);
+
+let makeCounter = fn(start) {
+    fn() {
+        let result = start;
+        start := start + 1;
+        result
+    }
+};
+
+let doStackOverflow = fn(x) {
+    writeLn(x);
+    doStackOverflow(x+1)
+}

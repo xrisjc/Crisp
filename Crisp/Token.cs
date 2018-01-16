@@ -1,19 +1,17 @@
-﻿using System;
-
-namespace Crisp
+﻿namespace Crisp
 {
     class Token
     {
-        public virtual int Lbp { get; } = 0;
+        public virtual Precidence Lbp { get; } = Precidence.Lowest;
 
         public virtual IExpression Nud(Parser parser)
         {
-            throw new NotImplementedException();
+            throw new SyntaxErrorException($"unexpected token '{this}'");
         }
 
         public virtual IExpression Led(Parser parser, IExpression left)
         {
-            throw new NotImplementedException();
+            throw new SyntaxErrorException($"unexpected token '{this}'");
         }
     }
 }
