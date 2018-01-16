@@ -28,10 +28,5 @@
                 }
             }
         }
-
-        public override string ToString()
-        {
-            return $"{Left}; {Right}";
-        }
     }
 }

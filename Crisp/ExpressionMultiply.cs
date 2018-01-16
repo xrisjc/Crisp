@@ -26,10 +26,5 @@
                 throw new RuntimeErrorException("can only multiply numbers");
             }
         }
-
-        public override string ToString()
-        {
-            return $"({Left} * {Right})";
-        }
     }
 }

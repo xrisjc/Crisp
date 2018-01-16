@@ -8,6 +8,7 @@ namespace Crisp
         {
             var environment = new Environment();
             environment.Create("writeLn", new ObjFnWriteLn());
+            environment.Create("readLn", new ObjFnReadLn());
 
             {
                 var sys = File.ReadAllText("Sys.crisp");
@@ -26,9 +27,8 @@ namespace Crisp
                     var lexer = new Lexer(code);
                     var parser = new Parser(lexer);
                     var expr = parser.Parse();
-                    writer.WriteLine(expr.ToString());
                     var obj = expr.Evaluate(environment);
-                    writer.WriteLine(obj);
+                    writer.WriteLine(obj.Print());
                 }
                 catch (SyntaxErrorException e)
                 {

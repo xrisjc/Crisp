@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Crisp
 {
-    class ObjFnWriteLn : IObjFn
+    class ObjFnReadLn : IObjFn
     {
         public IObj Call(List<IObj> args)
         {
-            var line = string.Join("", args);
-            Console.WriteLine(line);
-            return Obj.Null;
+            // TODO: Handle args?
+            var line = Console.ReadLine();
+            return Obj.Create(line);
         }
 
         public string Print()

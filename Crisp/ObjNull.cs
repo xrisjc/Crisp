@@ -2,7 +2,7 @@
 {
     class ObjNull : IObj
     {
-        public override string ToString()
+        public string Print()
         {
             return "null";
         }

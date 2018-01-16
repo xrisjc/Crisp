@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Crisp
 {
@@ -121,10 +117,14 @@ namespace Crisp
 
                         switch (tokenText)
                         {
+                            case "false":
+                                return TokenLiteral.Create(false);
                             case "fn":
                                 return new TokenFn();
                             case "let":
                                 return new TokenLet();
+                            case "true":
+                                return TokenLiteral.Create(true);
                             default:
                                 return new TokenIdentifier(tokenText);
                         }

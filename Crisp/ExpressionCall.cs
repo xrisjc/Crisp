@@ -27,10 +27,5 @@ namespace Crisp
                 throw new RuntimeErrorException("function call attempted on non function value");
             }
         }
-
-        public override string ToString()
-        {
-            return $"{functionExpression}({string.Join(", ", argumentExpressions)})";
-        }
     }
 }

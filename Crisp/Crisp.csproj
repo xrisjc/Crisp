@@ -54,10 +54,9 @@
     <Compile Include="ExpressionLiteral.cs" />
     <Compile Include="ExpressionMultiply.cs" />
     <Compile Include="ExpressionSequence.cs" />
+    <Compile Include="ObjFnReadLn.cs" />
     <Compile Include="ObjFnWriteLn.cs" />
     <Compile Include="IExpression.cs" />
-    <Compile Include="IAst.cs" />
-    <Compile Include="IStatement.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="IObj.cs" />
     <Compile Include="IObjFn.cs" />

@@ -34,10 +34,5 @@
 
             return Obj.False;
         }
-
-        public override string ToString()
-        {
-            return $"({Left} = {Right})";
-        }
     }
 }

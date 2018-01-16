@@ -1,15 +1,15 @@
 ﻿
-writeLn('Welcome to Crisp REPL', 10);
+writeLn('Welcome to Crisp REPL');
 
-let makeCounter = fn(start) {
+let makeCounter := fn(start) {
     fn() {
-        let result = start;
+        let result := start;
         start := start + 1;
         result
     }
 };
 
-let doStackOverflow = fn(x) {
+let doStackOverflow := fn(x) {
     writeLn(x);
     doStackOverflow(x+1)
 }

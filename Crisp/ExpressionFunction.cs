@@ -17,10 +17,5 @@ namespace Crisp
         {
             return new ObjFnNative(body, parameters, environoment);
         }
-
-        public override string ToString()
-        {
-            return $"fn ({string.Join(", ", parameters)}) {{ {body} }}";
-        }
     }
 }

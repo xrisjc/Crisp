@@ -2,5 +2,6 @@
 {
     interface IObj
     {
+        string Print();
     }
 }

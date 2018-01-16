@@ -16,11 +16,5 @@
                 throw new SyntaxErrorException("left hand side of assignment must be assignable");
             }
         }
-
-        public override string ToString()
-        {
-            return "ASSIGN";
-        }
-
     }
 }

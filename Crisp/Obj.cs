@@ -9,6 +9,22 @@
             Value = value;
         }
 
+        public string Print()
+        {
+            if (Value is string strValue)
+            {
+                return $"'{Value.ToString()}'";
+            }
+            if (Value is bool boolValue)
+            {
+                return boolValue ? "true" : "false";
+            }
+            else
+            {
+                return Value.ToString();
+            }
+        }
+
         public override string ToString()
         {
             return Value.ToString();
@@ -17,6 +33,11 @@
 
     static class Obj
     {
+        public static Obj<bool> Create(bool value)
+        {
+            return value ? True : False;
+        }
+
         public static Obj<T> Create<T>(T value)
         {
             return new Obj<T>(value);
@@ -26,6 +47,6 @@
 
         public static Obj<bool> True { get; } = new Obj<bool>(true);
 
-        public static Obj<bool> False { get; } = new Obj<bool>(true);
+        public static Obj<bool> False { get; } = new Obj<bool>(false);
     }
 }

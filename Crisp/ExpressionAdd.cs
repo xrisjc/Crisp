@@ -26,10 +26,5 @@
                 throw new RuntimeErrorException("can only add integer values");
             }
         }
-
-        public override string ToString()
-        {
-            return $"({Left} + {Right})";
-        }
     }
 }

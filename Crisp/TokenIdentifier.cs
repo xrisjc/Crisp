@@ -13,10 +13,5 @@
         {
             return new ExpressionIdentifier(Name);
         }
-
-        public override string ToString()
-        {
-            return $"IDENTIFIER({Name})";
-        }
     }
 }

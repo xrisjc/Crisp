@@ -1,6 +1,6 @@
 ﻿namespace Crisp
 {
-    interface IExpression : IAst
+    interface IExpression
     {
         IObj Evaluate(Environment environment);
     }

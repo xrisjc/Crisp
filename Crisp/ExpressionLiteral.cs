@@ -13,17 +13,5 @@
         {
             return Obj.Create(value);
         }
-
-        public override string ToString()
-        {
-            if (value is string strValue)
-            {
-                return $"'{value}'";
-            }
-            else
-            {
-                return value.ToString();
-            }
-        }
     }
 }

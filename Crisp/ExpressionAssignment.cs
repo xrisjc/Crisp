@@ -18,10 +18,5 @@
             environoment.Set(Name, objValue);
             return objValue;
         }
-
-        public override string ToString()
-        {
-            return $"{Name} := {Value}";
-        }
     }
 }

@@ -1,6 +1,0 @@
-﻿namespace Crisp
-{
-    interface IAst
-    {
-    }
-}

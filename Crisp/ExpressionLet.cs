@@ -2,26 +2,20 @@
 {
     class ExpressionLet : IExpression
     {
-        public string Name { get; }
-
-        public IExpression Value { get; }
+        string name;
+        IExpression value;
 
         public ExpressionLet(string name, IExpression value)
         {
-            Name = name;
-            Value = value;
+            this.name = name;
+            this.value = value;
         }
 
         public IObj Evaluate(Environment environoment)
         {
-            var objValue = Value.Evaluate(environoment);
-            environoment.Create(Name, objValue);
+            var objValue = value.Evaluate(environoment);
+            environoment.Create(name, objValue);
             return objValue;
-        }
-
-        public override string ToString()
-        {
-            return $"let {Name} := {Value}";
         }
     }
 }
