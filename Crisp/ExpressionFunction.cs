@@ -13,9 +13,9 @@ namespace Crisp
             this.parameters = parameters;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
-            return new ObjectFunctionNative(body, parameters, environoment);
+            return new ObjFnNative(body, parameters, environoment);
         }
 
         public override string ToString()

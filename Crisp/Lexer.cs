@@ -72,6 +72,23 @@ namespace Crisp
                     Next();
                     return new TokenMultiply();
 
+                case '\'':
+                    {
+                        var sb = new StringBuilder();
+                        Next();
+                        while (i < code.Length && current != '\'')
+                        {
+                            sb.Append(current);
+                            Next();
+                        }
+                        if (i == code.Length)
+                        {
+                            throw new SyntaxErrorException("unexpected end of input");
+                        }
+                        Next();
+                        return TokenLiteral.Create(sb.ToString());
+                    }
+
                 case char c when char.IsDigit(c):
                     {
                         var sb = new StringBuilder();
@@ -81,14 +98,14 @@ namespace Crisp
                             Next();
                         }
                         var tokenText = sb.ToString();
-                        if (long.TryParse(tokenText, out long value))
+                        if (double.TryParse(tokenText, out var value))
                         {
-                            return new TokenLiteralInteger(value); 
+                            return TokenLiteral.Create(value); 
                         }
                         else
                         {
                             throw new SyntaxErrorException(
-                                $"unable to convert '{tokenText}' to an integer");
+                                $"unable to convert '{tokenText}' to a number");
                         }
                     }
 

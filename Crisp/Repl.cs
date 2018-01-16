@@ -7,7 +7,7 @@ namespace Crisp
         public static void Run(TextReader reader, TextWriter writer)
         {
             var environment = new Environment();
-            environment.Create("writeLn", new ObjectFunctionWriteLn());
+            environment.Create("writeLn", new ObjFnWriteLn());
 
             {
                 var sys = File.ReadAllText("Sys.crisp");

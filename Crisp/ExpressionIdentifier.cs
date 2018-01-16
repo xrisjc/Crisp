@@ -9,7 +9,7 @@
             Name = name;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
             return environoment.Get(Name);
         }

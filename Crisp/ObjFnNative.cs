@@ -2,20 +2,20 @@
 
 namespace Crisp
 {
-    class ObjectFunctionNative : ObjectFunction
+    class ObjFnNative : IObjFn
     {
         IExpression body;
         List<string> parameters;
         Environment environment;
 
-        public ObjectFunctionNative(IExpression body, List<string> parameters, Environment environment)
+        public ObjFnNative(IExpression body, List<string> parameters, Environment environment)
         {
             this.body = body;
             this.parameters = parameters;
             this.environment = environment;
         }
 
-        public override IObject Call(List<IObject> arguments)
+        public IObj Call(List<IObj> arguments)
         {
             if (parameters.Count != arguments.Count)
             {

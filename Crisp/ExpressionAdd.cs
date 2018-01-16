@@ -12,14 +12,14 @@
             Right = right;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
             var objLeft = Left.Evaluate(environoment);
             var objRight = Right.Evaluate(environoment);
 
-            if ((objLeft is ObjectInteger intLeft) && (objRight is ObjectInteger intRight))
+            if ((objLeft is Obj<double> numRight) && (objRight is Obj<double> numLeft))
             {
-                return new ObjectInteger(intLeft.Value + intRight.Value);
+                return Obj.Create(numRight.Value + numLeft.Value);
             }
             else
             {

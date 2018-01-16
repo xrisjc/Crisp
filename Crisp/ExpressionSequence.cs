@@ -12,7 +12,7 @@
             Right = right;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
             var seq = this;
             while (true)

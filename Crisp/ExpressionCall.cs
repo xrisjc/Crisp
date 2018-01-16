@@ -14,9 +14,9 @@ namespace Crisp
             this.argumentExpressions = argumentExpressions;
         }
 
-        public IObject Evaluate(Environment environment)
+        public IObj Evaluate(Environment environment)
         {
-            if (functionExpression.Evaluate(environment) is ObjectFunction function)
+            if (functionExpression.Evaluate(environment) is IObjFn function)
             {
                 var arguments = argumentExpressions.Select(arg => arg.Evaluate(environment))
                                                    .ToList();

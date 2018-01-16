@@ -12,7 +12,7 @@
             Value = value;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
             var objValue = Value.Evaluate(environoment);
             environoment.Set(Name, objValue);

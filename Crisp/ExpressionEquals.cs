@@ -12,27 +12,27 @@
             Right = right;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
             var objLeft = Left.Evaluate(environoment);
             var objRight = Right.Evaluate(environoment);
 
             if (ReferenceEquals(objLeft, objRight))
             {
-                return new ObjectBoolean(true);
+                return Obj.True;
             }
 
-            if ((objLeft is ObjectInteger intLeft) && (objRight is ObjectInteger intRight))
+            if ((objLeft is Obj<double> intLeft) && (objRight is Obj<double> intRight))
             {
-                return new ObjectBoolean(intLeft.Value == intRight.Value);
+                return intLeft.Value == intRight.Value ? Obj.True : Obj.False;
             }
 
-            if ((objLeft is ObjectBoolean boolLeft) && (objRight is ObjectBoolean boolRight))
+            if ((objLeft is Obj<bool> boolLeft) && (objRight is Obj<bool> boolRight))
             {
-                return new ObjectBoolean(boolLeft.Value == boolRight.Value);
+                return boolLeft.Value == boolRight.Value ? Obj.True : Obj.False;
             }
 
-            return new ObjectBoolean(false);
+            return Obj.False;
         }
 
         public override string ToString()

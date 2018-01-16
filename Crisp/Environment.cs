@@ -5,18 +5,18 @@ namespace Crisp
     class Environment
     {
         readonly Environment outer;
-        protected readonly Dictionary<string, IObject> values = new Dictionary<string, IObject>();
+        protected readonly Dictionary<string, IObj> values = new Dictionary<string, IObj>();
 
         public Environment(Environment outer = null)
         {
             this.outer = outer;
         }
 
-        public IObject Get(string name)
+        public IObj Get(string name)
         {
             for (Environment e = this; e != null; e = e.outer)
             {
-                if (e.values.TryGetValue(name, out IObject value))
+                if (e.values.TryGetValue(name, out IObj value))
                 {
                     return value;
                 }
@@ -25,7 +25,7 @@ namespace Crisp
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public void Set(string name, IObject value)
+        public void Set(string name, IObj value)
         {
             for (Environment e = this; e != null; e = e.outer)
             {
@@ -39,7 +39,7 @@ namespace Crisp
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public void Create(string name, IObject value)
+        public void Create(string name, IObj value)
         {
             if (values.ContainsKey(name))
             {

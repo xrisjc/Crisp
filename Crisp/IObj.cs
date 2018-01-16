@@ -1,6 +1,6 @@
 ﻿namespace Crisp
 {
-    interface IObject
+    interface IObj
     {
     }
 }

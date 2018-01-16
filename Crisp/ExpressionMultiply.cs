@@ -12,18 +12,18 @@
             Right = right;
         }
 
-        public IObject Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environoment)
         {
             var objLeft = Left.Evaluate(environoment);
             var objRight = Right.Evaluate(environoment);
 
-            if ((objLeft is ObjectInteger intLeft) && (objRight is ObjectInteger intRight))
+            if ((objLeft is Obj<double> intLeft) && (objRight is Obj<double> intRight))
             {
-                return new ObjectInteger(intLeft.Value * intRight.Value);
+                return Obj.Create(intLeft.Value * intRight.Value);
             }
             else
             {
-                throw new RuntimeErrorException("can only multiply integer values");
+                throw new RuntimeErrorException("can only multiply numbers");
             }
         }
 

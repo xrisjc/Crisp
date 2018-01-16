@@ -2,6 +2,6 @@
 {
     interface IExpression : IAst
     {
-        IObject Evaluate(Environment environment);
+        IObj Evaluate(Environment environment);
     }
 }

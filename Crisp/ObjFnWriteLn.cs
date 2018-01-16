@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace Crisp
 {
-    class ObjectFunctionWriteLn : ObjectFunction
+    class ObjFnWriteLn : IObjFn
     {
-        public override IObject Call(List<IObject> arguments)
+        public IObj Call(List<IObj> args)
         {
-            foreach (var a in arguments)
+            foreach (var a in args)
             {
                 Console.Write(a);
             }
             Console.WriteLine();
-            return ObjectNull.Instance;
+            return Obj.Null;
         }
     }
 }

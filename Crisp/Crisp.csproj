@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,27 +51,25 @@
     <Compile Include="ExpressionFunction.cs" />
     <Compile Include="ExpressionIdentifier.cs" />
     <Compile Include="ExpressionLet.cs" />
-    <Compile Include="ExpressionLiteralInteger.cs" />
+    <Compile Include="ExpressionLiteral.cs" />
     <Compile Include="ExpressionMultiply.cs" />
     <Compile Include="ExpressionSequence.cs" />
-    <Compile Include="ObjectFunctionWriteLn.cs" />
+    <Compile Include="ObjFnWriteLn.cs" />
     <Compile Include="IExpression.cs" />
     <Compile Include="IAst.cs" />
     <Compile Include="IStatement.cs" />
     <Compile Include="Environment.cs" />
-    <Compile Include="IObject.cs" />
-    <Compile Include="NullExpression.cs" />
-    <Compile Include="ObjectBoolean.cs" />
-    <Compile Include="ObjectFunction.cs" />
-    <Compile Include="ObjectFunctionNative.cs" />
+    <Compile Include="IObj.cs" />
+    <Compile Include="IObjFn.cs" />
+    <Compile Include="ObjFnNative.cs" />
+    <Compile Include="Obj.cs" />
     <Compile Include="Precidence.cs" />
     <Compile Include="Repl.cs" />
     <Compile Include="RuntimeErrorException.cs" />
     <Compile Include="SyntaxErrorException.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Lexer.cs" />
-    <Compile Include="ObjectInteger.cs" />
-    <Compile Include="ObjectNull.cs" />
+    <Compile Include="ObjNull.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,7 +83,7 @@
     <Compile Include="TokenInfixOperator.cs" />
     <Compile Include="TokenLBrace.cs" />
     <Compile Include="TokenLet.cs" />
-    <Compile Include="TokenLiteralInteger.cs" />
+    <Compile Include="TokenLiteral.cs" />
     <Compile Include="TokenLParen.cs" />
     <Compile Include="TokenMultiply.cs" />
     <Compile Include="TokenRBrace.cs" />
