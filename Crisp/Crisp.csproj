@@ -46,14 +46,15 @@
   <ItemGroup>
     <Compile Include="ExpressionAdd.cs" />
     <Compile Include="ExpressionAssignment.cs" />
+    <Compile Include="ExpressionBlock.cs" />
     <Compile Include="ExpressionCall.cs" />
     <Compile Include="ExpressionEquals.cs" />
     <Compile Include="ExpressionFunction.cs" />
     <Compile Include="ExpressionIdentifier.cs" />
     <Compile Include="ExpressionLet.cs" />
     <Compile Include="ExpressionLiteral.cs" />
+    <Compile Include="ExpressionWhile.cs" />
     <Compile Include="ExpressionMultiply.cs" />
-    <Compile Include="ExpressionSequence.cs" />
     <Compile Include="ObjFnReadLn.cs" />
     <Compile Include="ObjFnWriteLn.cs" />
     <Compile Include="IExpression.cs" />
@@ -83,15 +84,15 @@
     <Compile Include="TokenLBrace.cs" />
     <Compile Include="TokenLet.cs" />
     <Compile Include="TokenLiteral.cs" />
+    <Compile Include="TokenWhile.cs" />
     <Compile Include="TokenLParen.cs" />
     <Compile Include="TokenMultiply.cs" />
     <Compile Include="TokenRBrace.cs" />
     <Compile Include="TokenRParen.cs" />
-    <Compile Include="TokenSemicolon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Sys.crisp">
+    <None Include="Repl.crisp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

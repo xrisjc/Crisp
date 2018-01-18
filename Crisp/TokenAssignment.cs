@@ -8,7 +8,7 @@
         {
             if (left is ExpressionIdentifier identifier)
             {
-                var right = parser.Parse(Lbp);
+                var right = parser.ParseExpression(Lbp);
                 return new ExpressionAssignment(identifier.Name, right);
             }
             else

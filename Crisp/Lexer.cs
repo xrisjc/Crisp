@@ -52,10 +52,6 @@ namespace Crisp
                     Next();
                     return new TokenComma();
 
-                case ';':
-                    Next();
-                    return new TokenSemicolon();
-
                 case '=':
                     Next();
                     return new TokenEquals();
@@ -125,6 +121,8 @@ namespace Crisp
                                 return new TokenLet();
                             case "true":
                                 return TokenLiteral.Create(true);
+                            case "while":
+                                return new TokenWhile();
                             default:
                                 return new TokenIdentifier(tokenText);
                         }

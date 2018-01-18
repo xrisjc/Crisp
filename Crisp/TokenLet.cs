@@ -6,7 +6,7 @@
         {
             var identifier = parser.Expect<TokenIdentifier>();
             parser.Expect<TokenAssignment>();
-            var value = parser.Parse(Precidence.Assignment);
+            var value = parser.ParseExpression(Precidence.Assignment);
             return new ExpressionLet(identifier.Name, value);
         }
     }

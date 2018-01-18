@@ -6,7 +6,7 @@
 
         public override IExpression Led(Parser parser, IExpression left)
         {
-            var right = parser.Parse(Lbp);
+            var right = parser.ParseExpression(Lbp);
             return CreateExpression(left, right);
         }
     }

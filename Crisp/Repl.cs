@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Crisp
 {
@@ -10,12 +11,18 @@ namespace Crisp
             environment.Create("writeLn", new ObjFnWriteLn());
             environment.Create("readLn", new ObjFnReadLn());
 
+            try
             {
-                var sys = File.ReadAllText("Sys.crisp");
+                var sys = File.ReadAllText("Repl.crisp");
                 var lexer = new Lexer(sys);
                 var parser = new Parser(lexer);
-                var expr = parser.Parse();
+                var expr = parser.ParseExpression();
                 expr.Evaluate(environment);
+            }
+            catch (Exception e)
+            {
+                writer.Write(e.Message);
+                return;
             }
 
             while (true)
@@ -26,7 +33,7 @@ namespace Crisp
                     var code = reader.ReadLine();
                     var lexer = new Lexer(code);
                     var parser = new Parser(lexer);
-                    var expr = parser.Parse();
+                    var expr = parser.ParseExpression();
                     var obj = expr.Evaluate(environment);
                     writer.WriteLine(obj.Print());
                 }

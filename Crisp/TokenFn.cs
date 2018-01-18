@@ -7,6 +7,8 @@ namespace Crisp
         public override IExpression Nud(Parser parser)
         {
             var parameters = new List<string>();
+            string name = parser.Match<TokenIdentifier>(out var nameToken) ? nameToken.Name : null;
+
             parser.Expect<TokenLParen>();
             if (parser.Match<TokenIdentifier>(out var identifier))
             {
@@ -18,10 +20,8 @@ namespace Crisp
                 }
             }
             parser.Expect<TokenRParen>();
-            parser.Expect<TokenLBrace>();
-            var body = parser.Parse();
-            parser.Expect<TokenRBrace>();
-            return new ExpressionFunction(body, parameters);
+            var body = parser.ParseExpression();
+            return new ExpressionFunction(name, parameters, body);
         }
     }
 }

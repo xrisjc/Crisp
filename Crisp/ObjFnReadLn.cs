@@ -7,7 +7,12 @@ namespace Crisp
     {
         public IObj Call(List<IObj> args)
         {
-            // TODO: Handle args?
+
+            if (args.Count > 0)
+            {
+                var prompt = string.Join("", args);
+                Console.Write(prompt);
+            }
             var line = Console.ReadLine();
             return Obj.Create(line);
         }

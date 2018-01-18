@@ -8,7 +8,7 @@ namespace Crisp
 
         public override IExpression Nud(Parser parser)
         {
-            var expression = parser.Parse();
+            var expression = parser.ParseExpression();
             parser.Expect<TokenRParen>();
             return expression;
         }
@@ -21,7 +21,7 @@ namespace Crisp
             {
                 do
                 {
-                    argumentExpressions.Add(parser.Parse());
+                    argumentExpressions.Add(parser.ParseExpression());
                 }
                 while (parser.Match<TokenComma>());
 
