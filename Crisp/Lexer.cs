@@ -113,10 +113,14 @@ namespace Crisp
 
                         switch (tokenText)
                         {
+                            case "else":
+                                return new TokenElse();
                             case "false":
                                 return TokenLiteral.Create(false);
                             case "fn":
                                 return new TokenFn();
+                            case "if":
+                                return new TokenIf();
                             case "let":
                                 return new TokenLet();
                             case "true":

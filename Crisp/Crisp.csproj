@@ -51,8 +51,10 @@
     <Compile Include="ExpressionEquals.cs" />
     <Compile Include="ExpressionFunction.cs" />
     <Compile Include="ExpressionIdentifier.cs" />
+    <Compile Include="ExpressionBranch.cs" />
     <Compile Include="ExpressionLet.cs" />
     <Compile Include="ExpressionLiteral.cs" />
+    <Compile Include="ExpressionLiteralNull.cs" />
     <Compile Include="ExpressionWhile.cs" />
     <Compile Include="ExpressionMultiply.cs" />
     <Compile Include="ObjFnReadLn.cs" />
@@ -76,10 +78,12 @@
     <Compile Include="TokenAdd.cs" />
     <Compile Include="TokenAssignment.cs" />
     <Compile Include="TokenComma.cs" />
+    <Compile Include="TokenElse.cs" />
     <Compile Include="TokenEndOfInput.cs" />
     <Compile Include="TokenEquals.cs" />
     <Compile Include="TokenFn.cs" />
     <Compile Include="TokenIdentifier.cs" />
+    <Compile Include="TokenIf.cs" />
     <Compile Include="TokenInfixOperator.cs" />
     <Compile Include="TokenLBrace.cs" />
     <Compile Include="TokenLet.cs" />
