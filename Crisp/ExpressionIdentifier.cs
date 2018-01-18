@@ -9,9 +9,6 @@
             Name = name;
         }
 
-        public IObj Evaluate(Environment environoment)
-        {
-            return environoment.Get(Name);
-        }
+        public IObj Evaluate(Environment env) => env.Get(Name);
     }
 }

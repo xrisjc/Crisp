@@ -75,24 +75,6 @@
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TokenAdd.cs" />
-    <Compile Include="TokenAssignment.cs" />
-    <Compile Include="TokenComma.cs" />
-    <Compile Include="TokenElse.cs" />
-    <Compile Include="TokenEndOfInput.cs" />
-    <Compile Include="TokenEquals.cs" />
-    <Compile Include="TokenFn.cs" />
-    <Compile Include="TokenIdentifier.cs" />
-    <Compile Include="TokenIf.cs" />
-    <Compile Include="TokenInfixOperator.cs" />
-    <Compile Include="TokenLBrace.cs" />
-    <Compile Include="TokenLet.cs" />
-    <Compile Include="TokenLiteral.cs" />
-    <Compile Include="TokenWhile.cs" />
-    <Compile Include="TokenLParen.cs" />
-    <Compile Include="TokenMultiply.cs" />
-    <Compile Include="TokenRBrace.cs" />
-    <Compile Include="TokenRParen.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

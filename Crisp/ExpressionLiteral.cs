@@ -9,9 +9,6 @@
             this.value = value;
         }
 
-        public IObj Evaluate(Environment environoment)
-        {
-            return Obj.Create(value);
-        }
+        public IObj Evaluate(Environment environoment) => Obj.Create(value);
     }
 }
