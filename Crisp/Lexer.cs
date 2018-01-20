@@ -68,6 +68,10 @@ namespace Crisp
                     Next();
                     return new TokenMultiply();
 
+                case '/':
+                    Next();
+                    return new TokenDivide();
+
                 case '\'':
                     {
                         var sb = new StringBuilder();

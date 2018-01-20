@@ -65,6 +65,18 @@
             new OperatorMultiply();
     }
 
+    class OperatorDivide : OperatorBinaryNumber
+    {
+        OperatorDivide() { }
+
+        public override double Evaluate(double left, double right)
+        {
+            return left / right;
+        }
+
+        public static OperatorDivide Instance { get; } = new OperatorDivide();
+    }
+
     class OperatorEquals : IOperatorBinary
     {
         OperatorEquals() { }

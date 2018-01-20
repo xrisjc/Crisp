@@ -54,6 +54,13 @@ namespace Crisp
 
     class TokenComma : Token { }
 
+    class TokenDivide : TokenInfixOperator
+    {
+        public override Precidence Lbp => Precidence.Multiplicitive;
+
+        public override IOperatorBinary Operator => OperatorDivide.Instance;
+    }
+
     class TokenElse : Token { }
 
     class TokenEndOfInput : Token { }
