@@ -60,6 +60,10 @@ namespace Crisp
                     Next();
                     return new TokenAdd();
 
+                case '-':
+                    Next();
+                    return new TokenSubtract();
+
                 case '*':
                     Next();
                     return new TokenMultiply();

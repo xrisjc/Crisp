@@ -215,6 +215,13 @@ namespace Crisp
 
     class TokenRParen : Token { }
 
+    class TokenSubtract : TokenInfixOperator
+    {
+        public override Precidence Lbp => Precidence.Additive;
+
+        public override IOperatorBinary Operator => OperatorSubtract.Instance;
+    }
+
     class TokenWhile : Token
     {
         public override IExpression Nud(Parser parser)

@@ -25,9 +25,12 @@
     assertEq(false, false, 'false literal')
     assertEq(123, 123, 'int literal')
     assertEq(1 + 2, 3, 'addition')
+    assertEq(5 - 2, 3, 'subtraction')
     assertEq(2 * 3, 6, 'multiplication')
     assertEq(1 + 2 * 3, 7, 'addition and multiplication')
+    assertEq(10 - 2 * 3, 4, 'subtraction and multiplication')
     assertEq((1 + 2) * 3, 9, 'addition grouped and multiplication')
+    assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication')
     {
         let x := 123
         assertEq(x, 123, 'variable binding')

@@ -11,8 +11,8 @@
 
         public IObj Evaluate(IObj left, IObj right)
         {
-            if ((left is Obj<double> numRight) &&
-                (right is Obj<double> numLeft))
+            if ((left is Obj<double> numLeft) &&
+                (right is Obj<double> numRight))
             {
                 var result = Evaluate(numLeft.Value, numRight.Value);
                 return Obj.Create(result);
@@ -37,6 +37,19 @@
         }
 
         public static OperatorAdd Instance { get; } = new OperatorAdd();
+    }
+
+    class OperatorSubtract : OperatorBinaryNumber
+    {
+        OperatorSubtract() { }
+
+        public override double Evaluate(double left, double right)
+        {
+            return left - right;
+        }
+
+        public static OperatorSubtract Instance { get; } =
+            new OperatorSubtract();
     }
 
     class OperatorMultiply : OperatorBinaryNumber
