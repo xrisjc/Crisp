@@ -73,14 +73,16 @@
     assertEq(if false 123 else 321, 321, 'if else expression alt')
     {
         let sum := 0
-        while false { sum := sum + 1 }
+        let whileResult := while false { sum := sum + 1 }
         assertEq(sum, 0, 'while not executed')
+        assertEq(whileResult, null, 'while not executed result')
         let n := 1
-        while n = 101 = false {
+        whileResult := while n = 101 = false {
             sum := sum + n
             n := n + 1
         }
-        assertEq(sum, 5050, 'while loop accumlating result')
+        assertEq(sum, 5050, 'while loop accumulating')
+        assertEq(whileResult, null, 'while loop accumulating result')
     }
 
     
