@@ -12,7 +12,8 @@
 // fit.
 //
 // Oh, and one more thing before we begin, everthing is an expression.
-// Everthing.
+// Everthing.  But expressions can have side effects, so it's not "pure"
+// expressions.
 //
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,6 +123,30 @@ assertEq(null = 0, false, 'null and zero are not equal')
 ///////////////////////////////////////////////////////////////////////////////
 // Blocks and Variables
 ///////////////////////////////////////////////////////////////////////////////
+
+//
+// { and } delimit a block.  Within a block mulitple expressions can be 
+// listed.  Each expression is evaluated in the order they are found.  All
+// expression values are ignored, except the last one.  The last expression
+// is the result of the the last expression.  The ignored expressions usually
+// will be useful for their side effects.
+//
+// Crisp has no token to mark the end of an expression, not even new lines.
+// An expression ends when the next token can't be connected with the
+// current expression.  In the example below we have the expression 5*6 with
+// the next token 2.  Since 2 is not a token that can be used to extend the
+// 5*6 expression, the expression parsing stops.  For the last expression a
+// similar things happens with the } token.  It can't be used to continue the
+// 1+2 expression.
+//
+assertEq( { 5*6  1+2 } , 3, 'Block expression return value')
+
+// Blocks can contain one expression.
+assertEq( { 2+3 }, 5, 'Single expression block.')
+
+// Empty blocks do nothing but return null.
+assertEq( { } , null, 'Empty block')
+
 
 
 
