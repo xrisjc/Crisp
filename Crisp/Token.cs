@@ -203,6 +203,13 @@ namespace Crisp
         }
     }
 
+    class TokenModulo : TokenInfixOperator
+    {
+        public override Precidence Lbp => Precidence.Multiplicitive;
+
+        public override IOperatorBinary Operator => OperatorModulo.Instance;
+    }
+
     class TokenMultiply : TokenInfixOperator
     {
         public override Precidence Lbp => Precidence.Multiplicitive;

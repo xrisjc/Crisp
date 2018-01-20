@@ -72,6 +72,10 @@ namespace Crisp
                     Next();
                     return new TokenDivide();
 
+                case '%':
+                    Next();
+                    return new TokenModulo();
+
                 case '\'':
                     {
                         var sb = new StringBuilder();

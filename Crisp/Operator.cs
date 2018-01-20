@@ -77,6 +77,18 @@
         public static OperatorDivide Instance { get; } = new OperatorDivide();
     }
 
+    class OperatorModulo : OperatorBinaryNumber
+    {
+        OperatorModulo() { }
+
+        public override double Evaluate(double left, double right)
+        {
+            return left % right;
+        }
+
+        public static OperatorModulo Instance { get; } = new OperatorModulo();
+    }
+
     class OperatorEquals : IOperatorBinary
     {
         OperatorEquals() { }
