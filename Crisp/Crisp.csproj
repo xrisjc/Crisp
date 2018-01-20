@@ -48,7 +48,6 @@
     <Compile Include="ExpressionAssignment.cs" />
     <Compile Include="ExpressionBlock.cs" />
     <Compile Include="ExpressionCall.cs" />
-    <Compile Include="ExpressionEquals.cs" />
     <Compile Include="ExpressionFunction.cs" />
     <Compile Include="ExpressionIdentifier.cs" />
     <Compile Include="ExpressionBranch.cs" />
@@ -64,6 +63,7 @@
     <Compile Include="IObjFn.cs" />
     <Compile Include="ObjFnNative.cs" />
     <Compile Include="Obj.cs" />
+    <Compile Include="Operator.cs" />
     <Compile Include="Precidence.cs" />
     <Compile Include="Repl.cs" />
     <Compile Include="RuntimeErrorException.cs" />

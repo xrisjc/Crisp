@@ -1,64 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Crisp
+﻿namespace Crisp
 {
-    class ExpressionAdd : IExpression
+    class ExpressionOperatorBinary : IExpression
     {
-        public IExpression Left { get; }
+        IOperatorBinary op;
+        IExpression left, right;
 
-        public IExpression Right { get; }
-
-        public ExpressionAdd(IExpression left, IExpression right)
+        public ExpressionOperatorBinary(IOperatorBinary op, IExpression left,
+            IExpression right)
         {
-            Left = left;
-            Right = right;
+            this.op = op;
+            this.left = left;
+            this.right = right;
         }
 
-        public IObj Evaluate(Environment environoment)
+        public IObj Evaluate(Environment environment)
         {
-            var objLeft = Left.Evaluate(environoment);
-            var objRight = Right.Evaluate(environoment);
-
-            if ((objLeft is Obj<double> numRight) && (objRight is Obj<double> numLeft))
-            {
-                return Obj.Create(numRight.Value + numLeft.Value);
-            }
-            else
-            {
-                throw new RuntimeErrorException("can only add integer values");
-            }
-        }
-    }
-
-    class ExpressionMultiply : IExpression
-    {
-        public IExpression Left { get; }
-
-        public IExpression Right { get; }
-
-        public ExpressionMultiply(IExpression left, IExpression right)
-        {
-            Left = left;
-            Right = right;
-        }
-
-        public IObj Evaluate(Environment environoment)
-        {
-            var objLeft = Left.Evaluate(environoment);
-            var objRight = Right.Evaluate(environoment);
-
-            if ((objLeft is Obj<double> intLeft) && (objRight is Obj<double> intRight))
-            {
-                return Obj.Create(intLeft.Value * intRight.Value);
-            }
-            else
-            {
-                throw new RuntimeErrorException("can only multiply numbers");
-            }
+            var objLeft = left.Evaluate(environment);
+            var objRight = right.Evaluate(environment);
+            var result = op.Evaluate(objLeft, objRight);
+            return result;
         }
     }
 }

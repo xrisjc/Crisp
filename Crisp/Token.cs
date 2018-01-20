@@ -19,13 +19,12 @@ namespace Crisp
 
     abstract class TokenInfixOperator : Token
     {
-        public abstract IExpression CreateExpression(IExpression left,
-            IExpression right);
+        public abstract IOperatorBinary Operator { get; }
 
         public override IExpression Led(Parser parser, IExpression left)
         {
             var right = parser.ParseExpression(Lbp);
-            return CreateExpression(left, right);
+            return new ExpressionOperatorBinary(Operator, left, right);
         }
     }
 
@@ -33,11 +32,7 @@ namespace Crisp
     {
         public override Precidence Lbp => Precidence.Additive;
 
-        public override IExpression CreateExpression(IExpression left,
-            IExpression right)
-        {
-            return new ExpressionAdd(left, right);
-        }
+        public override IOperatorBinary Operator => OperatorAdd.Instance;
     }
 
     class TokenAssignment : Token
@@ -67,11 +62,7 @@ namespace Crisp
     {
         public override Precidence Lbp => Precidence.Equality;
 
-        public override IExpression CreateExpression(IExpression left,
-            IExpression right)
-        {
-            return new ExpressionEquals(left, right);
-        }
+        public override IOperatorBinary Operator => OperatorEquals.Instance;
     }
 
     class TokenFn : Token
@@ -209,11 +200,7 @@ namespace Crisp
     {
         public override Precidence Lbp => Precidence.Multiplicitive;
 
-        public override IExpression CreateExpression(IExpression left,
-            IExpression right)
-        {
-            return new ExpressionMultiply(left, right);
-        }
+        public override IOperatorBinary Operator => OperatorMultiply.Instance;
     }
 
     class TokenNull : Token
