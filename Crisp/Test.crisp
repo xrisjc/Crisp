@@ -1,103 +1,186 @@
-﻿{
-    let nErrors := 0
-    
-    fn assert(condition, message) {
-        if condition {
-            writeLn('[OK] ', message)
-        } else { 
-            writeLn('[FAILED] ', message)
-            nErrors := nErrors + 1
-        }
-    }
+﻿///////////////////////////////////////////////////////////////////////////////
+// File: Test.crisp
+// Purpose: Integration testing of Crisp functionality that also serves as a
+// guide to Crips (for now).
+///////////////////////////////////////////////////////////////////////////////
 
-    fn assertEq(test, expected, message) {
-        if (test = expected) {
-            writeLn('[OK] ', message)
-        } else {
-            writeLn('[FAILED] ', message)
-            writeLn('expected ', expected, ' got ', test)
-            nErrors := nErrors + 1
-        }
-    }
+//
+// As you might have guessed, // starts a comment.  As per usual, comments are
+// ignored and end when a new line character is reached.
+//
+// All other whitespace is ignored, so your free to format code as you see
+// fit.
+//
+// Oh, and one more thing before we begin, everthing is an expression.
+// Everthing.
+//
 
-    assertEq(null, null, 'null literal')
-    assert(true, 'true literal')
-    assertEq(false, false, 'false literal')
-    assertEq(123, 123, 'int literal')
-    assertEq(1 + 2, 3, 'addition')
-    assertEq(5 - 2, 3, 'subtraction')
-    assertEq(2 * 3, 6, 'multiplication')
-    assertEq(12 % 5, 2, 'modulo')
-    assertEq(15 / 5, 3, 'division')
-    assertEq(1 + 2 * 3, 7, 'addition and multiplication')
-    assertEq(1 + 15 / 3, 6, 'addition and division')
-    assertEq(1 + 8 % 3, 3, 'addition and modulo')
-    assertEq(10 - 2 * 3, 4, 'subtraction and multiplication')
-    assertEq((1 + 2) * 3, 9, 'addition grouped and multiplication')
-    assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication')
-    {
-        let x := 123
-        assertEq(x, 123, 'variable binding')
-        {
-            let x := 321
-            assertEq(x, 321, 'inner block shadowing')
-        }
-        assertEq(x, 123, 'variable unshadowed')
-        x := x + 2
-        assertEq(x, 125, 'assignment expression')
-        assertEq(x := x + 2, 127, 'assignment expression result')
-        assertEq(x, 127, 'assignment expression result saved')
-    }
-    {
-        let blockResult := {
-            let first := 123
-            2 * first
-        }
-        assertEq(blockResult, 246, 'block expression')
-    }
-    assertEq((fn(x)2*x)(123), 246, 'anonymous function call')
-    {
-        let square := fn (x) { x * x }
-        assertEq(square(3), 9, 'anonymous function in let')
-        fn triple(x) { x * x * x }
-        assertEq(triple(3), 27, 'named function')
-    }
-    {
-        let n := 100
-        fn makeCounter() {
-            let n := 0
-            fn () { n := n + 1 }
-        }
-        let counter := makeCounter()
-        counter()
-        counter()
-        assertEq(counter(), 3, 'function closure')
-        assertEq(n, 100, 'function closure shadowing')
-    }
-    assertEq(if true 123, 123, 'if expression only true')
-    assertEq(if false 123, null, 'if expression only true alt')
-    assertEq(if true 123 else 321, 123, 'if else expression')
-    assertEq(if false 123 else 321, 321, 'if else expression alt')
-    {
-        let sum := 0
-        let whileResult := while false { sum := sum + 1 }
-        assertEq(sum, 0, 'while not executed')
-        assertEq(whileResult, null, 'while not executed result')
-        let n := 1
-        whileResult := while n = 101 = false {
-            sum := sum + n
-            n := n + 1
-        }
-        assertEq(sum, 5050, 'while loop accumulating')
-        assertEq(whileResult, null, 'while loop accumulating result')
-    }
+///////////////////////////////////////////////////////////////////////////////
+// Let's setup some code to help us do tests, and keep track of how many
+// errors occur.
+///////////////////////////////////////////////////////////////////////////////
 
-    
+let nTests := 0
+let nErrors := 0
 
-
-    writeLn(
-        'There ',
-        if nErrors=1 'was ' else 'were ',
-        nErrors,
-        if nErrors=1 ' error' else ' errors')
+fn assert(condition, message) {
+    nTests := nTests + 1
+    if condition {
+        writeLn('[OK] ', message)
+    } else { 
+        writeLn('[FAILED] ', message)
+        nErrors := nErrors + 1
+    }
 }
+
+fn assertEq(test, expected, message) {
+    nTests := nTests + 1
+    if (test = expected) {
+        writeLn('[OK] ', message)
+    } else {
+        writeLn('[FAILED] ', message)
+        writeLn('expected ', expected, ' got ', test)
+        nErrors := nErrors + 1
+    }
+}
+
+fn displaySummary() {
+    writeLn()
+    writeLn(nTests - nErrors, ' out of ', nTests, ' tests passed.')
+    writeLn('There are ', nErrors, ' errors. ', if nErrors=0 ':-)' else 'D-:')
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Basic Literals
+///////////////////////////////////////////////////////////////////////////////
+
+// Crisp has the literal expressions you would expect.
+
+// Strings are delimited by single quotes. The are the .NET string type
+// internally.
+assertEq('hi', 'hi', 'string literal')
+
+// Number values are double (64 bit floating point) internally.
+assertEq(123, 123, 'int number literal')
+
+// Boolean values are given by keywords true and false representing the
+// obvious values.  The are represented by the bool type internally.
+assert(true, 'true literal')
+assertEq(false, false, 'false literal')
+
+// The keyword null evaluates to the null object value, which is a singleton
+// value that is not equal to any other value.
+assertEq(null, null, 'null literal')
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Arithmetic Operators
+///////////////////////////////////////////////////////////////////////////////
+
+// After literals, more complex expressions can be created with operators.
+
+// Crisp has the usual arithmetic operators.
+assertEq( 1 + 2, 3, 'addition'      )
+assertEq( 5 - 2, 3, 'subtraction'   )
+assertEq( 2 * 3, 6, 'multiplication')
+assertEq(12 % 5, 2, 'modulo'        )
+assertEq(15 / 5, 3, 'division'      )
+
+// The arithmetic operators have the usual precedence levels.
+assertEq(1  +  2 * 3, 7, 'addition and multiplication'    )
+assertEq(10 -  2 * 3, 4, 'subtraction and multiplication' )
+assertEq(1  + 15 / 3, 6, 'addition and division'          )
+assertEq(1  +  8 % 3, 3, 'addition and modulo'            )
+
+// But, grouping with parenthesis will change order of evaluation, as you
+// would expected.
+assertEq((1  + 2) * 3,  9, 'addition grouped and multiplication'    )
+assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication' )
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Relationl Operators
+///////////////////////////////////////////////////////////////////////////////
+
+// All relation operators evaluate to a boolean value.
+
+// The equal operator is a single = 
+assertEq(    1 = 1    , true  , 'number equality true')
+assertEq(    1 = 2    , false , 'number equality false')
+assertEq(false = false, true  , 'bool equality true')
+assertEq(false = true , false , 'bool equality false')
+
+// = is a strict equality operator. There are no conversions done.
+assertEq(false = 0, false, 'false and zero are not equal')
+
+// null is equal to itself but not to other values.
+assert(null = null, 'null equals itself')
+assertEq(null = 0, false, 'null and zero are not equal')
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Blocks and Variables
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+{
+    let x := 123
+    assertEq(x, 123, 'variable binding')
+    {
+        let x := 321
+        assertEq(x, 321, 'inner block shadowing')
+    }
+    assertEq(x, 123, 'variable unshadowed')
+    x := x + 2
+    assertEq(x, 125, 'assignment expression')
+    assertEq(x := x + 2, 127, 'assignment expression result')
+    assertEq(x, 127, 'assignment expression result saved')
+}
+{
+    let blockResult := {
+        let first := 123
+        2 * first
+    }
+    assertEq(blockResult, 246, 'block expression')
+}
+assertEq(( fn (x) 2*x )(123), 246, 'anonymous function call')
+{
+    let square := fn (x) { x * x }
+    assertEq(square(3), 9, 'anonymous function in let')
+    fn triple(x) { x * x * x }
+    assertEq(triple(3), 27, 'named function')
+}
+{
+    let n := 100
+    fn makeCounter() {
+        let n := 0
+        fn () { n := n + 1 }
+    }
+    let counter := makeCounter()
+    counter()
+    counter()
+    assertEq(counter(), 3, 'function closure')
+    assertEq(n, 100, 'function closure shadowing')
+}
+assertEq(if true 123, 123, 'if expression only true')
+assertEq(if false 123, null, 'if expression only true alt')
+assertEq(if true 123 else 321, 123, 'if else expression')
+assertEq(if false 123 else 321, 321, 'if else expression alt')
+{
+    let sum := 0
+    let whileResult := while false { sum := sum + 1 }
+    assertEq(sum, 0, 'while not executed')
+    assertEq(whileResult, null, 'while not executed result')
+    let n := 1
+    whileResult := while n = 101 = false {
+        sum := sum + n
+        n := n + 1
+    }
+    assertEq(sum, 5050, 'while loop accumulating')
+    assertEq(whileResult, null, 'while loop accumulating result')
+}
+
+displaySummary()
+

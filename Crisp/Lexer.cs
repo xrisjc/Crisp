@@ -17,9 +17,25 @@ namespace Crisp
 
         public Token NextToken()
         {
-            while (i < code.Length && char.IsWhiteSpace(current))
+            // Eat up comments and whitespace
+            while (true)
             {
-                Next();
+                while (i < code.Length && char.IsWhiteSpace(current))
+                {
+                    Next();
+                }
+                if (current == '/' && peek == '/')
+                {
+                    Next(2);
+                    while (i < code.Length && current != '\n')
+                    {
+                        Next();
+                    }
+                }
+                else
+                {
+                    break;
+                }
             }
 
             switch (current)
