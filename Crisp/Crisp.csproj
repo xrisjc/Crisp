@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpressionAdd.cs" />
+    <Compile Include="Expression.cs" />
     <Compile Include="ExpressionAssignment.cs" />
     <Compile Include="ExpressionBlock.cs" />
     <Compile Include="ExpressionCall.cs" />
@@ -56,7 +56,6 @@
     <Compile Include="ExpressionLiteral.cs" />
     <Compile Include="ExpressionLiteralNull.cs" />
     <Compile Include="ExpressionWhile.cs" />
-    <Compile Include="ExpressionMultiply.cs" />
     <Compile Include="ObjFnReadLn.cs" />
     <Compile Include="ObjFnWriteLn.cs" />
     <Compile Include="IExpression.cs" />
@@ -78,7 +77,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Repl.crisp">
+    <None Include="Sys.crisp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Test.crisp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

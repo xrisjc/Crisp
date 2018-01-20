@@ -1,0 +1,94 @@
+﻿{
+    let nErrors := 0
+    
+    fn assert(condition, message) {
+        if condition {
+            writeLn('[OK] ', message)
+        } else { 
+            writeLn('[FAILED] ', message)
+            nErrors := nErrors + 1
+        }
+    }
+
+    fn assertEq(test, expected, message) {
+        if (test = expected) {
+            writeLn('[OK] ', message)
+        } else {
+            writeLn('[FAILED] ', message)
+            writeLn('expected ', expected, ' got ', test)
+            nErrors := nErrors + 1
+        }
+    }
+
+    assertEq(null, null, 'null literal')
+    assert(true, 'true literal')
+    assertEq(false, false, 'false literal')
+    assertEq(123, 123, 'int literal')
+    assertEq(1 + 2, 3, 'addition')
+    assertEq(2 * 3, 6, 'multiplication')
+    assertEq(1 + 2 * 3, 7, 'addition and multiplication')
+    assertEq((1 + 2) * 3, 9, 'addition grouped and multiplication')
+    {
+        let x := 123
+        assertEq(x, 123, 'variable binding')
+        {
+            let x := 321
+            assertEq(x, 321, 'inner block shadowing')
+        }
+        assertEq(x, 123, 'variable unshadowed')
+        x := x + 2
+        assertEq(x, 125, 'assignment expression')
+        assertEq(x := x + 2, 127, 'assignment expression result')
+        assertEq(x, 127, 'assignment expression result saved')
+    }
+    {
+        let blockResult := {
+            let first := 123
+            2 * first
+        }
+        assertEq(blockResult, 246, 'block expression')
+    }
+    assertEq((fn(x)2*x)(123), 246, 'anonymous function call')
+    {
+        let square := fn (x) { x * x }
+        assertEq(square(3), 9, 'anonymous function in let')
+        fn triple(x) { x * x * x }
+        assertEq(triple(3), 27, 'named function')
+    }
+    {
+        let n := 100
+        fn makeCounter() {
+            let n := 0
+            fn () { n := n + 1 }
+        }
+        let counter := makeCounter()
+        counter()
+        counter()
+        assertEq(counter(), 3, 'function closure')
+        assertEq(n, 100, 'function closure shadowing')
+    }
+    assertEq(if true 123, 123, 'if expression only true')
+    assertEq(if false 123, null, 'if expression only true alt')
+    assertEq(if true 123 else 321, 123, 'if else expression')
+    assertEq(if false 123 else 321, 321, 'if else expression alt')
+    {
+        let sum := 0
+        while false { sum := sum + 1 }
+        assertEq(sum, 0, 'while not executed')
+        let n := 1
+        while n = 101 = false {
+            sum := sum + n
+            n := n + 1
+        }
+        assertEq(sum, 5050, 'while loop accumlating result')
+    }
+
+    
+
+
+    writeLn(
+        'There ',
+        if nErrors=1 'was ' else 'were ',
+        nErrors,
+        if nErrors=1 ' error' else ' errors')
+}

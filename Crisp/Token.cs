@@ -216,6 +216,14 @@ namespace Crisp
         }
     }
 
+    class TokenNull : Token
+    {
+        public override IExpression Nud(Parser parser)
+        {
+            return ExpressionLiteralNull.Instance;
+        }
+    }
+
     class TokenRBrace : Token { }
 
     class TokenRParen : Token { }

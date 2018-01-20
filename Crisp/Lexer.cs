@@ -123,6 +123,8 @@ namespace Crisp
                                 return new TokenIf();
                             case "let":
                                 return new TokenLet();
+                            case "null":
+                                return new TokenNull();
                             case "true":
                                 return TokenLiteral.Create(true);
                             case "while":

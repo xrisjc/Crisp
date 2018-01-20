@@ -72,6 +72,8 @@
             }
         }
 
+        public bool IsFinished() => current is TokenEndOfInput;
+
         void NextToken()
         {
             current = peek;

@@ -11,19 +11,8 @@ namespace Crisp
             environment.Create("writeLn", new ObjFnWriteLn());
             environment.Create("readLn", new ObjFnReadLn());
 
-            try
-            {
-                var sys = File.ReadAllText("Repl.crisp");
-                var lexer = new Lexer(sys);
-                var parser = new Parser(lexer);
-                var expr = parser.ParseExpression();
-                expr.Evaluate(environment);
-            }
-            catch (Exception e)
-            {
-                writer.Write(e.Message);
-                return;
-            }
+            Load("Sys.crisp", environment);
+            Load("Test.crisp", environment);
 
             while (true)
             {
@@ -45,6 +34,25 @@ namespace Crisp
                 {
                     writer.WriteLine($"Runtime Error: {e.Message}");
                 }
+            }
+        }
+
+        public static void Load(string filename, Environment environment)
+        {
+            try
+            {
+                var sys = File.ReadAllText(filename);
+                var lexer = new Lexer(sys);
+                var parser = new Parser(lexer);
+                while (!parser.IsFinished())
+                {
+                    var expr = parser.ParseExpression();
+                    expr.Evaluate(environment);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }
