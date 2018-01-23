@@ -1,6 +1,8 @@
-﻿namespace Crisp
+﻿using System;
+
+namespace Crisp
 {
-    class Obj<T> : IObj
+    class Obj<T> : IObj, IEquatable<Obj<T>>
     {
         public T Value { get; }
 
@@ -28,6 +30,28 @@
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public bool Equals(Obj<T> other)
+        {
+            return Value.Equals(other.Value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Obj<T> objT)
+            {
+                return Equals(objT);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 

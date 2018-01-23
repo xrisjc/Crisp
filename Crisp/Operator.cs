@@ -95,28 +95,7 @@
 
         public IObj Evaluate(IObj left, IObj right)
         {
-            if (ReferenceEquals(left, right))
-            {
-                return Obj.True;
-            }
-
-            if ((left is Obj<double> intLeft) &&
-                (right is Obj<double> intRight))
-            {
-                return intLeft.Value == intRight.Value
-                    ? Obj.True
-                    : Obj.False;
-            }
-
-            if ((left is Obj<bool> boolLeft) &&
-                (right is Obj<bool> boolRight))
-            {
-                return boolLeft.Value == boolRight.Value
-                    ? Obj.True
-                    : Obj.False;
-            }
-
-            return Obj.False;
+            return left.Equals(right) ? Obj.True : Obj.False;
         }
 
         public static OperatorEquals Instance { get; } = new OperatorEquals();
