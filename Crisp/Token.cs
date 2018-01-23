@@ -52,6 +52,20 @@ namespace Crisp
         }
     }
 
+    class TokenBegin : Token
+    {
+        public override IExpression Nud(Parser parser)
+        {
+            var body = new List<IExpression>();
+            while (!parser.Match<TokenEnd>())
+            {
+                var expression = parser.ParseExpression();
+                body.Add(expression);
+            }
+            return new ExpressionBlock(body);
+        }
+    }
+
     class TokenComma : Token { }
 
     class TokenDivide : TokenInfixOperator
@@ -62,6 +76,8 @@ namespace Crisp
     }
 
     class TokenElse : Token { }
+
+    class TokenEnd : Token { }
 
     class TokenEndOfInput : Token { }
 
@@ -122,20 +138,6 @@ namespace Crisp
                 : ExpressionLiteralNull.Instance;
 
             return new ExpressionBranch(condition, consequence, alternative);
-        }
-    }
-
-    class TokenLBrace : Token
-    {
-        public override IExpression Nud(Parser parser)
-        {
-            var body = new List<IExpression>();
-            while (!parser.Match<TokenRBrace>())
-            {
-                var expression = parser.ParseExpression();
-                body.Add(expression);
-            }
-            return new ExpressionBlock(body);
         }
     }
 
@@ -224,8 +226,6 @@ namespace Crisp
             return ExpressionLiteralNull.Instance;
         }
     }
-
-    class TokenRBrace : Token { }
 
     class TokenRParen : Token { }
 
