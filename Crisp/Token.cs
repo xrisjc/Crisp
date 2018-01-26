@@ -52,20 +52,6 @@ namespace Crisp
         }
     }
 
-    class TokenBegin : Token
-    {
-        public override IExpression Nud(Parser parser)
-        {
-            var body = new List<IExpression>();
-            while (!parser.Match<TokenEnd>())
-            {
-                var expression = parser.ParseExpression();
-                body.Add(expression);
-            }
-            return new ExpressionBlock(body);
-        }
-    }
-
     class TokenComma : Token { }
 
     class TokenDivide : TokenInfixOperator
@@ -175,6 +161,20 @@ namespace Crisp
         }
     }
 
+    class TokenLBrace : Token
+    {
+        public override IExpression Nud(Parser parser)
+        {
+            var body = new List<IExpression>();
+            while (!parser.Match<TokenRBrace>())
+            {
+                var expression = parser.ParseExpression();
+                body.Add(expression);
+            }
+            return new ExpressionBlock(body);
+        }
+    }
+
     class TokenLParen : Token
     {
         public override Precidence Lbp => Precidence.Parentheses;
@@ -226,6 +226,8 @@ namespace Crisp
             return ExpressionLiteralNull.Instance;
         }
     }
+
+    class TokenRBrace : Token { }
 
     class TokenRParen : Token { }
 

@@ -24,32 +24,32 @@
 let nTests := 0
 let nErrors := 0
 
-fn assert(condition, message) begin
+fn assert(condition, message) {
     nTests := nTests + 1
-    if condition begin
+    if condition {
         writeLn('[OK] ', message)
-    end else begin 
+    } else { 
         writeLn('[FAILED] ', message)
         nErrors := nErrors + 1
-    end
-end
+    }
+}
 
-fn assertEq(test, expected, message) begin
+fn assertEq(test, expected, message) {
     nTests := nTests + 1
-    if (test = expected) begin
+    if (test = expected) {
         writeLn('[OK] ', message)
-    end else begin
+    } else {
         writeLn('[FAILED] ', message)
         writeLn('expected ', expected, ' got ', test)
         nErrors := nErrors + 1
-    end
-end
+    }
+}
 
-fn displaySummary() begin
+fn displaySummary() {
     writeLn()
     writeLn(nTests - nErrors, ' out of ', nTests, ' tests passed.')
     writeLn('There are ', nErrors, ' errors. ', if nErrors=0 ':-)' else 'D-:')
-end
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,7 +143,7 @@ assertEq(x, 124, 'variable assignment')
 assertEq(x := 2 * x, 248, 'assignment expression value')
 
 //
-// "begin" and "end" delimit a block.  Within a block mulitple expressions can
+// "{" and "}" delimit a block.  Within a block mulitple expressions can
 // be listed.  Each expression is evaluated in the order they are found.  All
 // expression values are ignored, except the last one.  The last expression
 // is the result of the the last expression.  The ignored expressions usually
@@ -154,25 +154,25 @@ assertEq(x := 2 * x, 248, 'assignment expression value')
 // current expression.  In the example below we have the expression 5*6 with
 // the next token 2.  Since 2 is not a token that can be used to extend the
 // 5*6 expression, the expression parsing stops.  For the last expression a
-// similar things happens with the end token.  It can't be used to continue the
+// similar things happens with the } token.  It can't be used to continue the
 // 1+2 expression.
 //
-assertEq( begin 5*6  1+2 end , 3, 'Block expression return value')
+assertEq( { 5*6  1+2 } , 3, 'Block expression return value')
 
 // Blocks can contain one expression.
-assertEq( begin 2+3 end, 5, 'Single expression block.')
+assertEq( { 2+3 }, 5, 'Single expression block.')
 
 // Empty blocks do nothing but return null.
-assertEq( begin end , null, 'Empty block')
+assertEq( { } , null, 'Empty block')
 
 // blocks also introduce a new scope for variable declarations.  You can 
 // "shadow" variables in outer scopes.
-begin
+{
     let y := 100
     let x := 2 * y
     assertEq(y, 100, 'block variable')
     assertEq(x, 200, 'block variable shadowing')
-end
+}
 assertEq(x, 248, 'variable unshadowed')
 
 displaySummary()
