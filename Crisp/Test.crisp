@@ -132,6 +132,10 @@ assertEq('hey' <> 'HEY', true  , 'string inequality true')
 // <> is also a strict inequality operator. There are no conversions done.
 assertEq(false <> 0, true, 'false and zero are inequal')
 
+// = and <> are lower than arithmatic in precedence.
+assertEq(1  +  2 * 3 = 7, true, '= precedence')
+assertEq(1  +  2 * 3 <> 9, true, '<> precedence')
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Variables Blocks
@@ -235,7 +239,7 @@ assertEq(
 {
     let sum := 0
     let n := 1
-    while n = 101 = false {
+    while n <> 101 {
         sum := sum + n
         n := n + 1
     }
