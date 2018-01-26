@@ -106,7 +106,7 @@ assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication' )
 
 // All relation operators evaluate to a boolean value.
 
-// The equal operator is a single = 
+// The equal operator is a single =.
 assertEq(    1 = 1    , true  , 'number equality true')
 assertEq(    1 = 2    , false , 'number equality false')
 assertEq(false = false, true  , 'bool equality true')
@@ -120,6 +120,17 @@ assertEq(false = 0, false, 'false and zero are not equal')
 // null is equal to itself but not to other values.
 assert(null = null, 'null equals itself')
 assertEq(null = 0, false, 'null and zero are not equal')
+
+// <> is the inequality operator
+assertEq(    1 <> 1    , false , 'number inequality false')
+assertEq(    1 <> 2    , true  , 'number inequality true')
+assertEq(false <> false, false , 'bool inequality false')
+assertEq(false <> true , true  , 'bool inequality true')
+assertEq('hey' <> 'hey', false , 'string inequality false')
+assertEq('hey' <> 'HEY', true  , 'string inequality true')
+
+// <> is also a strict inequality operator. There are no conversions done.
+assertEq(false <> 0, true, 'false and zero are inequal')
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -127,6 +127,13 @@ namespace Crisp
         }
     }
 
+    class TokenInequalTo : TokenInfixOperator
+    {
+        public override Precidence Lbp => Precidence.Equality;
+
+        public override IOperatorBinary Operator => OperatorInequalTo.Instance;
+    }
+
     class TokenLet : Token
     {
         public override IExpression Nud(Parser parser)

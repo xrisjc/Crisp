@@ -101,4 +101,17 @@
         public static OperatorEquals Instance { get; } = new OperatorEquals();
     }
 
+    class OperatorInequalTo : IOperatorBinary
+    {
+        OperatorInequalTo() { }
+
+        public IObj Evaluate(IObj left, IObj right)
+        {
+            return left.Equals(right) ? Obj.False : Obj.True;
+        }
+
+        public static OperatorInequalTo Instance { get; } =
+            new OperatorInequalTo();
+    }
+
 }

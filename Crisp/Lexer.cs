@@ -44,6 +44,10 @@ namespace Crisp
                     Next(2);
                     return new TokenAssignment();
 
+                case '<' when peek == '>':
+                    Next(2);
+                    return new TokenInequalTo();
+
                 case '\0':
                     Next();
                     return new TokenEndOfInput();
