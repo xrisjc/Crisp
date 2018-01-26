@@ -129,6 +129,8 @@ assertEq(null = 0, false, 'null and zero are not equal')
 // Variables are declared with the keyword "let" and the assignment operator:
 // ":=".  A variable must be declared before it is used or else there will be
 // a runtime error.
+//
+// Right now variable identifiers can only be upper or lower case letters.
 
 let x := 123
 assertEq(x, 123, 'variable declaration')
@@ -174,6 +176,109 @@ assertEq( { } , null, 'Empty block')
     assertEq(x, 200, 'block variable shadowing')
 }
 assertEq(x, 248, 'variable unshadowed')
+// TODO: Test that y is undefined here.
+
+///////////////////////////////////////////////////////////////////////////////
+// Branching
+///////////////////////////////////////////////////////////////////////////////
+
+// The usual if / else is present.  The syntax is either
+//     if <condition> <consequent>
+// or
+//     if <condition> <consequent> else <alternative>
+//
+// The <condtion> expresion *must* be a Boolean value or else there will be a
+// runtime exception.
+
+// if / else can be used as an expression.  
+assertEq(if true 123, 123, 'If true expression')
+
+// If there is no else and the condition expression is false, then the result
+// is null.
+assertEq(if false 123, null, 'If false expression')
+
+// If there is an else, and the condition expression is false, then the result
+// is the alternative expression.
+assertEq(if false 123 else 321, 321, 'If / else false expression')
+
+// Any valid expression can go in the condition, consequent, and alternative.
+assertEq(
+    if { let result:=1+2  result=3 }
+        { let x:=4 let y:=2  x*y} 
+    else
+       'this will not be the result',
+    8,
+    'If / else expressions')
+
+///////////////////////////////////////////////////////////////////////////////
+// Looping
+///////////////////////////////////////////////////////////////////////////////
+
+// The ususal while loop is present.  The syntax is
+//     while <condition> <body>
+// 
+// The <condtion> expresion *must* be a Boolean value or else there will be a
+// runtime exception.  Like if / else, condition and body can be any valid
+// kind of expression.
+// 
+{
+    let sum := 0
+    let n := 1
+    while n = 101 = false {
+        sum := sum + n
+        n := n + 1
+    }
+    assertEq(sum, 5050, 'While loop')
+}
+
+// As usual while loops can fail to run at all.
+{
+    let n := 100
+    while false
+        n := n + 1
+    assertEq(n, 100, 'Never executing while loop')
+}
+
+// A while always evaluates to null.
+assertEq(while false { 0 }, null, 'While evals to null')
+
+///////////////////////////////////////////////////////////////////////////////
+// Functions
+///////////////////////////////////////////////////////////////////////////////
+
+// The syntax for a function "literal" is
+//   fn (<comma seperated parameters>) <body>
+//
+// () is the "invocation" operator. The returns values is the result of the
+// body expression, which can be any valid expression including a block.
+
+
+// Functions are values and can be anonymous and immediately invoked.
+assertEq( (fn (x, y) x*y)(100, 200), 20000, 'Inline function' )
+
+// Since functions are values they can be assigned to variables and invoked
+// with ().
+let square := fn (x) { x * x }
+assertEq(square(3), 9, 'Function assigned to variable')
+
+// A syntactic shortcut for assigning to a variable is to just put the variable
+// name between fn and the parameters
+fn divides(m, n) {
+    let remainder := n % m
+    remainder = 0
+}
+assertEq(divides(5, 35), true, 'Named functions')
+
+// Functions are also closures.  Here's the standard counter function example.
+fn makeCounter() {
+    let x := 0
+    fn () {
+        x := x + 1
+        x
+    }
+}
+let counter := makeCounter()
+assertEq({counter() counter() counter()}, 3, 'Functions with closures')
 
 displaySummary()
 
