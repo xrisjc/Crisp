@@ -1,11 +1,12 @@
 ﻿namespace Crisp
 {
-    enum Precidence
+    enum Precedence
     {
         Lowest,
         Sequence,
         Assignment,
         Equality,
+        Relational,
         Additive,
         Multiplicitive,
         Parentheses,

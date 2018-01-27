@@ -5,7 +5,7 @@
         IObj Evaluate(IObj left, IObj right);
     }
 
-    abstract class OperatorBinaryNumber : IOperatorBinary
+    abstract class OperatorBinaryNumberArithmetic : IOperatorBinary
     {
         public abstract double Evaluate(double left, double right);
 
@@ -20,14 +20,34 @@
             else
             {
                 throw new RuntimeErrorException(
-                    "arithmetic operator can only be applied to number " +
+                    "arithmetic operators can only be applied to number " +
                     "values");
             }
         }
-
     }
 
-    class OperatorAdd : OperatorBinaryNumber
+    abstract class OperatorBinaryNumberRelational : IOperatorBinary
+    {
+        public abstract bool Evaluate(double left, double right);
+
+        public IObj Evaluate(IObj left, IObj right)
+        {
+            if ((left is Obj<double> numLeft) &&
+                (right is Obj<double> numRight))
+            {
+                var result = Evaluate(numLeft.Value, numRight.Value);
+                return result ? Obj.True : Obj.False;
+            }
+            else
+            {
+                throw new RuntimeErrorException(
+                    "relational operators can only be applied to number " +
+                    "values");
+            }
+        }
+    }
+
+    class OperatorAdd : OperatorBinaryNumberArithmetic
     {
         OperatorAdd() { }
 
@@ -39,7 +59,7 @@
         public static OperatorAdd Instance { get; } = new OperatorAdd();
     }
 
-    class OperatorSubtract : OperatorBinaryNumber
+    class OperatorSubtract : OperatorBinaryNumberArithmetic
     {
         OperatorSubtract() { }
 
@@ -52,7 +72,7 @@
             new OperatorSubtract();
     }
 
-    class OperatorMultiply : OperatorBinaryNumber
+    class OperatorMultiply : OperatorBinaryNumberArithmetic
     {
         OperatorMultiply() { }
 
@@ -65,7 +85,7 @@
             new OperatorMultiply();
     }
 
-    class OperatorDivide : OperatorBinaryNumber
+    class OperatorDivide : OperatorBinaryNumberArithmetic
     {
         OperatorDivide() { }
 
@@ -77,7 +97,7 @@
         public static OperatorDivide Instance { get; } = new OperatorDivide();
     }
 
-    class OperatorModulo : OperatorBinaryNumber
+    class OperatorModulo : OperatorBinaryNumberArithmetic
     {
         OperatorModulo() { }
 
@@ -87,6 +107,58 @@
         }
 
         public static OperatorModulo Instance { get; } = new OperatorModulo();
+    }
+
+    class OperatorLessThan : OperatorBinaryNumberRelational
+    {
+        OperatorLessThan() { }
+
+        public override bool Evaluate(double left, double right)
+        {
+            return left < right;
+        }
+
+        public static OperatorLessThan Instance { get; } =
+            new OperatorLessThan();
+    }
+
+    class OperatorLessThanOrEqualTo : OperatorBinaryNumberRelational
+    {
+        OperatorLessThanOrEqualTo() { }
+
+        public override bool Evaluate(double left, double right)
+        {
+            return left <= right;
+        }
+
+        public static OperatorLessThanOrEqualTo Instance { get; } =
+            new OperatorLessThanOrEqualTo();
+    }
+
+    class OperatorGreaterThan : OperatorBinaryNumberRelational
+    {
+        OperatorGreaterThan() { }
+
+        public override bool Evaluate(double left, double right)
+        {
+            return left > right;
+        }
+
+        public static OperatorGreaterThan Instance { get; } =
+            new OperatorGreaterThan();
+    }
+
+    class OperatorGreaterThanOrEqualTo : OperatorBinaryNumberRelational
+    {
+        OperatorGreaterThanOrEqualTo() { }
+
+        public override bool Evaluate(double left, double right)
+        {
+            return left >= right;
+        }
+
+        public static OperatorGreaterThanOrEqualTo Instance { get; } =
+            new OperatorGreaterThanOrEqualTo();
     }
 
     class OperatorEquals : IOperatorBinary

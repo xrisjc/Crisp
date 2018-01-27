@@ -13,7 +13,7 @@
             NextToken();
         }
 
-        public IExpression ParseExpression(Precidence rbp = Precidence.Lowest)
+        public IExpression ParseExpression(Precedence rbp = Precedence.Lowest)
         {
             var t = current;
             NextToken();

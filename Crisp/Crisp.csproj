@@ -64,7 +64,7 @@
     <Compile Include="ObjFnNative.cs" />
     <Compile Include="Obj.cs" />
     <Compile Include="Operator.cs" />
-    <Compile Include="Precidence.cs" />
+    <Compile Include="Precedence.cs" />
     <Compile Include="Repl.cs" />
     <Compile Include="RuntimeErrorException.cs" />
     <Compile Include="SyntaxErrorException.cs" />

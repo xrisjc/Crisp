@@ -101,7 +101,7 @@ assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication' )
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Relationl Operators
+// Equality, Inequality and Relational
 ///////////////////////////////////////////////////////////////////////////////
 
 // All relation operators evaluate to a boolean value.
@@ -135,6 +135,25 @@ assertEq(false <> 0, true, 'false and zero are inequal')
 // = and <> are lower than arithmatic in precedence.
 assertEq(1  +  2 * 3 = 7, true, '= precedence')
 assertEq(1  +  2 * 3 <> 9, true, '<> precedence')
+
+// there are also the normal relational operators. These only work for
+// number valued objects.
+assert(1 < 2, 'Less than #1')
+assertEq(2 < 2, false, 'Less than #2')
+assert(1 <= 2, 'Less than or equal #1')
+assert(2 <= 2, 'Less than or equal #2')
+assertEq(3 <= 2, false, 'Less than or equal #3')
+assert(3 > 2,  'Greater than #1')
+assertEq(1 > 2, false, 'Greater than #2')
+assert(3 >= 2, 'Greater than or equal #1')
+assert(3 >= 3, 'Greater than or equal #2')
+assertEq(3 >= 4, false, 'Greater than or equal #3')
+
+// Relational operators have higher precedence over equality operators
+assert(1 <  2 = 2 >  1, 'Equal / relational precedence #1')
+assert(1 <= 2 = 2 >= 1, 'Equal / relational precedence #2')
+assert(2 >  1 = 1 <  2, 'Equal / relational precedence #3')
+assert(2 >= 1 = 1 <= 2, 'Equal / relational precedence #4')
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -239,7 +258,7 @@ assertEq(
 {
     let sum := 0
     let n := 1
-    while n <> 101 {
+    while n <= 100 {
         sum := sum + n
         n := n + 1
     }

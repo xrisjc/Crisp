@@ -48,6 +48,14 @@ namespace Crisp
                     Next(2);
                     return new TokenInequalTo();
 
+                case '<' when peek == '=':
+                    Next(2);
+                    return new TokenLessThanOrEqualTo();
+
+                case '>' when peek == '=':
+                    Next(2);
+                    return new TokenGreaterThanOrEqualTo();
+
                 case '\0':
                     Next();
                     return new TokenEndOfInput();
@@ -95,6 +103,14 @@ namespace Crisp
                 case '%':
                     Next();
                     return new TokenModulo();
+
+                case '<':
+                    Next();
+                    return new TokenLessThan();
+
+                case '>':
+                    Next();
+                    return new TokenGreaterThan();
 
                 case '\'':
                     {

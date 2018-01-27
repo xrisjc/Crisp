@@ -4,7 +4,7 @@ namespace Crisp
 {
     class Token
     {
-        public virtual Precidence Lbp { get; } = Precidence.Lowest;
+        public virtual Precedence Lbp { get; } = Precedence.Lowest;
 
         public virtual IExpression Nud(Parser parser)
         {
@@ -30,14 +30,14 @@ namespace Crisp
 
     class TokenAdd : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Additive;
+        public override Precedence Lbp => Precedence.Additive;
 
         public override IOperatorBinary Operator => OperatorAdd.Instance;
     }
 
     class TokenAssignment : Token
     {
-        public override Precidence Lbp => Precidence.Assignment;
+        public override Precedence Lbp => Precedence.Assignment;
 
         public override IExpression Led(Parser parser, IExpression left)
         {
@@ -56,7 +56,7 @@ namespace Crisp
 
     class TokenDivide : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Multiplicitive;
+        public override Precedence Lbp => Precedence.Multiplicitive;
 
         public override IOperatorBinary Operator => OperatorDivide.Instance;
     }
@@ -69,7 +69,7 @@ namespace Crisp
 
     class TokenEquals : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Equality;
+        public override Precedence Lbp => Precedence.Equality;
 
         public override IOperatorBinary Operator => OperatorEquals.Instance;
     }
@@ -96,6 +96,22 @@ namespace Crisp
             var body = parser.ParseExpression();
             return new ExpressionFunction(name, parameters, body);
         }
+    }
+
+    class TokenGreaterThan : TokenInfixOperator
+    {
+        public override Precedence Lbp => Precedence.Relational;
+
+        public override IOperatorBinary Operator =>
+            OperatorGreaterThan.Instance;
+    }
+
+    class TokenGreaterThanOrEqualTo : TokenInfixOperator
+    {
+        public override Precedence Lbp => Precedence.Relational;
+
+        public override IOperatorBinary Operator =>
+            OperatorGreaterThanOrEqualTo.Instance;
     }
 
     class TokenIdentifier : Token
@@ -129,9 +145,24 @@ namespace Crisp
 
     class TokenInequalTo : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Equality;
+        public override Precedence Lbp => Precedence.Equality;
 
         public override IOperatorBinary Operator => OperatorInequalTo.Instance;
+    }
+
+    class TokenLessThan : TokenInfixOperator
+    {
+        public override Precedence Lbp => Precedence.Relational;
+
+        public override IOperatorBinary Operator => OperatorLessThan.Instance;
+    }
+
+    class TokenLessThanOrEqualTo : TokenInfixOperator
+    {
+        public override Precedence Lbp => Precedence.Relational;
+
+        public override IOperatorBinary Operator =>
+            OperatorLessThanOrEqualTo.Instance;
     }
 
     class TokenLet : Token
@@ -140,7 +171,7 @@ namespace Crisp
         {
             var identifier = parser.Expect<TokenIdentifier>();
             parser.Expect<TokenAssignment>();
-            var value = parser.ParseExpression(Precidence.Assignment);
+            var value = parser.ParseExpression(Precedence.Assignment);
             return new ExpressionLet(identifier.Name, value);
         }
     }
@@ -184,7 +215,7 @@ namespace Crisp
 
     class TokenLParen : Token
     {
-        public override Precidence Lbp => Precidence.Parentheses;
+        public override Precedence Lbp => Precedence.Parentheses;
 
         public override IExpression Nud(Parser parser)
         {
@@ -214,14 +245,14 @@ namespace Crisp
 
     class TokenModulo : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Multiplicitive;
+        public override Precedence Lbp => Precedence.Multiplicitive;
 
         public override IOperatorBinary Operator => OperatorModulo.Instance;
     }
 
     class TokenMultiply : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Multiplicitive;
+        public override Precedence Lbp => Precedence.Multiplicitive;
 
         public override IOperatorBinary Operator => OperatorMultiply.Instance;
     }
@@ -240,7 +271,7 @@ namespace Crisp
 
     class TokenSubtract : TokenInfixOperator
     {
-        public override Precidence Lbp => Precidence.Additive;
+        public override Precedence Lbp => Precedence.Additive;
 
         public override IOperatorBinary Operator => OperatorSubtract.Instance;
     }
