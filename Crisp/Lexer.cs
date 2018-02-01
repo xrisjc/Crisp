@@ -175,6 +175,8 @@ namespace Crisp
                                 return new TokenLet();
                             case "null":
                                 return new TokenNull();
+                            case "then":
+                                return new TokenThen();
                             case "true":
                                 return TokenLiteral.Create(true);
                             case "while":

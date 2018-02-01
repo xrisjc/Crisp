@@ -26,7 +26,7 @@ let nErrors := 0
 
 fn assert(condition, message) {
     nTests := nTests + 1
-    if condition {
+    if condition then {
         writeLn('[OK] ', message)
     } else { 
         writeLn('[FAILED] ', message)
@@ -36,7 +36,7 @@ fn assert(condition, message) {
 
 fn assertEq(test, expected, message) {
     nTests := nTests + 1
-    if (test = expected) {
+    if test = expected then {
         writeLn('[OK] ', message)
     } else {
         writeLn('[FAILED] ', message)
@@ -48,7 +48,8 @@ fn assertEq(test, expected, message) {
 fn displaySummary() {
     writeLn()
     writeLn(nTests - nErrors, ' out of ', nTests, ' tests passed.')
-    writeLn('There are ', nErrors, ' errors. ', if nErrors=0 ':-)' else 'D-:')
+    writeLn('There are ', nErrors, ' errors. ',
+        if nErrors=0 then ':-)' else 'D-:')
 }
 
 
@@ -217,27 +218,27 @@ assertEq(x, 248, 'variable unshadowed')
 ///////////////////////////////////////////////////////////////////////////////
 
 // The usual if / else is present.  The syntax is either
-//     if <condition> <consequent>
+//     if <condition> then <consequent>
 // or
-//     if <condition> <consequent> else <alternative>
+//     if <condition> then <consequent> else <alternative>
 //
 // The <condtion> expresion *must* be a Boolean value or else there will be a
 // runtime exception.
 
 // if / else can be used as an expression.  
-assertEq(if true 123, 123, 'If true expression')
+assertEq(if true then 123, 123, 'If true expression')
 
 // If there is no else and the condition expression is false, then the result
 // is null.
-assertEq(if false 123, null, 'If false expression')
+assertEq(if false then 123, null, 'If false expression')
 
 // If there is an else, and the condition expression is false, then the result
 // is the alternative expression.
-assertEq(if false 123 else 321, 321, 'If / else false expression')
+assertEq(if false then 123 else 321, 321, 'If / else false expression')
 
 // Any valid expression can go in the condition, consequent, and alternative.
 assertEq(
-    if { let result:=1+2  result=3 }
+    if { let result:=1+2  result=3 } then
         { let x:=4 let y:=2  x*y} 
     else
        'this will not be the result',

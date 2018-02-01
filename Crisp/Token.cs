@@ -134,6 +134,7 @@ namespace Crisp
         public override IExpression Nud(Parser parser)
         {
             var condition = parser.ParseExpression();
+            parser.Expect<TokenThen>();
             var consequence = parser.ParseExpression();
             var alternative = parser.Match<TokenElse>()
                 ? parser.ParseExpression()
@@ -268,6 +269,8 @@ namespace Crisp
     class TokenRBrace : Token { }
 
     class TokenRParen : Token { }
+
+    class TokenThen : Token { }
 
     class TokenSubtract : TokenInfixOperator
     {
