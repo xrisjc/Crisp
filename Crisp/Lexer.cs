@@ -68,14 +68,6 @@ namespace Crisp
                     Next();
                     return new TokenRParen();
 
-                case '{':
-                    Next();
-                    return new TokenLBrace();
-
-                case '}':
-                    Next();
-                    return new TokenRBrace();
-
                 case ',':
                     Next();
                     return new TokenComma();
@@ -161,6 +153,8 @@ namespace Crisp
 
                         switch (tokenText)
                         {
+                            case "begin":
+                                return new TokenBegin();
                             case "else":
                                 return new TokenElse();
                             case "end":

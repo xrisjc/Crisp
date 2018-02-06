@@ -24,33 +24,38 @@
 let nTests := 0
 let nErrors := 0
 
-fn assert(condition, message) {
+fn assert(condition, message)
+  begin
     nTests := nTests + 1
-    if condition then {
+    if condition then
         writeLn('[OK] ', message)
-    } else { 
+    else
+      begin
         writeLn('[FAILED] ', message)
         nErrors := nErrors + 1
-    }
-}
+      end
+  end
 
-fn assertEq(test, expected, message) {
+fn assertEq(test, expected, message)
+  begin
     nTests := nTests + 1
-    if test = expected then {
+    if test = expected then
         writeLn('[OK] ', message)
-    } else {
+    else
+      begin
         writeLn('[FAILED] ', message)
         writeLn('expected ', expected, ' got ', test)
         nErrors := nErrors + 1
-    }
-}
+      end
+  end
 
-fn displaySummary() {
+fn displaySummary()
+  begin
     writeLn()
     writeLn(nTests - nErrors, ' out of ', nTests, ' tests passed.')
     writeLn('There are ', nErrors, ' errors. ',
         if nErrors=0 then ':-)' else 'D-:')
-}
+  end
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,7 +185,7 @@ assertEq(x, 124, 'variable assignment')
 assertEq(x := 2 * x, 248, 'assignment expression value')
 
 //
-// "{" and "}" delimit a block.  Within a block mulitple expressions can
+// begin and end delimit a block.  Within a block mulitple expressions can
 // be listed.  Each expression is evaluated in the order they are found.  All
 // expression values are ignored, except the last one.  The last expression
 // is the result of the the last expression.  The ignored expressions usually
@@ -191,25 +196,25 @@ assertEq(x := 2 * x, 248, 'assignment expression value')
 // current expression.  In the example below we have the expression 5*6 with
 // the next token 2.  Since 2 is not a token that can be used to extend the
 // 5*6 expression, the expression parsing stops.  For the last expression a
-// similar things happens with the } token.  It can't be used to continue the
-// 1+2 expression.
+// similar things happens with the end token.  It can't be used to continue
+// the 1+2 expression.
 //
-assertEq( { 5*6  1+2 } , 3, 'Block expression return value')
+assertEq( begin 5*6  1+2 end , 3, 'Block expression return value')
 
 // Blocks can contain one expression.
-assertEq( { 2+3 }, 5, 'Single expression block.')
+assertEq( begin 2+3 end, 5, 'Single expression block.')
 
 // Empty blocks do nothing but return null.
-assertEq( { } , null, 'Empty block')
+assertEq( begin end , null, 'Empty block')
 
 // blocks also introduce a new scope for variable declarations.  You can 
 // "shadow" variables in outer scopes.
-{
+begin
     let y := 100
     let x := 2 * y
     assertEq(y, 100, 'block variable')
     assertEq(x, 200, 'block variable shadowing')
-}
+end
 assertEq(x, 248, 'variable unshadowed')
 // TODO: Test that y is undefined here.
 
@@ -238,8 +243,8 @@ assertEq(if false then 123 else 321, 321, 'If / else false expression')
 
 // Any valid expression can go in the condition, consequent, and alternative.
 assertEq(
-    if { let result:=1+2  result=3 } then
-        { let x:=4 let y:=2  x*y} 
+    if begin let result:=1+2  result=3 end then
+        begin let x:=4 let y:=2  x*y end 
     else
        'this will not be the result',
     8,
@@ -256,26 +261,27 @@ assertEq(
 // runtime exception.  Like if / else, condition and body can be any valid
 // kind of expression.
 // 
-{
+begin
     let sum := 0
     let n := 1
-    while n <= 100 {
+    while n <= 100
+      begin
         sum := sum + n
         n := n + 1
-    }
+      end
     assertEq(sum, 5050, 'While loop')
-}
+begn
 
 // As usual while loops can fail to run at all.
-{
+begin
     let n := 100
     while false
         n := n + 1
     assertEq(n, 100, 'Never executing while loop')
-}
+end
 
 // A while always evaluates to null.
-assertEq(while false { 0 }, null, 'While evals to null')
+assertEq(while false 0, null, 'While evals to null')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -293,27 +299,30 @@ assertEq( (fn (x, y) x*y)(100, 200), 20000, 'Inline function' )
 
 // Since functions are values they can be assigned to variables and invoked
 // with ().
-let square := fn (x) { x * x }
+let square := fn (x) x * x
 assertEq(square(3), 9, 'Function assigned to variable')
 
 // A syntactic shortcut for assigning to a variable is to just put the variable
 // name between fn and the parameters
-fn divides(m, n) {
+fn divides(m, n)
+  begin
     let remainder := n % m
     remainder = 0
-}
+  end
 assertEq(divides(5, 35), true, 'Named functions')
 
 // Functions are also closures.  Here's the standard counter function example.
-fn makeCounter() {
+fn makeCounter()
+  begin
     let x := 0
-    fn () {
+    fn ()
+      begin
         x := x + 1
         x
-    }
-}
+      end
+  end
 let counter := makeCounter()
-assertEq({counter() counter() counter()}, 3, 'Functions with closures')
+assertEq(begin counter() counter() counter() end, 3, 'Functions with closures')
 
 displaySummary()
 
