@@ -153,8 +153,12 @@ namespace Crisp
 
                         switch (tokenText)
                         {
+                            case "and":
+                                return new TokenAnd();
                             case "begin":
                                 return new TokenBegin();
+                            case "do":
+                                return new TokenDo();
                             case "else":
                                 return new TokenElse();
                             case "end":
@@ -169,6 +173,8 @@ namespace Crisp
                                 return new TokenLet();
                             case "null":
                                 return new TokenNull();
+                            case "or":
+                                return new TokenOr();
                             case "then":
                                 return new TokenThen();
                             case "true":

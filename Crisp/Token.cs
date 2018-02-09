@@ -35,6 +35,28 @@ namespace Crisp
         public override IOperatorBinary Operator => OperatorAdd.Instance;
     }
 
+    class TokenAnd : Token
+    {
+        public override Precedence Lbp => Precedence.LogicalAnd;
+
+        public override IExpression Led(Parser parser, IExpression left)
+        {
+            var right = parser.ParseExpression(Lbp);
+            return new ExpressionLogicalAnd(left, right);
+        }
+    }
+
+    class TokenOr : Token
+    {
+        public override Precedence Lbp => Precedence.LogicalOr;
+
+        public override IExpression Led(Parser parser, IExpression left)
+        {
+            var right = parser.ParseExpression(Lbp);
+            return new ExpressionLogicalOr(left, right);
+        }
+    }
+
     class TokenAssignment : Token
     {
         public override Precedence Lbp => Precedence.Assignment;
@@ -74,6 +96,8 @@ namespace Crisp
 
         public override IOperatorBinary Operator => OperatorDivide.Instance;
     }
+
+    class TokenDo : Token { }
 
     class TokenElse : Token { }
 
@@ -282,6 +306,7 @@ namespace Crisp
         public override IExpression Nud(Parser parser)
         {
             var guard = parser.ParseExpression();
+            parser.Expect<TokenDo>();
             var body = parser.ParseExpression();
             return new ExpressionWhile(guard, body);
         }

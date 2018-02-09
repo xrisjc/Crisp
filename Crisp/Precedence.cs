@@ -5,6 +5,8 @@
         Lowest,
         Sequence,
         Assignment,
+        LogicalOr,
+        LogicalAnd,
         Equality,
         Relational,
         Additive,
