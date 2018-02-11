@@ -129,6 +129,15 @@ namespace Crisp
                             sb.Append(current);
                             Next();
                         }
+                        if (current == '.')
+                        {
+                            do
+                            {
+                                sb.Append(current);
+                                Next();
+                            }
+                            while (i < code.Length && char.IsDigit(current));
+                        }
                         var tokenText = sb.ToString();
                         if (double.TryParse(tokenText, out var value))
                         {

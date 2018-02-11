@@ -70,6 +70,8 @@ assertEq('hi', 'hi', 'string literal')
 
 // Number values are double (64 bit floating point) internally.
 assertEq(123, 123, 'int number literal')
+assertEq(1., 1, 'floating point #1')
+assertEq(1.5, 1.5, 'floating point #2')
 
 // Boolean values are given by keywords true and false representing the
 // obvious values.  The are represented by the bool type internally.
@@ -88,11 +90,12 @@ assertEq(null, null, 'null literal')
 // After literals, more complex expressions can be created with operators.
 
 // Crisp has the usual arithmetic operators.
-assertEq( 1 + 2, 3, 'addition'      )
-assertEq( 5 - 2, 3, 'subtraction'   )
-assertEq( 2 * 3, 6, 'multiplication')
-assertEq(12 % 5, 2, 'modulo'        )
-assertEq(15 / 5, 3, 'division'      )
+assertEq( 1 + 2,   3, 'addition'      )
+assertEq( 5 - 2,   3, 'subtraction'   )
+assertEq( 2 * 3,   6, 'multiplication')
+assertEq(12 % 5,   2, 'modulo'        )
+assertEq(15 / 5,   3, 'division #1'   )
+assertEq( 1 / 2, 0.5, 'division #2'   )
 
 // The arithmetic operators have the usual precedence levels.
 assertEq(1  +  2 * 3, 7, 'addition and multiplication'    )
