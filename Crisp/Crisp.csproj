@@ -45,24 +45,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Expression.cs" />
-    <Compile Include="ExpressionAssignment.cs" />
-    <Compile Include="ExpressionBlock.cs" />
-    <Compile Include="ExpressionCall.cs" />
-    <Compile Include="ExpressionFunction.cs" />
-    <Compile Include="ExpressionIdentifier.cs" />
-    <Compile Include="ExpressionBranch.cs" />
-    <Compile Include="ExpressionLet.cs" />
-    <Compile Include="ExpressionLiteral.cs" />
-    <Compile Include="ExpressionLiteralNull.cs" />
-    <Compile Include="ExpressionWhile.cs" />
+    <Compile Include="NamedExpression.cs" />
     <Compile Include="ObjFnReadLn.cs" />
     <Compile Include="ObjFnWriteLn.cs" />
-    <Compile Include="IExpression.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="IObj.cs" />
     <Compile Include="IObjFn.cs" />
     <Compile Include="ObjFnNative.cs" />
     <Compile Include="Obj.cs" />
+    <Compile Include="ObjMap.cs" />
     <Compile Include="Operator.cs" />
     <Compile Include="Precedence.cs" />
     <Compile Include="Repl.cs" />

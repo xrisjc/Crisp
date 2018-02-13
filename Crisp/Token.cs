@@ -63,14 +63,19 @@ namespace Crisp
 
         public override IExpression Led(Parser parser, IExpression left)
         {
-            if (left is ExpressionIdentifier identifier)
+            var right = parser.ParseExpression(Lbp);
+            switch (left)
             {
-                var right = parser.ParseExpression(Lbp);
-                return new ExpressionAssignment(identifier.Name, right);
-            }
+                case ExpressionIdentifier identifier:
+                    return new ExpressionAssignmentVariable(identifier, right);
 
-            throw new SyntaxErrorException(
-                "left hand side of assignment must be assignable");
+                case ExpressionIndex index:
+                    return new ExpressionAssignmentIndex(index, right);
+
+                default:
+                    throw new SyntaxErrorException(
+                        "left hand side of assignment must be assignable");
+            }
         }
     }
 
@@ -189,6 +194,27 @@ namespace Crisp
         public override IOperatorBinary Operator => OperatorInequalTo.Instance;
     }
 
+    class TokenLBrace : Token
+    {
+        public override IExpression Nud(Parser parser)
+        {
+            parser.Expect<TokenRBrace>();
+            return new ExpressionMap();
+        }
+    }
+
+    class TokenLBracket : Token
+    {
+        public override Precedence Lbp => Precedence.Index;
+
+        public override IExpression Led(Parser parser, IExpression left)
+        {
+            var index = parser.ParseExpression();
+            parser.Expect<TokenRBracket>();
+            return new ExpressionIndex(left, index);
+        }
+    }
+
     class TokenLessThan : TokenInfixOperator
     {
         public override Precedence Lbp => Precedence.Relational;
@@ -289,6 +315,10 @@ namespace Crisp
             return ExpressionLiteralNull.Instance;
         }
     }
+
+    class TokenRBrace : Token { }
+
+    class TokenRBracket : Token { }
 
     class TokenRParen : Token { }
 

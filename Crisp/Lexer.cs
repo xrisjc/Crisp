@@ -68,6 +68,22 @@ namespace Crisp
                     Next();
                     return new TokenRParen();
 
+                case '[':
+                    Next();
+                    return new TokenLBracket();
+
+                case ']':
+                    Next();
+                    return new TokenRBracket();
+
+                case '{':
+                    Next();
+                    return new TokenLBrace();
+
+                case '}':
+                    Next();
+                    return new TokenRBrace();
+
                 case ',':
                     Next();
                     return new TokenComma();

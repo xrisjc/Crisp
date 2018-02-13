@@ -11,6 +11,7 @@
         Relational,
         Additive,
         Multiplicitive,
+        Index,
         Parentheses,
     }
 }
