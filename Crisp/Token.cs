@@ -194,15 +194,40 @@ namespace Crisp
         public override IOperatorBinary Operator => OperatorInequalTo.Instance;
     }
 
+    /// <summary>
+    /// Represents a '{' token.
+    /// </summary>
     class TokenLBrace : Token
     {
         public override IExpression Nud(Parser parser)
         {
-            parser.Expect<TokenRBrace>();
-            return new ExpressionMap();
+            if (parser.Match<TokenRBrace>())
+            {
+                return new ExpressionMap();
+            }
+            else
+            {
+                var initializers = new List<IndexValuePair>();
+                do
+                {
+                    parser.Expect<TokenLBracket>();
+                    var index = parser.ParseExpression();
+                    parser.Expect<TokenRBracket>();
+                    parser.Expect<TokenEquals>();
+                    var value = parser.ParseExpression();
+                    var initializer = new IndexValuePair(index, value);
+                    initializers.Add(initializer);
+
+                } while (parser.Match<TokenComma>());
+                parser.Expect<TokenRBrace>();
+                return new ExpressionMap(initializers);
+            }
         }
     }
 
+    /// <summary>
+    /// Represents a '[' token.
+    /// </summary>
     class TokenLBracket : Token
     {
         public override Precedence Lbp => Precedence.Index;
@@ -316,8 +341,14 @@ namespace Crisp
         }
     }
 
+    /// <summary>
+    /// Represents a '}' token.
+    /// </summary>
     class TokenRBrace : Token { }
 
+    /// <summary>
+    /// Represents a ']' token.
+    /// </summary>
     class TokenRBracket : Token { }
 
     class TokenRParen : Token { }

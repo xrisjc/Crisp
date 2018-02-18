@@ -25,6 +25,13 @@ namespace Crisp
             items[index] = value;
         }
 
+        public void Set(IndexValuePair indexValuePair, Environment environment)
+        {
+            var index = indexValuePair.Index.Evaluate(environment);
+            var value = indexValuePair.Value.Evaluate(environment);
+            Set(index, value);
+        }
+
         public string Print()
         {
             var sb = new StringBuilder();

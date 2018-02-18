@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Expression.cs" />
-    <Compile Include="NamedExpression.cs" />
+    <Compile Include="IndexValuePair.cs" />
     <Compile Include="ObjFnReadLn.cs" />
     <Compile Include="ObjFnWriteLn.cs" />
     <Compile Include="Environment.cs" />

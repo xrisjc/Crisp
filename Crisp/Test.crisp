@@ -365,4 +365,37 @@ assertEq(counter(), 1, 'or short circuits #2')
 assertEq(false or counter() = 2, true, 'or short circuits #3')
 assertEq(counter(), 3, 'or short circuits #4')
 
+///////////////////////////////////////////////////////////////////////////////
+// Maps
+///////////////////////////////////////////////////////////////////////////////
+
+// Maps are constructed with { and }. { } is an empty map.  [ and ] are used
+// to index the map in the usual ways to assign a value to a key and get the
+// value for a key.
+begin
+    let map := { }
+    map['year'] := 2018
+    map[90 * 100] := 'number that it is over'
+    assertEq(map['year'  ], 2018,                     'map get / set value #1')
+    assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #2')
+end
+
+// You can also initilize a maps as shown below
+begin
+    let map :=
+    {
+        ['name'] = 'Chris',
+        ['sign'] = 'Cancer',
+        ['age'] = 37
+    }
+    assertEq(map['name'], 'Chris',  'map get / set value #3')
+    assertEq(map['sign'], 'Cancer', 'map get / set value #4')
+    assertEq(map['age'],   37,      'map get / set value #5')
+end
+
+///////////////////////////////////////////////////////////////////////////////
+// The End
+///////////////////////////////////////////////////////////////////////////////
+
 displaySummary()
+

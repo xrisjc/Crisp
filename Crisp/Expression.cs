@@ -290,13 +290,25 @@ namespace Crisp
 
     class ExpressionMap : IExpression
     {
+        List<IndexValuePair> initializers;
+
+        public ExpressionMap(List<IndexValuePair> initializers)
+        {
+            this.initializers = initializers;
+        }
+
         public ExpressionMap()
+            : this(new List<IndexValuePair>())
         {
         }
 
         public IObj Evaluate(Environment environment)
         {
             var map = new ObjMap();
+            foreach (var initializer in initializers)
+            {
+                map.Set(initializer, environment);
+            }
             return map;
         }
     }
