@@ -1,4 +1,4 @@
-﻿namespace Crisp
+﻿namespace Crisp.Eval
 {
     interface IOperatorBinary
     {

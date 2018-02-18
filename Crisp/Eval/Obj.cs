@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Crisp
+namespace Crisp.Eval
 {
     class Obj<T> : IObj, IEquatable<Obj<T>>
     {

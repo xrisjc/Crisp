@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Crisp.Ast;
+using System.Collections.Generic;
 using System.Text;
 
-namespace Crisp
+namespace Crisp.Eval
 {
     class ObjMap : IObj, IIndexable
     {

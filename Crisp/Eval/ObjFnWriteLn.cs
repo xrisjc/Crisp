@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Crisp
+namespace Crisp.Eval
 {
     class ObjFnWriteLn : IObjFn
     {

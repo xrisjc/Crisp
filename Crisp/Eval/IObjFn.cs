@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Crisp
+namespace Crisp.Eval
 {
     interface IObjFn : IObj
     {

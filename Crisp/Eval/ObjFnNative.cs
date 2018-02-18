@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Crisp.Ast;
+using System.Collections.Generic;
 
-namespace Crisp
+namespace Crisp.Eval
 {
     class ObjFnNative : IObjFn
     {

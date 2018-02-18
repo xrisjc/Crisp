@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Crisp.Eval;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace Crisp
+namespace Crisp.Ast
 {
     interface IExpression
     {
@@ -13,8 +14,7 @@ namespace Crisp
         ExpressionIdentifier identifier;
         IExpression value;
 
-        public ExpressionAssignmentVariable(ExpressionIdentifier identifier,
-            IExpression value)
+        public ExpressionAssignmentVariable(ExpressionIdentifier identifier, IExpression value)
         {
             this.identifier = identifier;
             this.value = value;

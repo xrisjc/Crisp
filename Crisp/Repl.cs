@@ -1,4 +1,5 @@
-﻿using Crisp.Parsing;
+﻿using Crisp.Eval;
+using Crisp.Parsing;
 using System;
 using System.IO;
 
@@ -8,7 +9,7 @@ namespace Crisp
     {
         public static void Run(TextReader reader, TextWriter writer)
         {
-            var environment = new Environment();
+            var environment = new Eval.Environment();
             environment.Create("writeLn", new ObjFnWriteLn());
             environment.Create("readLn", new ObjFnReadLn());
 
@@ -38,7 +39,7 @@ namespace Crisp
             }
         }
 
-        public static void Load(string filename, Environment environment)
+        public static void Load(string filename, Eval.Environment environment)
         {
             try
             {
