@@ -55,14 +55,17 @@
     <Compile Include="Obj.cs" />
     <Compile Include="ObjMap.cs" />
     <Compile Include="Operator.cs" />
-    <Compile Include="Precedence.cs" />
+    <Compile Include="Parsing\Token.cs" />
+    <Compile Include="Parsing\TokenValue.cs" />
+    <Compile Include="Parsing\TokenTypes.cs" />
+    <Compile Include="Position.cs" />
+    <Compile Include="Parsing\Precedence.cs" />
     <Compile Include="Repl.cs" />
     <Compile Include="RuntimeErrorException.cs" />
     <Compile Include="SyntaxErrorException.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="Lexer.cs" />
+    <Compile Include="Parsing\Lexer.cs" />
     <Compile Include="ObjNull.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Parsing\Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

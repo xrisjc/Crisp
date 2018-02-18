@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Crisp.Parsing;
+using System;
 using System.IO;
 
 namespace Crisp
@@ -11,7 +12,7 @@ namespace Crisp
             environment.Create("writeLn", new ObjFnWriteLn());
             environment.Create("readLn", new ObjFnReadLn());
 
-            Load("Sys.crisp", environment);
+            //Load("Sys.crisp", environment);
             Load("Test.crisp", environment);
 
             while (true)
@@ -44,7 +45,7 @@ namespace Crisp
                 var sys = File.ReadAllText(filename);
                 var lexer = new Lexer(sys);
                 var parser = new Parser(lexer);
-                while (!parser.IsFinished())
+                while (!parser.IsFinished)
                 {
                     var expr = parser.ParseExpression();
                     expr.Evaluate(environment);

@@ -118,6 +118,12 @@ namespace Crisp
             this.argumentExpressions = argumentExpressions;
         }
 
+        public ExpressionCall(IExpression functionExpression)
+            : this(functionExpression, new List<IExpression>())
+        {
+
+        }
+
         public IObj Evaluate(Environment environment)
         {
             if (functionExpression.Evaluate(environment) is IObjFn function)

@@ -1,4 +1,4 @@
-﻿namespace Crisp
+﻿namespace Crisp.Parsing
 {
     enum Precedence
     {
@@ -9,6 +9,7 @@
         LogicalAnd,
         Equality,
         Relational,
+        Subtract,
         Additive,
         Multiplicitive,
         Index,
