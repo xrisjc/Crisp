@@ -40,21 +40,22 @@ namespace Crisp.Parsing
                 [TokenTag.LParen] = Precedence.Parentheses,
             };
 
-
-        static Dictionary<TokenTag, IOperatorBinary> biOp =
-            new Dictionary<TokenTag, IOperatorBinary>
+        static Dictionary<TokenTag, Operator> tokenOp =
+            new Dictionary<TokenTag, Operator>
             {
-                [TokenTag.Add] = OperatorAdd.Instance,
-                [TokenTag.Divide] = OperatorDivide.Instance,
-                [TokenTag.Equals] = OperatorEquals.Instance,
-                [TokenTag.GreaterThan] = OperatorGreaterThan.Instance,
-                [TokenTag.GreaterThanOrEqualTo] = OperatorGreaterThanOrEqualTo.Instance,
-                [TokenTag.InequalTo] = OperatorInequalTo.Instance,
-                [TokenTag.LessThan] = OperatorLessThan.Instance,
-                [TokenTag.LessThanOrEqualTo] = OperatorLessThanOrEqualTo.Instance,
-                [TokenTag.Modulo] = OperatorModulo.Instance,
-                [TokenTag.Multiply] = OperatorMultiply.Instance,
-                [TokenTag.Subtract] = OperatorSubtract.Instance,
+                [TokenTag.Add] = Operator.Add,
+                [TokenTag.And] = Operator.LogicalAnd,
+                [TokenTag.Equals] = Operator.EqualTo,
+                [TokenTag.Divide] = Operator.Divide,
+                [TokenTag.GreaterThan] = Operator.GreaterThan,
+                [TokenTag.GreaterThanOrEqualTo] = Operator.GreaterThanOrEqualTo,
+                [TokenTag.InequalTo] = Operator.InequalTo,
+                [TokenTag.LessThan] = Operator.LessThan,
+                [TokenTag.LessThanOrEqualTo] = Operator.LessThanOrEqualTo,
+                [TokenTag.Modulo] = Operator.Modulo,
+                [TokenTag.Multiply] = Operator.Multiply,
+                [TokenTag.Or] = Operator.LogicalOr,
+                [TokenTag.Subtract] = Operator.Subtract,
             };
 
         public Parser(Lexer lexer)
@@ -274,19 +275,10 @@ namespace Crisp.Parsing
                     throw new SyntaxErrorException(
                         "left hand side of assignment must be assignable");
 
-                case TokenTag.And:
-                    return new LogicalAnd(
-                        left: left,
-                        right: ParseExpression(Lbp(token)));
-
-                case TokenTag.Or:
-                    return new LogicalOr(
-                        left: left,
-                        right: ParseExpression(Lbp(token)));
-
                 case TokenTag.Add:
-                case TokenTag.Equals:
+                case TokenTag.And:
                 case TokenTag.Divide:
+                case TokenTag.Equals:
                 case TokenTag.GreaterThan:
                 case TokenTag.GreaterThanOrEqualTo:
                 case TokenTag.InequalTo:
@@ -294,9 +286,10 @@ namespace Crisp.Parsing
                 case TokenTag.LessThanOrEqualTo:
                 case TokenTag.Modulo:
                 case TokenTag.Multiply:
+                case TokenTag.Or:
                 case TokenTag.Subtract:
                     return new OperatorBinary(
-                        biOp[token.Tag],
+                        tokenOp[token.Tag],
                         left,
                         ParseExpression(Lbp(token)));
 

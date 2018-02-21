@@ -57,10 +57,9 @@
     <Compile Include="Ast\Let.cs" />
     <Compile Include="Ast\Literal.cs" />
     <Compile Include="Ast\LiteralNull.cs" />
-    <Compile Include="Ast\LogicalAnd.cs" />
-    <Compile Include="Ast\LogicalOr.cs" />
     <Compile Include="Ast\Map.cs" />
     <Compile Include="Ast\NamedFunction.cs" />
+    <Compile Include="Ast\Operator.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="Eval\Evaluator.cs" />
@@ -73,7 +72,6 @@
     <Compile Include="Eval\ObjFnNative.cs" />
     <Compile Include="Eval\Obj.cs" />
     <Compile Include="Eval\ObjMap.cs" />
-    <Compile Include="Eval\Operator.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenValue.cs" />
     <Compile Include="Parsing\TokenTypes.cs" />

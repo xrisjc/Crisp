@@ -1,16 +1,14 @@
-﻿using Crisp.Eval;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class OperatorBinary : IExpression
     {
-        public IOperatorBinary Op { get; }
+        public Operator Op { get; }
 
         public IExpression Left { get; }
 
         public IExpression Right { get; }
 
-        public OperatorBinary(IOperatorBinary op, IExpression left, IExpression right)
+        public OperatorBinary(Operator op, IExpression left, IExpression right)
         {
             Op = op;
             Left = left;

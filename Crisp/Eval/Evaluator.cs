@@ -98,7 +98,10 @@ namespace Crisp.Eval
                 case LiteralNull literal:
                     return Obj.Null;
 
-                case LogicalAnd and:
+                case Map map:
+                    return new ObjMap(map, environment);
+
+                case OperatorBinary and when and.Op == Operator.LogicalAnd:
                     {
                         var objLeft = and.Left.Evaluate(environment);
                         if (objLeft is Obj<bool> boolLeft)
@@ -126,7 +129,7 @@ namespace Crisp.Eval
                         }
                     }
 
-                case LogicalOr or:
+                case OperatorBinary or when or.Op == Operator.LogicalOr:
                     {
                         var objLeft = or.Left.Evaluate(environment);
                         if (objLeft is Obj<bool> boolLeft)
@@ -154,14 +157,11 @@ namespace Crisp.Eval
                         }
                     }
 
-                case Map map:
-                    return new ObjMap(map, environment);
-
                 case OperatorBinary opBi:
-                    return opBi.Op.Evaluate(
+                    return Evaluate(
+                        opBi.Op,
                         opBi.Left.Evaluate(environment),
                         opBi.Right.Evaluate(environment));
-
 
                 case While @while:
                     while (true)
@@ -185,6 +185,36 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException(
                         $"Unsupported AST node {expression.GetType()}.");
             }
+        }
+
+        public static IObj Evaluate(Operator op, IObj left, IObj right)
+        {
+            switch (op)
+            {
+                case Operator.EqualTo:   return Obj.Create( left.Equals(right));
+                case Operator.InequalTo: return Obj.Create(!left.Equals(right));
+            }
+
+            if (left  is Obj<double> ld && 
+                right is Obj<double> rd)
+            {
+                switch (op)
+                {
+                    case Operator.Add:                  return Obj.Create(ld.Value +  rd.Value);
+                    case Operator.Divide:               return Obj.Create(ld.Value /  rd.Value);
+                    case Operator.GreaterThan:          return Obj.Create(ld.Value >  rd.Value);
+                    case Operator.GreaterThanOrEqualTo: return Obj.Create(ld.Value >= rd.Value);
+                    case Operator.LessThan:             return Obj.Create(ld.Value <  rd.Value);
+                    case Operator.LessThanOrEqualTo:    return Obj.Create(ld.Value <= rd.Value);
+                    case Operator.Modulo:               return Obj.Create(ld.Value %  rd.Value);
+                    case Operator.Multiply:             return Obj.Create(ld.Value *  rd.Value);
+                    case Operator.Subtract:             return Obj.Create(ld.Value -  rd.Value);
+                }
+            }
+
+            throw new RuntimeErrorException(
+                $"Operator {op} cannot be applied to values {left.Print()} and " +
+                $"{right.Print()}");
         }
     }
 }
