@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Crisp.Ast;
+using System.Collections.Generic;
 
 namespace Crisp.Eval
 {
@@ -25,21 +26,31 @@ namespace Crisp.Eval
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public void Set(string name, IObj value)
+        public IObj Get(Identifier identifier)
+        {
+            return Get(identifier.Name);
+        }
+
+        public IObj Set(string name, IObj value)
         {
             for (Environment e = this; e != null; e = e.outer)
             {
                 if (e.values.ContainsKey(name))
                 {
                     e.values[name] = value;
-                    return;
+                    return value;
                 }
             }
 
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public void Create(string name, IObj value)
+        public IObj Set(Identifier identifier, IObj value)
+        {
+            return Set(identifier.Name, value);
+        }
+
+        public IObj Create(string name, IObj value)
         {
             if (values.ContainsKey(name))
             {
@@ -48,7 +59,13 @@ namespace Crisp.Eval
             else
             {
                 values.Add(name, value);
+                return value;
             }
+        }
+
+        public IObj Create(Identifier identifier, IObj value)
+        {
+            return Create(identifier.Name, value);
         }
     }
 }

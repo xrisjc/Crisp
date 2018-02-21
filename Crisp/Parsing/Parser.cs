@@ -143,11 +143,8 @@ namespace Crisp.Parsing
                         var consequence = ParseExpression();
                         var alternative = Match(TokenTag.Else)
                             ? ParseExpression()
-                            : ExpressionLiteralNull.Instance;
-                        return new ExpressionBranch(
-                            condition,
-                            consequence,
-                            alternative);
+                            : LiteralNull.Instance;
+                        return new Branch(condition, consequence, alternative);
                     }
 
                 case TokenTag.While:
@@ -155,15 +152,16 @@ namespace Crisp.Parsing
                         var guard = ParseExpression();
                         Expect(TokenTag.Do);
                         var body = ParseExpression();
-                        return new ExpressionWhile(guard, body);
+                        return new While(guard, body);
                     }
 
                 case TokenTag.Let:
                     {
-                        var identifier = ExpectValue<string>(TokenTag.Identifier);
+                        var name = ExpectValue<string>(TokenTag.Identifier);
+                        var identifier = new Identifier(name.Value);
                         Expect(TokenTag.Assignment);
                         var value = ParseExpression(Precedence.Assignment);
-                        return new ExpressionLet(identifier.Value, value);
+                        return new Let(identifier, value);
                     }
 
                 case TokenTag.Begin:
@@ -173,32 +171,45 @@ namespace Crisp.Parsing
                         {
                             body.Add(ParseExpression());
                         }
-                        return new ExpressionBlock(body);
+                        return new Block(body);
                     }
 
                 case TokenTag.Fn:
                     {
-                        var parameters = new List<string>();
-                        string name = MatchValue<string>(TokenTag.Identifier, out var nameToken)
-                            ? nameToken.Value
-                            : null;
+                        // Function name
+                        var hasName = MatchValue<string>(TokenTag.Identifier, out var nameToken);
+
+                        // Function parameter list
                         Expect(TokenTag.LParen);
-                        if (MatchValue<string>(TokenTag.Identifier, out var identifier))
+                        var parameters = new List<Identifier>();
+                        if (!Match(TokenTag.RParen))
                         {
-                            parameters.Add(identifier.Value);
-                            while (Match(TokenTag.Comma))
+                            do
                             {
-                                identifier = ExpectValue<string>(TokenTag.Identifier);
-                                parameters.Add(identifier.Value);
+                                var parameterToken = ExpectValue<string>(TokenTag.Identifier);
+                                parameters.Add(new Identifier(parameterToken.Value));
                             }
+                            while (Match(TokenTag.Comma));
+                            Expect(TokenTag.RParen);
                         }
-                        Expect(TokenTag.RParen);
+
+                        // Function body
                         var body = ParseExpression();
-                        return new ExpressionFunction(name, parameters, body);
+
+                        // Create AST
+                        if (hasName)
+                        {
+                            var name = new Identifier(nameToken.Value);
+                            return new NamedFunction(name, parameters, body);
+                        }
+                        else
+                        {
+                            return new Function(parameters, body);
+                        }
                     }
 
                 case TokenTag.LBrace when Match(TokenTag.RBrace):
-                        return new ExpressionMap();
+                    return new Map();
 
                 case TokenTag.LBrace:
                     {
@@ -215,7 +226,7 @@ namespace Crisp.Parsing
 
                         } while (Match(TokenTag.Comma));
                         Expect(TokenTag.RBrace);
-                        return new ExpressionMap(initializers);
+                        return new Map(initializers);
                     }
 
                 case TokenTag.LParen:
@@ -226,22 +237,22 @@ namespace Crisp.Parsing
                     }
 
                 case TokenTag.Identifier when token is TokenValue<string> tokenValue:
-                    return new ExpressionIdentifier(tokenValue.Value);
+                    return new Identifier(tokenValue.Value);
 
                 case TokenTag.String when token is TokenValue<string> tokenValue:
-                    return new ExpressionLiteral<string>(tokenValue.Value);
+                    return new Literal<string>(tokenValue.Value);
 
                 case TokenTag.Number when token is TokenValue<double> tokenValue:
-                    return new ExpressionLiteral<double>(tokenValue.Value);
+                    return new Literal<double>(tokenValue.Value);
 
                 case TokenTag.False:
-                    return new ExpressionLiteral<bool>(false);
+                    return new Literal<bool>(false);
 
                 case TokenTag.True:
-                    return new ExpressionLiteral<bool>(true);
+                    return new Literal<bool>(true);
 
                 case TokenTag.Null:
-                    return ExpressionLiteralNull.Instance;
+                    return LiteralNull.Instance;
 
                 default:
                     throw new SyntaxErrorException(
@@ -253,27 +264,23 @@ namespace Crisp.Parsing
         {
             switch (token.Tag)
             {
-                case TokenTag.Assignment when left is ExpressionIdentifier identifier:
-                    return new ExpressionAssignmentVariable(
-                        identifier,
-                        ParseExpression(Lbp(token)));
+                case TokenTag.Assignment when left is Identifier identifier:
+                    return new AssignmentVariable(identifier, ParseExpression(Lbp(token)));
 
-                case TokenTag.Assignment when left is ExpressionIndex index:
-                    return new ExpressionAssignmentIndex(
-                        index,
-                        ParseExpression(Lbp(token)));
+                case TokenTag.Assignment when left is Indexing index:
+                    return new AssignmentIndex(index, ParseExpression(Lbp(token)));
 
                 case TokenTag.Assignment:
                     throw new SyntaxErrorException(
                         "left hand side of assignment must be assignable");
 
                 case TokenTag.And:
-                    return new ExpressionLogicalAnd(
+                    return new LogicalAnd(
                         left: left,
                         right: ParseExpression(Lbp(token)));
 
                 case TokenTag.Or:
-                    return new ExpressionLogicalOr(
+                    return new LogicalOr(
                         left: left,
                         right: ParseExpression(Lbp(token)));
 
@@ -288,7 +295,7 @@ namespace Crisp.Parsing
                 case TokenTag.Modulo:
                 case TokenTag.Multiply:
                 case TokenTag.Subtract:
-                    return new ExpressionOperatorBinary(
+                    return new OperatorBinary(
                         biOp[token.Tag],
                         left,
                         ParseExpression(Lbp(token)));
@@ -297,11 +304,11 @@ namespace Crisp.Parsing
                     {
                         var index = ParseExpression();
                         Expect(TokenTag.RBracket);
-                        return new ExpressionIndex(left, index);
+                        return new Indexing(left, index);
                     }
 
                 case TokenTag.LParen when Match(TokenTag.RParen):
-                    return new ExpressionCall(left);
+                    return new Call(left);
 
                 case TokenTag.LParen:
                     {
@@ -311,7 +318,7 @@ namespace Crisp.Parsing
                             argumentExpressions.Add(ParseExpression());
                         } while (Match(TokenTag.Comma));
                         Expect(TokenTag.RParen);
-                        return new ExpressionCall(left, argumentExpressions);
+                        return new Call(left, argumentExpressions);
                     }
 
 

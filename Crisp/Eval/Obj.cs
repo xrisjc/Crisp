@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Crisp.Ast;
+using System;
 
 namespace Crisp.Eval
 {
@@ -9,6 +10,11 @@ namespace Crisp.Eval
         public Obj(T value)
         {
             Value = value;
+        }
+
+        public Obj(Literal<T> literal)
+            : this(literal.Value)
+        {
         }
 
         public string Print()

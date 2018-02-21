@@ -8,6 +8,14 @@ namespace Crisp.Eval
     {
         Dictionary<IObj, IObj> items = new Dictionary<IObj, IObj>();
 
+        public ObjMap(Map map, Environment environment)
+        {
+            foreach (var initializer in map.Initializers)
+            {
+                Set(initializer, environment);
+            }
+        }
+
         public IObj Get(IObj index)
         {
             if (items.TryGetValue(index, out IObj value))
@@ -21,16 +29,17 @@ namespace Crisp.Eval
             }
         }
 
-        public void Set(IObj index, IObj value)
+        public IObj Set(IObj index, IObj value)
         {
             items[index] = value;
+            return value;
         }
 
-        public void Set(IndexValuePair indexValuePair, Environment environment)
+        public IObj Set(IndexValuePair indexValuePair, Environment environment)
         {
             var index = indexValuePair.Index.Evaluate(environment);
             var value = indexValuePair.Value.Evaluate(environment);
-            Set(index, value);
+            return Set(index, value);
         }
 
         public string Print()

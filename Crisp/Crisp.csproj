@@ -44,8 +44,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ast\Expression.cs" />
+    <Compile Include="Ast\AssignmentIndex.cs" />
+    <Compile Include="Ast\AssignmentVariable.cs" />
+    <Compile Include="Ast\Block.cs" />
+    <Compile Include="Ast\Branch.cs" />
+    <Compile Include="Ast\Call.cs" />
+    <Compile Include="Ast\Function.cs" />
+    <Compile Include="Ast\Identifier.cs" />
+    <Compile Include="Ast\IExpression.cs" />
+    <Compile Include="Ast\Indexing.cs" />
     <Compile Include="Ast\IndexValuePair.cs" />
+    <Compile Include="Ast\Let.cs" />
+    <Compile Include="Ast\Literal.cs" />
+    <Compile Include="Ast\LiteralNull.cs" />
+    <Compile Include="Ast\LogicalAnd.cs" />
+    <Compile Include="Ast\LogicalOr.cs" />
+    <Compile Include="Ast\Map.cs" />
+    <Compile Include="Ast\NamedFunction.cs" />
+    <Compile Include="Ast\OperatorBinary.cs" />
+    <Compile Include="Ast\While.cs" />
+    <Compile Include="Eval\Evaluator.cs" />
+    <Compile Include="Eval\IIndexable.cs" />
     <Compile Include="Eval\ObjFnReadLn.cs" />
     <Compile Include="Eval\ObjFnWriteLn.cs" />
     <Compile Include="Eval\Environment.cs" />
