@@ -206,6 +206,15 @@ namespace Crisp.Eval
                 }
             }
 
+            if (left  is Obj<string> ls &&
+                right is Obj<string> rs)
+            {
+                switch (op)
+                {
+                    case Operator.Add: return Obj.Create(ls.Value + rs.Value);
+                }
+            }
+
             throw new RuntimeErrorException(
                 $"Operator {op} cannot be applied to values {left.Print()} and " +
                 $"{right.Print()}");

@@ -108,6 +108,12 @@ assertEq(1  +  8 % 3, 3, 'addition and modulo'            )
 assertEq((1  + 2) * 3,  9, 'addition grouped and multiplication'    )
 assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication' )
 
+///////////////////////////////////////////////////////////////////////////////
+// String Operators
+///////////////////////////////////////////////////////////////////////////////
+
+// + also concats strings
+assertEq('first ' + 'second', 'first second', 'string concat')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Equality, Inequality, Relational, and Logical
