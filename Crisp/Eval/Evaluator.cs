@@ -9,20 +9,14 @@ namespace Crisp.Eval
         {
             switch (expression)
             {
+                case AssignmentIndex e
+                when e.Index.Indexable.Evaluate(environment) is IIndexable objIndexable:
+                    return objIndexable.Set(
+                        e.Index.Index.Evaluate(environment),
+                        e.Value.Evaluate(environment));
+
                 case AssignmentIndex e:
-                    {
-                        var objectRight = e.Index.Indexable.Evaluate(environment);
-                        if (objectRight is IIndexable objIndexable)
-                        {
-                            var objIndex = e.Index.Index.Evaluate(environment);
-                            var objValue = e.Value.Evaluate(environment);
-                            return objIndexable.Set(objIndex, objValue);
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException("Non-indexable object indexed.");
-                        }
-                    }
+                    throw new RuntimeErrorException("Non-indexable object indexed.");
 
                 case AssignmentVariable e:
                     return environment.Set(e.Identifier.Name, e.Value.Evaluate(environment));
@@ -30,7 +24,7 @@ namespace Crisp.Eval
                 case Block block:
                     {
                         var localEnvironment = new Environment(environment);
-                        IObj result = Obj.Null;
+                        IObj result = ObjNull.Instance;
                         foreach (var expr in block.Body)
                         {
                             result = expr.Evaluate(localEnvironment);
@@ -52,19 +46,17 @@ namespace Crisp.Eval
                     }
 
                 case Call call:
+                    if (call.FunctionExpression.Evaluate(environment) is IObjFn function)
                     {
-                        if (call.FunctionExpression.Evaluate(environment) is IObjFn function)
-                        {
-                            var arguments = call.ArgumentExpressions
-                                                .Select(arg => arg.Evaluate(environment))
-                                                .ToList();
-                            return function.Call(arguments);
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException(
-                                "function call attempted on non function value");
-                        }
+                        var arguments = call.ArgumentExpressions
+                                            .Select(arg => arg.Evaluate(environment))
+                                            .ToList();
+                        return function.Call(arguments);
+                    }
+                    else
+                    {
+                        throw new RuntimeErrorException(
+                            "function call attempted on non function value");
                     }
 
                 case NamedFunction fn:
@@ -96,12 +88,13 @@ namespace Crisp.Eval
                     return new Obj<string>(literal);
 
                 case LiteralNull literal:
-                    return Obj.Null;
+                    return ObjNull.Instance;
 
                 case Map map:
                     return new ObjMap(map, environment);
 
-                case OperatorBinary and when and.Op == Operator.LogicalAnd:
+                case OperatorBinary and
+                when and.Op == Operator.LogicalAnd:
                     {
                         var objLeft = and.Left.Evaluate(environment);
                         if (objLeft is Obj<bool> boolLeft)
@@ -129,7 +122,8 @@ namespace Crisp.Eval
                         }
                     }
 
-                case OperatorBinary or when or.Op == Operator.LogicalOr:
+                case OperatorBinary or
+                when or.Op == Operator.LogicalOr:
                     {
                         var objLeft = or.Left.Evaluate(environment);
                         if (objLeft is Obj<bool> boolLeft)
@@ -171,7 +165,7 @@ namespace Crisp.Eval
                         {
                             if (boolPredicate.Value == false)
                             {
-                                return Obj.Null;
+                                return ObjNull.Instance;
                             }
                         }
                         else

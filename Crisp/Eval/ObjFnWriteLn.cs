@@ -9,7 +9,7 @@ namespace Crisp.Eval
         {
             var line = string.Join("", args);
             Console.WriteLine(line);
-            return Obj.Null;
+            return ObjNull.Instance;
         }
 
         public string Print()

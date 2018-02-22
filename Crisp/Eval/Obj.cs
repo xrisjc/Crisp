@@ -73,8 +73,6 @@ namespace Crisp.Eval
             return new Obj<T>(value);
         }
 
-        public static ObjNull Null { get; } = new ObjNull();
-
         public static Obj<bool> True { get; } = new Obj<bool>(true);
 
         public static Obj<bool> False { get; } = new Obj<bool>(false);
