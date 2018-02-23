@@ -85,7 +85,7 @@ namespace Crisp.Eval
                     return new Obj<double>(literal);
 
                 case Literal<string> literal:
-                    return new Obj<string>(literal);
+                    return new ObjStr(literal.Value);
 
                 case LiteralNull literal:
                     return ObjNull.Instance;
@@ -206,8 +206,8 @@ namespace Crisp.Eval
                 }
             }
 
-            if (left  is Obj<string> ls &&
-                right is Obj<string> rs)
+            if (left  is ObjStr ls &&
+                right is ObjStr rs)
             {
                 switch (op)
                 {

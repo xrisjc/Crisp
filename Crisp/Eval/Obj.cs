@@ -19,10 +19,6 @@ namespace Crisp.Eval
 
         public string Print()
         {
-            if (Value is string strValue)
-            {
-                return $"'{Value.ToString()}'";
-            }
             if (Value is bool boolValue)
             {
                 return boolValue ? "true" : "false";

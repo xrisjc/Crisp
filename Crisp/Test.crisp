@@ -115,6 +115,9 @@ assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication' )
 // + also concats strings
 assertEq('first ' + 'second', 'first second', 'string concat')
 
+// string also can be indexed (zero-based).
+assertEq('first'[1], 'i', 'string indexing')
+
 ///////////////////////////////////////////////////////////////////////////////
 // Equality, Inequality, Relational, and Logical
 ///////////////////////////////////////////////////////////////////////////////
