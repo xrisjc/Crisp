@@ -1,4 +1,5 @@
 ﻿using Crisp.Ast;
+using System;
 using System.Linq;
 
 namespace Crisp.Eval
@@ -10,8 +11,8 @@ namespace Crisp.Eval
             switch (expression)
             {
                 case AssignmentIndex e
-                when e.Index.Indexable.Evaluate(environment) is IIndexable objIndexable:
-                    return objIndexable.Set(
+                when e.Index.Indexable.Evaluate(environment) is IIndexSet indexSet:
+                    return indexSet.Set(
                         e.Index.Index.Evaluate(environment),
                         e.Value.Evaluate(environment));
 
@@ -72,7 +73,7 @@ namespace Crisp.Eval
                     return environment.Get(identifier);
 
                 case Indexing indexing 
-                when indexing.Indexable.Evaluate(environment) is IIndexable indexable:
+                when indexing.Indexable.Evaluate(environment) is IIndexGet indexable:
                     return indexable.Get(indexing.Index.Evaluate(environment));
 
                 case Indexing indexing:
@@ -81,8 +82,11 @@ namespace Crisp.Eval
                 case Literal<bool> literal:
                     return new Obj<bool>(literal);
 
+                case Literal<long> literal:
+                    return new ObjInt(literal.Value);
+
                 case Literal<double> literal:
-                    return new Obj<double>(literal);
+                    return new ObjFloat(literal.Value);
 
                 case Literal<string> literal:
                     return new ObjStr(literal.Value);
@@ -189,20 +193,34 @@ namespace Crisp.Eval
                 case Operator.InequalTo: return Obj.Create(!left.Equals(right));
             }
 
-            if (left  is Obj<double> ld && 
-                right is Obj<double> rd)
+            if (left is IComparable<IObj> lc)
             {
                 switch (op)
                 {
-                    case Operator.Add:                  return Obj.Create(ld.Value +  rd.Value);
-                    case Operator.Divide:               return Obj.Create(ld.Value /  rd.Value);
-                    case Operator.GreaterThan:          return Obj.Create(ld.Value >  rd.Value);
-                    case Operator.GreaterThanOrEqualTo: return Obj.Create(ld.Value >= rd.Value);
-                    case Operator.LessThan:             return Obj.Create(ld.Value <  rd.Value);
-                    case Operator.LessThanOrEqualTo:    return Obj.Create(ld.Value <= rd.Value);
-                    case Operator.Modulo:               return Obj.Create(ld.Value %  rd.Value);
-                    case Operator.Multiply:             return Obj.Create(ld.Value *  rd.Value);
-                    case Operator.Subtract:             return Obj.Create(ld.Value -  rd.Value);
+                    case Operator.GreaterThan:
+                        return Obj.Create(lc.CompareTo(right) > 0);
+
+                    case Operator.GreaterThanOrEqualTo:
+                        return Obj.Create(lc.CompareTo(right) >= 0);
+
+                    case Operator.LessThan:
+                        return Obj.Create(lc.CompareTo(right) < 0);
+
+                    case Operator.LessThanOrEqualTo:
+                        return Obj.Create(lc.CompareTo(right) <= 0);
+                }
+            }
+
+            if (left  is INumeric ln && 
+                right is INumeric rn)
+            {
+                switch (op)
+                {
+                    case Operator.Add:      return ln.AddTo(rn);
+                    case Operator.Divide:   return ln.DivideBy(rn);
+                    case Operator.Modulo:   return ln.ModuloOf(rn);
+                    case Operator.Multiply: return ln.MultiplyBy(rn);
+                    case Operator.Subtract: return ln.SubtractBy(rn);
                 }
             }
 

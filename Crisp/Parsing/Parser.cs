@@ -237,13 +237,20 @@ namespace Crisp.Parsing
                         return expression;
                     }
 
-                case TokenTag.Identifier when token is TokenValue<string> tokenValue:
+                case TokenTag.Identifier
+                when token is TokenValue<string> tokenValue:
                     return new Identifier(tokenValue.Value);
 
-                case TokenTag.String when token is TokenValue<string> tokenValue:
+                case TokenTag.Integer
+                when token is TokenValue<long> tokenValue:
+                    return new Literal<long>(tokenValue.Value);
+
+                case TokenTag.String
+                when token is TokenValue<string> tokenValue:
                     return new Literal<string>(tokenValue.Value);
 
-                case TokenTag.Number when token is TokenValue<double> tokenValue:
+                case TokenTag.Float
+                when token is TokenValue<double> tokenValue:
                     return new Literal<double>(tokenValue.Value);
 
                 case TokenTag.False:

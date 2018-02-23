@@ -1,8 +1,6 @@
 ﻿namespace Crisp.Eval
 {
-    interface IIndexable
+    interface IIndexable : IIndexGet, IIndexSet
     {
-        IObj Get(IObj index);
-        IObj Set(IObj index, IObj value);
     }
 }

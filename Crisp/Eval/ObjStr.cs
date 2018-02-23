@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Crisp.Eval
 {
-    class ObjStr : IObj, IIndexable, IEquatable<ObjStr>
+    class ObjStr : IObj, IIndexGet, IEquatable<ObjStr>
     {
         public string Value { get; }
 
@@ -25,9 +22,9 @@ namespace Crisp.Eval
             throw new NotImplementedException();
         }
 
-        public IObj Set(IObj index, IObj value)
+        public override string ToString()
         {
-            throw new NotImplementedException();
+            return Value;
         }
 
         public override bool Equals(object obj)

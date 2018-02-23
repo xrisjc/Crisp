@@ -129,14 +129,18 @@ namespace Crisp.Parsing
                             while (current.HasValue && char.IsDigit(current.Value));
                         }
                         var tokenText = sb.ToString();
-                        if (double.TryParse(tokenText, out var value))
+                        if (long.TryParse(tokenText, out var intValue))
                         {
-                            return new TokenValue<double>(TokenTag.Number, startPosition, value);
+                            return new TokenValue<long>(TokenTag.Integer, startPosition, intValue);
+                        }
+                        else if (double.TryParse(tokenText, out var value))
+                        {
+                            return new TokenValue<double>(TokenTag.Float, startPosition, value);
                         }
                         else
                         {
                             throw new SyntaxErrorException(
-                                $"unable to convert '{tokenText}' to a number");
+                                $"unable to convert '{tokenText}' to int64 or float64");
                         }
                     }
 
