@@ -14,7 +14,7 @@ namespace Crisp.Eval
                 Console.Write(prompt);
             }
             var line = Console.ReadLine();
-            return Obj.Create(line);
+            return new ObjStr(line);
         }
 
         public string Print()

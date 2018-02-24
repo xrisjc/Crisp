@@ -229,7 +229,7 @@ namespace Crisp.Eval
             {
                 switch (op)
                 {
-                    case Operator.Add: return Obj.Create(ls.Value + rs.Value);
+                    case Operator.Add: return new ObjStr(ls.Value + rs.Value);
                 }
             }
 

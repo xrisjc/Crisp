@@ -71,12 +71,15 @@ namespace Crisp.Eval
         {
             switch (other)
             {
-                case Obj
+                case ObjInt iOther:
+                    return Value.CompareTo(iOther.Value);
+
+                case ObjFloat fOther:
+                    return ((double)Value).CompareTo(fOther.Value);
             }
 
             throw new RuntimeErrorException(
                 $"Cannot compare {Print()} and {other.Print()}");
-
         }
     }
 }

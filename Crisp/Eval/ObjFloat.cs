@@ -69,9 +69,13 @@ namespace Crisp.Eval
 
         public int CompareTo(IObj other)
         {
-            if (other is INumeric number)
+            switch (other)
             {
-                return Value.CompareTo(number.ToFloat());
+                case ObjInt iOther:
+                    return Value.CompareTo(iOther.Value);
+
+                case ObjFloat fOther:
+                    return Value.CompareTo(fOther.Value);
             }
 
             throw new RuntimeErrorException(

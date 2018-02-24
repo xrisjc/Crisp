@@ -12,6 +12,11 @@ namespace Crisp.Eval
             Value = value;
         }
 
+        public override string ToString()
+        {
+            return Value;
+        }
+
         public string Print()
         {
             return $"'{Value}'";
@@ -20,11 +25,6 @@ namespace Crisp.Eval
         public IObj Get(IObj index)
         {
             throw new NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            return Value;
         }
 
         public override bool Equals(object obj)

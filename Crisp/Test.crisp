@@ -44,7 +44,7 @@ fn assertEq(test, expected, message)
     else
       begin
         writeLn('[FAILED] ', message)
-        writeLn('expected ', expected, ' got ', test)
+        writeLn('expected "', expected, '" got "', test, '"')
         nErrors := nErrors + 1
       end
   end
