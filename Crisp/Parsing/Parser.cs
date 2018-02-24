@@ -44,18 +44,18 @@ namespace Crisp.Parsing
             new Dictionary<TokenTag, Operator>
             {
                 [TokenTag.Add] = Operator.Add,
-                [TokenTag.And] = Operator.LogicalAnd,
-                [TokenTag.Equals] = Operator.EqualTo,
-                [TokenTag.Divide] = Operator.Divide,
-                [TokenTag.GreaterThan] = Operator.GreaterThan,
-                [TokenTag.GreaterThanOrEqualTo] = Operator.GreaterThanOrEqualTo,
-                [TokenTag.InequalTo] = Operator.InequalTo,
-                [TokenTag.LessThan] = Operator.LessThan,
-                [TokenTag.LessThanOrEqualTo] = Operator.LessThanOrEqualTo,
-                [TokenTag.Modulo] = Operator.Modulo,
-                [TokenTag.Multiply] = Operator.Multiply,
-                [TokenTag.Or] = Operator.LogicalOr,
-                [TokenTag.Subtract] = Operator.Subtract,
+                [TokenTag.And] = Operator.And,
+                [TokenTag.Equals] = Operator.Eq,
+                [TokenTag.Divide] = Operator.Div,
+                [TokenTag.GreaterThan] = Operator.Gt,
+                [TokenTag.GreaterThanOrEqualTo] = Operator.GtEq,
+                [TokenTag.InequalTo] = Operator.Neq,
+                [TokenTag.LessThan] = Operator.Lt,
+                [TokenTag.LessThanOrEqualTo] = Operator.LtEq,
+                [TokenTag.Modulo] = Operator.Mod,
+                [TokenTag.Multiply] = Operator.Mul,
+                [TokenTag.Or] = Operator.Or,
+                [TokenTag.Subtract] = Operator.Sub,
             };
 
         public Parser(Lexer lexer)

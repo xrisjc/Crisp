@@ -34,7 +34,7 @@ fn assert(condition, message)
         nErrors := nErrors + 1
       end
     else if showPassedTest then
-        writeLn('[OK] ', message)
+        writeLn('[OK] "', message, '"')
   end
 
 fn assertEq(test, expected, message)
@@ -42,12 +42,12 @@ fn assertEq(test, expected, message)
     nTests := nTests + 1
     if test <> expected then
       begin
-        writeLn('[FAILED] "', message, '": EXPECTED <', expected, '> GOT <',
+        writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
             test, '>')
         nErrors := nErrors + 1
       end
     else if showPassedTest then
-        writeLn('[OK] ', message)
+        writeLn('[OK] "', message, '"')
   end
 
 fn displaySummary()
@@ -456,7 +456,7 @@ begin
     let map := { }
     map['year'] := 2018
     map[90 * 100] := 'number that it is over'
-    assertEq(map['year'  ], 2018,                     'map get / set value #1')
+    assertEq(map['year'],                       2018, 'map get / set value #1')
     assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #2')
 end
 

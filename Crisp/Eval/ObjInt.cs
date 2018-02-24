@@ -2,7 +2,7 @@
 
 namespace Crisp.Eval
 {
-    class ObjInt : IObj, INumeric, IEquatable<ObjInt>, IComparable<IObj>
+    class ObjInt : IObj, IEquatable<ObjInt>
     {
         public long Value { get; }
 
@@ -21,36 +21,6 @@ namespace Crisp.Eval
             return ToString();
         }
 
-        public INumeric AddTo(INumeric right)
-        {
-            return (right is ObjInt i) ? new ObjInt(Value + i.Value) : right.AddTo(this);
-        }
-
-        public INumeric DivideBy(INumeric right)
-        {
-            return (right is ObjInt i) ? new ObjInt(Value / i.Value) : right.AddTo(this);
-        }
-
-        public INumeric ModuloOf(INumeric right)
-        {
-            return (right is ObjInt i) ? new ObjInt(Value % i.Value) : right.AddTo(this);
-        }
-
-        public INumeric MultiplyBy(INumeric right)
-        {
-            return (right is ObjInt i) ? new ObjInt(Value * i.Value) : right.AddTo(this);
-        }
-
-        public INumeric SubtractBy(INumeric right)
-        {
-            return (right is ObjInt i) ? new ObjInt(Value - i.Value) : right.AddTo(this);
-        }
-
-        public ObjFloat ToFloat()
-        {
-            return new ObjFloat(Value);
-        }
-
         public override bool Equals(object obj)
         {
             return Equals(obj as ObjInt);
@@ -65,22 +35,6 @@ namespace Crisp.Eval
         public override int GetHashCode()
         {
             return -1937169414 + Value.GetHashCode();
-        }
-
-        public int CompareTo(IObj other)
-        {
-            switch (other)
-            {
-                case ObjInt iOther:
-                    return Value.CompareTo(iOther.Value);
-
-                case ObjFloat fOther:
-                    return ((double)Value).CompareTo(fOther.Value);
-
-                default:
-                    throw new RuntimeErrorException(
-                        $"Cannot compare {Print()} and {other.Print()}");
-            }
         }
     }
 }
