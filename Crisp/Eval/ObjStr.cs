@@ -24,7 +24,7 @@ namespace Crisp.Eval
 
         public IObj Get(IObj index)
         {
-            throw new NotImplementedException();
+            return ObjNull.Instance;
         }
 
         public override bool Equals(object obj)

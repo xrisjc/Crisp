@@ -76,10 +76,11 @@ namespace Crisp.Eval
 
                 case ObjFloat fOther:
                     return Value.CompareTo(fOther.Value);
-            }
 
-            throw new RuntimeErrorException(
-                $"Cannot compare {Print()} and {other.Print()}");
+                default:
+                    throw new RuntimeErrorException(
+                        $"Cannot compare {Print()} and {other.Print()}");
+            }
         }
     }
 }

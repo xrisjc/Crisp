@@ -6,9 +6,14 @@
 
         public static ObjNull Instance { get; } = new ObjNull();
 
-        public string Print()
+        public override string ToString()
         {
             return "null";
+        }
+
+        public string Print()
+        {
+            return ToString();
         }
     }
 }
