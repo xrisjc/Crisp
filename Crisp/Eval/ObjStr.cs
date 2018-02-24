@@ -24,7 +24,14 @@ namespace Crisp.Eval
 
         public IObj Get(IObj index)
         {
-            return ObjNull.Instance;
+            if (index is ObjInt i && 0 <= i.Value && i.Value <= Value.Length)
+            {
+                return new ObjStr(Value[i.Value].ToString());
+            }
+            else
+            {
+                throw new RuntimeErrorException($"index out of bounds");
+            }
         }
 
         public override bool Equals(object obj)

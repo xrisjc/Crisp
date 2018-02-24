@@ -129,9 +129,9 @@ namespace Crisp.Parsing
                             while (current.HasValue && char.IsDigit(current.Value));
                         }
                         var tokenText = sb.ToString();
-                        if (long.TryParse(tokenText, out var intValue))
+                        if (int.TryParse(tokenText, out var intValue))
                         {
-                            return new TokenValue<long>(TokenTag.Integer, startPosition, intValue);
+                            return new TokenValue<int>(TokenTag.Integer, startPosition, intValue);
                         }
                         else if (double.TryParse(tokenText, out var value))
                         {

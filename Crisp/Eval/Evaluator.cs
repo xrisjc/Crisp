@@ -81,7 +81,7 @@ namespace Crisp.Eval
                 case Literal<bool> literal:
                     return literal.Value ? ObjBool.True : ObjBool.False;
 
-                case Literal<long> literal:
+                case Literal<int> literal:
                     return new ObjInt(literal.Value);
 
                 case Literal<double> literal:
@@ -187,7 +187,7 @@ namespace Crisp.Eval
         public static IObj Evaluate(Operator op, IObj left, IObj right)
         {
             IObj Bool(bool b) => b ? ObjBool.True : ObjBool.False;
-            IObj Int(long i) => new ObjInt(i);
+            IObj Int(int i) => new ObjInt(i);
             IObj Float(double d) => new ObjFloat(d);
             IObj Str(string s) => new ObjStr(s);
 

@@ -242,8 +242,8 @@ namespace Crisp.Parsing
                     return new Identifier(tokenValue.Value);
 
                 case TokenTag.Integer
-                when token is TokenValue<long> tokenValue:
-                    return new Literal<long>(tokenValue.Value);
+                when token is TokenValue<int> tokenValue:
+                    return new Literal<int>(tokenValue.Value);
 
                 case TokenTag.String
                 when token is TokenValue<string> tokenValue:

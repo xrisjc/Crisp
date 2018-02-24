@@ -4,9 +4,9 @@ namespace Crisp.Eval
 {
     class ObjInt : IObj, IEquatable<ObjInt>
     {
-        public long Value { get; }
+        public int Value { get; }
 
-        public ObjInt(long value)
+        public ObjInt(int value)
         {
             Value = value;
         }

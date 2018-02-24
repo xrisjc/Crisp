@@ -69,7 +69,7 @@ fn displaySummary()
 // internally.
 assertEq('hi', 'hi', 'string literal')
 
-// Number values are double (64 bit floating point) internally.
+// Number values are 32 bit integers or 64 bit floating point numbers.
 assertEq(123, 123, 'int number literal')
 assertEq(1., 1.0, 'floating point #1')
 assertEq(1.5, 1.5, 'floating point #2')
