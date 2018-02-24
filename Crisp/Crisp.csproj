@@ -67,6 +67,7 @@
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
     <Compile Include="Eval\INumeric.cs" />
+    <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
     <Compile Include="Eval\ObjFnReadLn.cs" />
     <Compile Include="Eval\ObjFnWriteLn.cs" />
@@ -74,7 +75,6 @@
     <Compile Include="Eval\IObj.cs" />
     <Compile Include="Eval\IObjFn.cs" />
     <Compile Include="Eval\ObjFnNative.cs" />
-    <Compile Include="Eval\Obj.cs" />
     <Compile Include="Eval\ObjInt.cs" />
     <Compile Include="Eval\ObjMap.cs" />
     <Compile Include="Eval\ObjStr.cs" />

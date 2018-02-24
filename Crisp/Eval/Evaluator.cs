@@ -36,7 +36,7 @@ namespace Crisp.Eval
                 case Branch branch:
                     {
                         var objResult = branch.Condition.Evaluate(environment);
-                        if (objResult is Obj<bool> boolResult)
+                        if (objResult is ObjBool boolResult)
                         {
                             var expr = boolResult.Value ? branch.Consequence : branch.Alternative;
                             return expr.Evaluate(environment);
@@ -80,7 +80,7 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException("Non-indexable object indexed.");
 
                 case Literal<bool> literal:
-                    return new Obj<bool>(literal);
+                    return literal.Value ? ObjBool.True : ObjBool.False;
 
                 case Literal<long> literal:
                     return new ObjInt(literal.Value);
@@ -101,7 +101,7 @@ namespace Crisp.Eval
                 when and.Op == Operator.LogicalAnd:
                     {
                         var objLeft = and.Left.Evaluate(environment);
-                        if (objLeft is Obj<bool> boolLeft)
+                        if (objLeft is ObjBool boolLeft)
                         {
                             if (boolLeft.Value == false)
                             {
@@ -109,7 +109,7 @@ namespace Crisp.Eval
                             }
 
                             var objRight = and.Right.Evaluate(environment);
-                            if (objRight is Obj<bool> boolRight)
+                            if (objRight is ObjBool boolRight)
                             {
                                 return boolRight;
                             }
@@ -130,7 +130,7 @@ namespace Crisp.Eval
                 when or.Op == Operator.LogicalOr:
                     {
                         var objLeft = or.Left.Evaluate(environment);
-                        if (objLeft is Obj<bool> boolLeft)
+                        if (objLeft is ObjBool boolLeft)
                         {
                             if (boolLeft.Value)
                             {
@@ -138,7 +138,7 @@ namespace Crisp.Eval
                             }
 
                             var objRight = or.Right.Evaluate(environment);
-                            if (objRight is Obj<bool> boolRight)
+                            if (objRight is ObjBool boolRight)
                             {
                                 return boolRight;
                             }
@@ -165,7 +165,7 @@ namespace Crisp.Eval
                     while (true)
                     {
                         var predicate = @while.Guard.Evaluate(environment);
-                        if (predicate is Obj<bool> boolPredicate)
+                        if (predicate is ObjBool boolPredicate)
                         {
                             if (boolPredicate.Value == false)
                             {
@@ -189,8 +189,8 @@ namespace Crisp.Eval
         {
             switch (op)
             {
-                case Operator.EqualTo:   return Obj.Create( left.Equals(right));
-                case Operator.InequalTo: return Obj.Create(!left.Equals(right));
+                case Operator.EqualTo:   return left.Equals(right) ? ObjBool.True : ObjBool.False;
+                case Operator.InequalTo: return left.Equals(right) ? ObjBool.False : ObjBool.True;
             }
 
             if (left is IComparable<IObj> lc)
@@ -198,16 +198,16 @@ namespace Crisp.Eval
                 switch (op)
                 {
                     case Operator.GreaterThan:
-                        return Obj.Create(lc.CompareTo(right) > 0);
+                        return lc.CompareTo(right) > 0 ? ObjBool.True : ObjBool.False;
 
                     case Operator.GreaterThanOrEqualTo:
-                        return Obj.Create(lc.CompareTo(right) >= 0);
+                        return lc.CompareTo(right) >= 0 ? ObjBool.True : ObjBool.False;
 
                     case Operator.LessThan:
-                        return Obj.Create(lc.CompareTo(right) < 0);
+                        return lc.CompareTo(right) < 0 ? ObjBool.True : ObjBool.False;
 
                     case Operator.LessThanOrEqualTo:
-                        return Obj.Create(lc.CompareTo(right) <= 0);
+                        return lc.CompareTo(right) <= 0 ? ObjBool.True : ObjBool.False;
                 }
             }
 
