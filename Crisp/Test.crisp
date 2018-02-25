@@ -474,20 +474,21 @@ begin
     assertEq(map[m], null, 'map get / set #8')
 end
 
-// You can also initilize a map all at once as shown below.
+// You can also initilize a map all at once as shown below.  Seperate the 
+// indexes and the values by a colon.
 begin
     fn g(x) x / 2
     let m := { }
     let map :=
     {
-        ['year'] = 2018,
-        [90 * 100] = 'number that it is over',
-        [0.5] = 'one half',
-        [true] = 0.5,
-        [false] = fn (x) 2 * x,
-        [null] = 'null is an object',
-        [g] = 'fn that halves',
-        [m] = null
+        'year': 2018
+        90 * 100: 'number that it is over'
+        0.5: 'one half'
+        true: 0.5
+        false: fn (x) 2 * x
+        null: 'null is an object'
+        g: 'fn that halves'
+        m: null
     }
     assertEq(map['year'], 2018, 'map get / set value #9')
     assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #10')

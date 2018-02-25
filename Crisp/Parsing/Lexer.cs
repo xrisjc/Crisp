@@ -83,6 +83,7 @@ namespace Crisp.Parsing
                 case '{': return Accept(TokenTag.LBrace);
                 case '}': return Accept(TokenTag.RBrace);
                 case ',': return Accept(TokenTag.Comma);
+                case ':': return Accept(TokenTag.Colon);
                 case '=': return Accept(TokenTag.Equals);
                 case '+': return Accept(TokenTag.Add);
                 case '-': return Accept(TokenTag.Subtract);

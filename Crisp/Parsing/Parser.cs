@@ -217,16 +217,13 @@ namespace Crisp.Parsing
                         var initializers = new List<IndexValuePair>();
                         do
                         {
-                            Expect(TokenTag.LBracket);
                             var index = ParseExpression();
-                            Expect(TokenTag.RBracket);
-                            Expect(TokenTag.Equals);
+                            Expect(TokenTag.Colon);
                             var value = ParseExpression();
                             var initializer = new IndexValuePair(index, value);
                             initializers.Add(initializer);
 
-                        } while (Match(TokenTag.Comma));
-                        Expect(TokenTag.RBrace);
+                        } while (!Match(TokenTag.RBrace));
                         return new Map(initializers);
                     }
 
