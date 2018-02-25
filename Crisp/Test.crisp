@@ -23,7 +23,7 @@
 
 let nTests := 0
 let nErrors := 0
-let showPassedTest := false
+let showPassedTest := true
 
 fn assert(condition, message)
   begin
@@ -450,27 +450,53 @@ assertEq(counter(), 3, 'or short circuits #4')
 ///////////////////////////////////////////////////////////////////////////////
 
 // Maps are constructed with { and }. { } is an empty map.  [ and ] are used
-// to index the map in the usual ways to assign a value to a key and get the
+// to index the map, in the usual way, to assign a value to a key and get the
 // value for a key.
 begin
+    fn g(x) x / 2
+    let m := { }
     let map := { }
     map['year'] := 2018
     map[90 * 100] := 'number that it is over'
-    assertEq(map['year'],                       2018, 'map get / set value #1')
+    map[0.5] := 'one half'
+    map[true] := 0.5
+    map[false] := fn (x) 2 * x
+    map[null] := 'null is an object'
+    map[g] := 'fn that halves'
+    map[m] := null
+    assertEq(map['year'], 2018, 'map get / set value #1')
     assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #2')
+    assertEq(map[0.5], 'one half', 'map get / set value #3')
+    assertEq(map[true],  0.5, 'map get /set #4')
+    assertEq(map[false](3), 6, 'map get / set #5')
+    assertEq(map[null], 'null is an object', 'map get / set #6')
+    assertEq(map[g], 'fn that halves', 'map get / set #7')
+    assertEq(map[m], null, 'map get / set #8')
 end
 
-// You can also initilize a maps as shown below
+// You can also initilize a map all at once as shown below.
 begin
+    fn g(x) x / 2
+    let m := { }
     let map :=
     {
-        ['name'] = 'Chris',
-        ['sign'] = 'Cancer',
-        ['age'] = 37
+        ['year'] = 2018,
+        [90 * 100] = 'number that it is over',
+        [0.5] = 'one half',
+        [true] = 0.5,
+        [false] = fn (x) 2 * x,
+        [null] = 'null is an object',
+        [g] = 'fn that halves',
+        [m] = null
     }
-    assertEq(map['name'], 'Chris',  'map get / set value #3')
-    assertEq(map['sign'], 'Cancer', 'map get / set value #4')
-    assertEq(map['age'],   37,      'map get / set value #5')
+    assertEq(map['year'], 2018, 'map get / set value #9')
+    assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #10')
+    assertEq(map[0.5], 'one half', 'map get / set value #11')
+    assertEq(map[true],  0.5, 'map get /set #12')
+    assertEq(map[false](3), 6, 'map get / set #13')
+    assertEq(map[null], 'null is an object', 'map get / set #14')
+    assertEq(map[g], 'fn that halves', 'map get / set #15')
+    assertEq(map[m], null, 'map get / set #16')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
