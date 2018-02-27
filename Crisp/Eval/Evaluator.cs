@@ -144,7 +144,7 @@ namespace Crisp.Eval
                             else
                             {
                                 throw new RuntimeErrorException(
-                                    "Right hand side of 'and' must be Boolean.");
+                                    "Right hand side of 'or' must be Boolean.");
                             }
                         }
                         else
