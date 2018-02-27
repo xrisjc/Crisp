@@ -95,14 +95,14 @@ assertEq(null, null, 'null literal')
 assertEq(1 + 2,  3, 'integer addition')
 assertEq(5 - 2,  3, 'integer subtraction')
 assertEq(2 * 3,  6, 'integer multiplication')
-assertEq(12 % 5, 2, 'integer modulo')
+assertEq(12 mod 5, 2, 'integer modulo')
 assertEq(15 / 5, 3, 'integer division #1')
 assertEq(1 / 2,  0, 'integer division #2')
 
 assertEq(1.0 + 2.5,  3.5, 'floating point addition')
 assertEq(5.5 - 2.0,  3.5, 'floating point subtraction')
 assertEq(2.5 * 3.0,  7.5, 'floating point multiplication')
-assertEq(12.5 % 5.0, 2.5, 'floating point modulo')
+assertEq(12.5 mod 5.0, 2.5, 'floating point modulo')
 assertEq(15.0 / 5.0, 3.0, 'floating point division #1')
 assertEq(1.0 / 2.0,  0.5, 'floating point division #2')
 
@@ -111,14 +111,14 @@ assertEq(1.0 / 2.0,  0.5, 'floating point division #2')
 assertEq(1 + 2.5,   3.5, 'int left float right addition')
 assertEq(5 - 2.5,   2.5, 'int left float right subtraction')
 assertEq(3 * 3.5,  10.5, 'int left float right multiplication')
-assertEq(6 % 5.5,   0.5, 'int left float right modulo')
+assertEq(6 mod 5.5,   0.5, 'int left float right modulo')
 assertEq(15 / 5.0,  3.0, 'int left float right division #1')
 assertEq(1 / 2.0,   0.5, 'int left float right division #2')
 
 assertEq(1.5 + 2,   3.5, 'float left int right addition')
 assertEq(4.5 - 2,   2.5, 'float left int right subtraction')
 assertEq(3.5 * 3,  10.5, 'float left int right multiplication')
-assertEq(5.5 % 5,   0.5, 'float left int right modulo')
+assertEq(5.5 mod 5,   0.5, 'float left int right modulo')
 assertEq(15.0 / 5,  3.0, 'float left int right division #1')
 assertEq(1.0 / 2,   0.5, 'float left int right division #2')
 
@@ -126,7 +126,7 @@ assertEq(1.0 / 2,   0.5, 'float left int right division #2')
 assertEq(1 + 2 * 3,  7, 'addition and multiplication')
 assertEq(10 - 2 * 3, 4, 'subtraction and multiplication')
 assertEq(1 + 15 / 3, 6, 'addition and division')
-assertEq(1 + 8 % 3,  3, 'addition and modulo')
+assertEq(1 + 8 mod 3,  3, 'addition and modulo')
 
 // But, grouping with parenthesis will change order of evaluation, as you
 // would expected.
@@ -409,7 +409,7 @@ assertEq(square(3), 9, 'Function assigned to variable')
 // name between fn and the parameters
 fn divides(m, n)
   begin
-    let remainder := n % m
+    let remainder := n mod m
     remainder = 0
   end
 assertEq(divides(5, 35), true, 'Named functions')

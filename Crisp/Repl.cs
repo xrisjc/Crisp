@@ -16,17 +16,21 @@ namespace Crisp
             //Load("Sys.crisp", environment);
             Load("Test.crisp", environment);
 
-            while (true)
+            var quit = false;
+            while (!quit)
             {
                 try
                 {
                     writer.Write("> ");
                     var code = reader.ReadLine();
-                    var lexer = new Lexer(code);
-                    var parser = new Parser(lexer);
-                    var expr = parser.ParseExpression();
-                    var obj = expr.Evaluate(environment);
-                    writer.WriteLine(obj.Print());
+                    if (code.Length > 0 && code[0] == ':')
+                    {
+                        quit = ExecuteCommand(code, environment, writer);
+                    }
+                    else
+                    {
+                        EvalAndPrint(code, environment, writer);
+                    }
                 }
                 catch (SyntaxErrorException e)
                 {
@@ -37,6 +41,38 @@ namespace Crisp
                     writer.WriteLine($"Runtime Error: {e.Message}");
                 }
             }
+        }
+
+        private static bool ExecuteCommand(
+            string code,
+            Eval.Environment environment,
+            TextWriter writer)
+        {
+            var args = code.Split(new[] { ' ' },
+                StringSplitOptions.RemoveEmptyEntries);
+            switch (args[0])
+            {
+                case ":l" when args.Length >= 2:
+                    Load(filename: args[1], environment: environment);
+                    break;
+                case ":q":
+                    return true;
+                default:
+                    writer.WriteLine($"Unknown command <{code}>");
+                    break;
+            }
+
+            return false;
+        }
+
+        private static void EvalAndPrint(string code,
+            Eval.Environment environment, TextWriter writer)
+        {
+            var lexer = new Lexer(code);
+            var parser = new Parser(lexer);
+            var expr = parser.ParseExpression();
+            var obj = expr.Evaluate(environment);
+            writer.WriteLine(obj.Print());
         }
 
         public static void Load(string filename, Eval.Environment environment)

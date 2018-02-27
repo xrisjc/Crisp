@@ -89,7 +89,6 @@ namespace Crisp.Parsing
                 case '-': return Accept(TokenTag.Subtract);
                 case '*': return Accept(TokenTag.Multiply);
                 case '/': return Accept(TokenTag.Divide);
-                case '%': return Accept(TokenTag.Modulo);
                 case '<': return Accept(TokenTag.LessThan);
                 case '>': return Accept(TokenTag.GreaterThan);
 
@@ -167,6 +166,7 @@ namespace Crisp.Parsing
                             case "if":    return new Token(TokenTag.If,    startPosition);
                             case "let":   return new Token(TokenTag.Let,   startPosition);
                             case "null":  return new Token(TokenTag.Null,  startPosition);
+                            case "mod":   return new Token(TokenTag.Mod,   startPosition);
                             case "or":    return new Token(TokenTag.Or,    startPosition);
                             case "then":  return new Token(TokenTag.Then,  startPosition);                         
                             case "true":  return new Token(TokenTag.True,  startPosition);

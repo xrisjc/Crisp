@@ -28,7 +28,7 @@
         LessThanOrEqualTo,
         Let,
         LParen,
-        Modulo,
+        Mod,
         Multiply,
         Null,
         Float,

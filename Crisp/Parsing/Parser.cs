@@ -32,7 +32,7 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = Precedence.Additive,
 
                 [TokenTag.Divide] = Precedence.Multiplicitive,
-                [TokenTag.Modulo] = Precedence.Multiplicitive,
+                [TokenTag.Mod] = Precedence.Multiplicitive,
                 [TokenTag.Multiply] = Precedence.Multiplicitive,
 
                 [TokenTag.LBracket] = Precedence.Index,
@@ -52,7 +52,7 @@ namespace Crisp.Parsing
                 [TokenTag.InequalTo] = Operator.Neq,
                 [TokenTag.LessThan] = Operator.Lt,
                 [TokenTag.LessThanOrEqualTo] = Operator.LtEq,
-                [TokenTag.Modulo] = Operator.Mod,
+                [TokenTag.Mod] = Operator.Mod,
                 [TokenTag.Multiply] = Operator.Mul,
                 [TokenTag.Or] = Operator.Or,
                 [TokenTag.Subtract] = Operator.Sub,
@@ -288,7 +288,7 @@ namespace Crisp.Parsing
                 case TokenTag.InequalTo:
                 case TokenTag.LessThan:
                 case TokenTag.LessThanOrEqualTo:
-                case TokenTag.Modulo:
+                case TokenTag.Mod:
                 case TokenTag.Multiply:
                 case TokenTag.Or:
                 case TokenTag.Subtract:
