@@ -97,7 +97,7 @@ namespace Crisp.Eval
                     return new ObjMap(map, environment);
 
                 case OperatorBinary and
-                when and.Op == Operator.And:
+                when and.Op == OperatorInfix.And:
                     {
                         var objLeft = and.Left.Evaluate(environment);
                         if (objLeft is ObjBool boolLeft)
@@ -126,7 +126,7 @@ namespace Crisp.Eval
                     }
 
                 case OperatorBinary or
-                when or.Op == Operator.Or:
+                when or.Op == OperatorInfix.Or:
                     {
                         var objLeft = or.Left.Evaluate(environment);
                         if (objLeft is ObjBool boolLeft)
@@ -160,6 +160,11 @@ namespace Crisp.Eval
                         opBi.Left.Evaluate(environment),
                         opBi.Right.Evaluate(environment));
 
+                case OperatorUnary opUn:
+                    return Evaluate(
+                        opUn.Op,
+                        opUn.Expression.Evaluate(environment));
+
                 case While @while:
                     while (true)
                     {
@@ -184,79 +189,93 @@ namespace Crisp.Eval
             }
         }
 
-        public static IObj Evaluate(Operator op, IObj left, IObj right)
-        {
-            IObj Bool(bool b) => b ? ObjBool.True : ObjBool.False;
-            IObj Int(int i) => new ObjInt(i);
-            IObj Float(double d) => new ObjFloat(d);
-            IObj Str(string s) => new ObjStr(s);
+        static IObj Bool(bool b) => b ? ObjBool.True : ObjBool.False;
+        static IObj Int(int i) => new ObjInt(i);
+        static IObj Float(double d) => new ObjFloat(d);
+        static IObj Str(string s) => new ObjStr(s);
 
+        public static IObj Evaluate(OperatorPrefix op, IObj obj)
+        {
             switch (op)
             {
-                case Operator.Add  when (left is ObjStr   l) && (right is ObjStr   r) : return Str  (l.Value +  r.Value);
-                case Operator.Add  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value +  r.Value);
-                case Operator.Add  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value +  r.Value);
-                case Operator.Add  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value +  r.Value);
-                case Operator.Add  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value +  r.Value);
+                case OperatorPrefix.Neg when (obj is ObjInt   o): return Int  (-o.Value);
+                case OperatorPrefix.Neg when (obj is ObjFloat o): return Float(-o.Value);
 
-                case Operator.Sub  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value -  r.Value);
-                case Operator.Sub  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value -  r.Value);
-                case Operator.Sub  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value -  r.Value);
-                case Operator.Sub  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value -  r.Value);
+                case OperatorPrefix.Not when (obj is ObjBool  o): return Bool (!o.Value);
 
-                case Operator.Mul  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value *  r.Value);
-                case Operator.Mul  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value *  r.Value);
-                case Operator.Mul  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value *  r.Value);
-                case Operator.Mul  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value *  r.Value);
+                default:
+                    throw new RuntimeErrorException($"Operator {op} cannot be applied to value <{obj.Print()}>");
+            }
+        }
 
-                case Operator.Div  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value /  r.Value);
-                case Operator.Div  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value /  r.Value);
-                case Operator.Div  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value /  r.Value);
-                case Operator.Div  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value /  r.Value);
+        public static IObj Evaluate(OperatorInfix op, IObj left, IObj right)
+        {
+            switch (op)
+            {
+                case OperatorInfix.Add  when (left is ObjStr   l) && (right is ObjStr   r) : return Str  (l.Value +  r.Value);
+                case OperatorInfix.Add  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value +  r.Value);
+                case OperatorInfix.Add  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value +  r.Value);
+                case OperatorInfix.Add  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value +  r.Value);
+                case OperatorInfix.Add  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value +  r.Value);
 
-                case Operator.Mod  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value %  r.Value);
-                case Operator.Mod  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value %  r.Value);
-                case Operator.Mod  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value %  r.Value);
-                case Operator.Mod  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value %  r.Value);
+                case OperatorInfix.Sub  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value -  r.Value);
+                case OperatorInfix.Sub  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value -  r.Value);
+                case OperatorInfix.Sub  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value -  r.Value);
+                case OperatorInfix.Sub  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value -  r.Value);
 
-                case Operator.Lt   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value <  r.Value);
-                case Operator.Lt   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value <  r.Value);
-                case Operator.Lt   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value <  r.Value);
-                case Operator.Lt   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value <  r.Value);
+                case OperatorInfix.Mul  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value *  r.Value);
+                case OperatorInfix.Mul  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value *  r.Value);
+                case OperatorInfix.Mul  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value *  r.Value);
+                case OperatorInfix.Mul  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value *  r.Value);
 
-                case Operator.LtEq when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value <= r.Value);
-                case Operator.LtEq when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value <= r.Value);
-                case Operator.LtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value <= r.Value);
-                case Operator.LtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value <= r.Value);
+                case OperatorInfix.Div  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value /  r.Value);
+                case OperatorInfix.Div  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value /  r.Value);
+                case OperatorInfix.Div  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value /  r.Value);
+                case OperatorInfix.Div  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value /  r.Value);
 
-                case Operator.Gt   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value >  r.Value);
-                case Operator.Gt   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value >  r.Value);
-                case Operator.Gt   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >  r.Value);
-                case Operator.Gt   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >  r.Value);
+                case OperatorInfix.Mod  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value %  r.Value);
+                case OperatorInfix.Mod  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value %  r.Value);
+                case OperatorInfix.Mod  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value %  r.Value);
+                case OperatorInfix.Mod  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value %  r.Value);
 
-                case Operator.GtEq when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
-                case Operator.GtEq when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
-                case Operator.GtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
-                case Operator.GtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
+                case OperatorInfix.Lt   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value <  r.Value);
+                case OperatorInfix.Lt   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value <  r.Value);
+                case OperatorInfix.Lt   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value <  r.Value);
+                case OperatorInfix.Lt   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value <  r.Value);
 
-                case Operator.And  when (left is ObjBool  l) && (right is ObjBool  r) : return Bool (l.Value && r.Value);
+                case OperatorInfix.LtEq when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value <= r.Value);
+                case OperatorInfix.LtEq when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value <= r.Value);
+                case OperatorInfix.LtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value <= r.Value);
+                case OperatorInfix.LtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value <= r.Value);
 
-                case Operator.Or   when (left is ObjBool  l) && (right is ObjBool  r) : return Bool (l.Value || r.Value);
+                case OperatorInfix.Gt   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value >  r.Value);
+                case OperatorInfix.Gt   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value >  r.Value);
+                case OperatorInfix.Gt   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >  r.Value);
+                case OperatorInfix.Gt   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >  r.Value);
 
-                case Operator.Eq   when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value == r.Value);
-                case Operator.Eq   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
-                case Operator.Eq   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
-                case Operator.Eq   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
-                case Operator.Eq   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
+                case OperatorInfix.GtEq when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
+                case OperatorInfix.GtEq when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
+                case OperatorInfix.GtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
+                case OperatorInfix.GtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
 
-                case Operator.Neq  when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value != r.Value);
-                case Operator.Neq  when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value != r.Value);
-                case Operator.Neq  when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value != r.Value);
-                case Operator.Neq  when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value != r.Value);
-                case Operator.Neq  when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value != r.Value);
+                case OperatorInfix.And  when (left is ObjBool  l) && (right is ObjBool  r) : return Bool (l.Value && r.Value);
 
-                case Operator.Neq: return Bool(!ReferenceEquals(left, right));
-                case Operator.Eq:  return Bool( ReferenceEquals(left, right));
+                case OperatorInfix.Or   when (left is ObjBool  l) && (right is ObjBool  r) : return Bool (l.Value || r.Value);
+
+                case OperatorInfix.Eq   when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value == r.Value);
+                case OperatorInfix.Eq   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
+                case OperatorInfix.Eq   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
+                case OperatorInfix.Eq   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
+                case OperatorInfix.Eq   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
+
+                case OperatorInfix.Neq  when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value != r.Value);
+                case OperatorInfix.Neq  when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value != r.Value);
+                case OperatorInfix.Neq  when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value != r.Value);
+                case OperatorInfix.Neq  when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value != r.Value);
+                case OperatorInfix.Neq  when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value != r.Value);
+
+                case OperatorInfix.Neq: return Bool(!ReferenceEquals(left, right));
+                case OperatorInfix.Eq:  return Bool( ReferenceEquals(left, right));
 
                 default:
                     throw new RuntimeErrorException(

@@ -165,6 +165,7 @@ namespace Crisp.Parsing
                             case "fn":    return new Token(TokenTag.Fn,    startPosition);
                             case "if":    return new Token(TokenTag.If,    startPosition);
                             case "let":   return new Token(TokenTag.Let,   startPosition);
+                            case "not":   return new Token(TokenTag.Not,   startPosition);
                             case "null":  return new Token(TokenTag.Null,  startPosition);
                             case "mod":   return new Token(TokenTag.Mod,   startPosition);
                             case "or":    return new Token(TokenTag.Or,    startPosition);

@@ -40,22 +40,22 @@ namespace Crisp.Parsing
                 [TokenTag.LParen] = Precedence.Parentheses,
             };
 
-        static Dictionary<TokenTag, Operator> tokenOp =
-            new Dictionary<TokenTag, Operator>
+        static Dictionary<TokenTag, OperatorInfix> tokenOp =
+            new Dictionary<TokenTag, OperatorInfix>
             {
-                [TokenTag.Add] = Operator.Add,
-                [TokenTag.And] = Operator.And,
-                [TokenTag.Equals] = Operator.Eq,
-                [TokenTag.Divide] = Operator.Div,
-                [TokenTag.GreaterThan] = Operator.Gt,
-                [TokenTag.GreaterThanOrEqualTo] = Operator.GtEq,
-                [TokenTag.InequalTo] = Operator.Neq,
-                [TokenTag.LessThan] = Operator.Lt,
-                [TokenTag.LessThanOrEqualTo] = Operator.LtEq,
-                [TokenTag.Mod] = Operator.Mod,
-                [TokenTag.Multiply] = Operator.Mul,
-                [TokenTag.Or] = Operator.Or,
-                [TokenTag.Subtract] = Operator.Sub,
+                [TokenTag.Add] = OperatorInfix.Add,
+                [TokenTag.And] = OperatorInfix.And,
+                [TokenTag.Equals] = OperatorInfix.Eq,
+                [TokenTag.Divide] = OperatorInfix.Div,
+                [TokenTag.GreaterThan] = OperatorInfix.Gt,
+                [TokenTag.GreaterThanOrEqualTo] = OperatorInfix.GtEq,
+                [TokenTag.InequalTo] = OperatorInfix.Neq,
+                [TokenTag.LessThan] = OperatorInfix.Lt,
+                [TokenTag.LessThanOrEqualTo] = OperatorInfix.LtEq,
+                [TokenTag.Mod] = OperatorInfix.Mod,
+                [TokenTag.Multiply] = OperatorInfix.Mul,
+                [TokenTag.Or] = OperatorInfix.Or,
+                [TokenTag.Subtract] = OperatorInfix.Sub,
             };
 
         public Parser(Lexer lexer)
@@ -246,6 +246,11 @@ namespace Crisp.Parsing
                 when token is TokenValue<string> tokenValue:
                     return new Literal<string>(tokenValue.Value);
 
+                case TokenTag.Subtract:
+                    return new OperatorUnary(
+                        OperatorPrefix.Neg,
+                        ParseExpression());
+
                 case TokenTag.Float
                 when token is TokenValue<double> tokenValue:
                     return new Literal<double>(tokenValue.Value);
@@ -255,6 +260,11 @@ namespace Crisp.Parsing
 
                 case TokenTag.True:
                     return new Literal<bool>(true);
+
+                case TokenTag.Not:
+                    return new OperatorUnary(
+                        OperatorPrefix.Not,
+                        ParseExpression());
 
                 case TokenTag.Null:
                     return LiteralNull.Instance;

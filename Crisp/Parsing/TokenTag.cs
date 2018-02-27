@@ -30,6 +30,7 @@
         LParen,
         Mod,
         Multiply,
+        Not,
         Null,
         Float,
         Or,

@@ -59,8 +59,10 @@
     <Compile Include="Ast\LiteralNull.cs" />
     <Compile Include="Ast\Map.cs" />
     <Compile Include="Ast\NamedFunction.cs" />
-    <Compile Include="Ast\Operator.cs" />
+    <Compile Include="Ast\OperatorInfix.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
+    <Compile Include="Ast\OperatorPrefix.cs" />
+    <Compile Include="Ast\OperatorUnary.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\IIndexable.cs" />
