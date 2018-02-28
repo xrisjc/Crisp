@@ -98,6 +98,7 @@ assertEq(2 * 3,  6, 'integer multiplication')
 assertEq(12 mod 5, 2, 'integer modulo')
 assertEq(15 / 5, 3, 'integer division #1')
 assertEq(1 / 2,  0, 'integer division #2')
+assertEq(-2, 2-4, 'integer negation')
 
 assertEq(1.0 + 2.5,  3.5, 'floating point addition')
 assertEq(5.5 - 2.0,  3.5, 'floating point subtraction')
@@ -105,6 +106,7 @@ assertEq(2.5 * 3.0,  7.5, 'floating point multiplication')
 assertEq(12.5 mod 5.0, 2.5, 'floating point modulo')
 assertEq(15.0 / 5.0, 3.0, 'floating point division #1')
 assertEq(1.0 / 2.0,  0.5, 'floating point division #2')
+assertEq(-0.5, 0.5-1.0, 'floating point negation')
 
 // Integer and floating point can be combined. The integer  value will be
 // converted into a floating point, and the result will be floating point.
@@ -244,7 +246,7 @@ assert(1 <= 2 = 2 >= 1, 'Equal / relational precedence #2')
 assert(2 >  1 = 1 <  2, 'Equal / relational precedence #3')
 assert(2 >= 1 = 1 <= 2, 'Equal / relational precedence #4')
 
-// The logical operators are 'and' and 'or'.
+// The logical operators are 'and', 'or' and 'not'.
 assertEq(true  and true,  true,  'And #1')
 assertEq(true  and false, false, 'And #2')
 assertEq(false and true,  false, 'And #3')
@@ -254,6 +256,9 @@ assertEq(true  or true,  true,  'Or #1')
 assertEq(true  or false, true,  'Or #2')
 assertEq(false or true,  true,  'Or #3')
 assertEq(false or false, false, 'Or #4')
+
+assertEq(not true, false, 'Not #1')
+assertEq(not false, true, 'Not #2')
 
 // Logical and has lower precedence than equality and inequality.
 assert(1 <> 2 and 2 = 2, 'and precedence #1')
