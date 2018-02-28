@@ -351,6 +351,9 @@ assertEq(
     8,
     'If / else expressions')
 
+// Else binds to the nearest if, as is usual.
+assertEq(if true then if false then 'A' else 'B', 'B', 'Else binding #1')
+assertEq(if false then if false then 'A' else 'B', null, 'Else binding #2')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Looping
