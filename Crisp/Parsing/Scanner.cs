@@ -2,7 +2,7 @@
 
 namespace Crisp.Parsing
 {
-    class Lexer
+    class Scanner
     {
         readonly string code;
         int i;
@@ -10,7 +10,7 @@ namespace Crisp.Parsing
         char? peek;
         Position position;
 
-        public Lexer(string code)
+        public Scanner(string code)
         {
             this.code = code;
             i = 0;

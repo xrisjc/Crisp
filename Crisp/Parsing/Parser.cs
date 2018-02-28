@@ -6,7 +6,7 @@ namespace Crisp.Parsing
 {
     class Parser
     {
-        readonly Lexer lexer;
+        readonly Scanner scanner;
         Token current = null;
         Token peek = null;
 
@@ -58,9 +58,9 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = OperatorInfix.Sub,
             };
 
-        public Parser(Lexer lexer)
+        public Parser(Scanner scanner)
         {
-            this.lexer = lexer;
+            this.scanner = scanner;
             NextToken();
             NextToken();
         }
@@ -68,7 +68,7 @@ namespace Crisp.Parsing
         void NextToken()
         {
             current = peek;
-            peek = lexer.NextToken();
+            peek = scanner.NextToken();
         }
 
         public bool IsFinished => current.Tag == TokenTag.EndOfInput;

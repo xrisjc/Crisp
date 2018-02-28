@@ -68,8 +68,8 @@ namespace Crisp
         private static void EvalAndPrint(string code,
             Eval.Environment environment, TextWriter writer)
         {
-            var lexer = new Lexer(code);
-            var parser = new Parser(lexer);
+            var scanner = new Scanner(code);
+            var parser = new Parser(scanner);
             var expr = parser.ParseExpression();
             var obj = expr.Evaluate(environment);
             writer.WriteLine(obj.Print());
@@ -80,8 +80,8 @@ namespace Crisp
             try
             {
                 var sys = File.ReadAllText(filename);
-                var lexer = new Lexer(sys);
-                var parser = new Parser(lexer);
+                var scanner = new Scanner(sys);
+                var parser = new Parser(scanner);
                 while (!parser.IsFinished)
                 {
                     var expr = parser.ParseExpression();

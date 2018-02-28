@@ -87,7 +87,7 @@
     <Compile Include="Repl.cs" />
     <Compile Include="Eval\RuntimeErrorException.cs" />
     <Compile Include="Parsing\SyntaxErrorException.cs" />
-    <Compile Include="Parsing\Lexer.cs" />
+    <Compile Include="Parsing\Scanner.cs" />
     <Compile Include="Eval\ObjNull.cs" />
     <Compile Include="Parsing\Parser.cs" />
     <Compile Include="Program.cs" />
