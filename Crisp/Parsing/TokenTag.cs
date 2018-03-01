@@ -37,6 +37,7 @@
         Or,
         RBrace,
         RBracket,
+        Record,
         RParen,
         String,
         Subtract,

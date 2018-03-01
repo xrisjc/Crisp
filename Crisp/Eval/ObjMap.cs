@@ -10,11 +10,11 @@ namespace Crisp.Eval
 
         public ObjMap(Map map, Environment environment)
         {
-            foreach (var initializer in map.Initializers)
+            foreach (var (index, value) in map.Initializers)
             {
-                var index = initializer.Index.Evaluate(environment);
-                var value = initializer.Value.Evaluate(environment);
-                IndexSet(index, value);
+                var objIndex = index.Evaluate(environment);
+                var objValue = value.Evaluate(environment);
+                IndexSet(objIndex, objValue);
             }
         }
 

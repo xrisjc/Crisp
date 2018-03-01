@@ -7,16 +7,16 @@ namespace Crisp.Ast
     {
         public IExpression FunctionExpression { get; }
 
-        public IEnumerable<IExpression> ArgumentExpressions { get; }
+        public List<IExpression> ArgumentExpressions { get; }
 
-        public Call(IExpression functionExpression, IEnumerable<IExpression> argumentExpressions)
+        public Call(IExpression functionExpression, List<IExpression> argumentExpressions)
         {
             FunctionExpression = functionExpression;
             ArgumentExpressions = argumentExpressions;
         }
 
         public Call(IExpression functionExpression)
-            : this(functionExpression, Enumerable.Empty<IExpression>())
+            : this(functionExpression, new List<IExpression>())
         {
         }
     }

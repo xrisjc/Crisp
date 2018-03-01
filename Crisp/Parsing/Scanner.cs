@@ -157,22 +157,23 @@ namespace Crisp.Parsing
                         var tokenText = sb.ToString();
                         switch (tokenText)
                         {
-                            case "and":   return new Token(TokenTag.And,   startPosition);
-                            case "begin": return new Token(TokenTag.Begin, startPosition);
-                            case "do":    return new Token(TokenTag.Do,    startPosition);
-                            case "else":  return new Token(TokenTag.Else,  startPosition);
-                            case "end":   return new Token(TokenTag.End,   startPosition);
-                            case "false": return new Token(TokenTag.False, startPosition);
-                            case "fn":    return new Token(TokenTag.Fn,    startPosition);
-                            case "if":    return new Token(TokenTag.If,    startPosition);
-                            case "let":   return new Token(TokenTag.Let,   startPosition);
-                            case "not":   return new Token(TokenTag.Not,   startPosition);
-                            case "null":  return new Token(TokenTag.Null,  startPosition);
-                            case "mod":   return new Token(TokenTag.Mod,   startPosition);
-                            case "or":    return new Token(TokenTag.Or,    startPosition);
-                            case "then":  return new Token(TokenTag.Then,  startPosition);                         
-                            case "true":  return new Token(TokenTag.True,  startPosition);
-                            case "while": return new Token(TokenTag.While, startPosition);
+                            case "and":    return new Token(TokenTag.And,    startPosition);
+                            case "begin":  return new Token(TokenTag.Begin,  startPosition);
+                            case "do":     return new Token(TokenTag.Do,     startPosition);
+                            case "else":   return new Token(TokenTag.Else,   startPosition);
+                            case "end":    return new Token(TokenTag.End,    startPosition);
+                            case "false":  return new Token(TokenTag.False,  startPosition);
+                            case "fn":     return new Token(TokenTag.Fn,     startPosition);
+                            case "if":     return new Token(TokenTag.If,     startPosition);
+                            case "let":    return new Token(TokenTag.Let,    startPosition);
+                            case "not":    return new Token(TokenTag.Not,    startPosition);
+                            case "null":   return new Token(TokenTag.Null,   startPosition);
+                            case "mod":    return new Token(TokenTag.Mod,    startPosition);
+                            case "or":     return new Token(TokenTag.Or,     startPosition);
+                            case "record": return new Token(TokenTag.Record, startPosition);
+                            case "then":   return new Token(TokenTag.Then,   startPosition);                         
+                            case "true":   return new Token(TokenTag.True,   startPosition);
+                            case "while":  return new Token(TokenTag.While,  startPosition);
                             default:
                                 return new TokenValue<string>(
                                     TokenTag.Identifier,

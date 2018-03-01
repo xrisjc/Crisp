@@ -4,11 +4,11 @@ namespace Crisp.Ast
 {
     class Function : IExpression
     {
-        public IEnumerable<Identifier> Parameters { get; }
+        public List<Identifier> Parameters { get; }
 
         public IExpression Body { get; }
 
-        public Function(IEnumerable<Identifier> parameters, IExpression body)
+        public Function(List<Identifier> parameters, IExpression body)
         {
             Body = body;
             Parameters = parameters;

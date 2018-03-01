@@ -214,13 +214,13 @@ namespace Crisp.Parsing
 
                 case TokenTag.LBrace:
                     {
-                        var initializers = new List<IndexValuePair>();
+                        var initializers = new List<(IExpression, IExpression)>();
                         do
                         {
                             var index = ParseExpression();
                             Expect(TokenTag.Colon);
                             var value = ParseExpression();
-                            var initializer = new IndexValuePair(index, value);
+                            var initializer = (index, value);
                             initializers.Add(initializer);
 
                         } while (!Match(TokenTag.RBrace));
@@ -241,6 +241,21 @@ namespace Crisp.Parsing
                 case TokenTag.Integer
                 when token is TokenValue<int> tokenValue:
                     return new Literal<int>(tokenValue.Value);
+
+                case TokenTag.Record when Match(TokenTag.End):
+                    return new Record();
+
+                case TokenTag.Record:
+                    {
+                        var members = new List<Identifier>();
+                        while (MatchValue<string>(TokenTag.Identifier, out var idToken))
+                        {
+                            var id = new Identifier(idToken.Value);
+                            members.Add(id);
+                        }
+                        Expect(TokenTag.End);
+                        return new Record(members);
+                    }
 
                 case TokenTag.String
                 when token is TokenValue<string> tokenValue:
