@@ -12,7 +12,6 @@
         Subtract,
         Additive,
         Multiplicitive,
-        Index,
-        Parentheses,
+        Expression,
     }
 }

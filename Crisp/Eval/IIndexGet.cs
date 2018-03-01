@@ -2,6 +2,6 @@
 {
     interface IIndexGet
     {
-        IObj Get(IObj index);
+        IObj IndexGet(IObj index);
     }
 }

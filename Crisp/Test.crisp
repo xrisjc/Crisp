@@ -71,8 +71,7 @@ assertEq('hi', 'hi', 'string literal')
 
 // Number values are 32 bit integers or 64 bit floating point numbers.
 assertEq(123, 123, 'int number literal')
-assertEq(1., 1.0, 'floating point #1')
-assertEq(1.5, 1.5, 'floating point #2')
+assertEq(1.5, 1.5, 'floating point')
 
 // Boolean values are given by keywords true and false representing the
 // obvious values.  The are represented by the bool type internally.
@@ -506,6 +505,14 @@ begin
     assertEq(map[null], 'null is an object', 'map get / set #14')
     assertEq(map[g], 'fn that halves', 'map get / set #15')
     assertEq(map[m], null, 'map get / set #16')
+end
+
+// Maps have some built in members
+begin
+    let mOne := { }
+    let mTwo := { 1:'one' 2:'two' 3:'three' }
+    assertEq(mOne.count, 0, 'Empty map count')
+    assertEq(mTwo.count, 3, 'Non-empty map count')
 end
 
 ///////////////////////////////////////////////////////////////////////////////

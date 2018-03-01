@@ -2,6 +2,6 @@
 {
     interface IIndexSet
     {
-        IObj Set(IObj index, IObj value);
+        IObj IndexSet(IObj index, IObj value);
     }
 }

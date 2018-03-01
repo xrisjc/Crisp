@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Crisp.Eval
 {
-    class ObjMap : IObj, IIndexable
+    class ObjMap : IObj, IIndexable, IMemberGet
     {
         Dictionary<IObj, IObj> items = new Dictionary<IObj, IObj>();
 
@@ -12,34 +12,10 @@ namespace Crisp.Eval
         {
             foreach (var initializer in map.Initializers)
             {
-                Set(initializer, environment);
+                var index = initializer.Index.Evaluate(environment);
+                var value = initializer.Value.Evaluate(environment);
+                IndexSet(index, value);
             }
-        }
-
-        public IObj Get(IObj index)
-        {
-            if (items.TryGetValue(index, out IObj value))
-            {
-                return value;
-            }
-            else
-            {
-                throw new RuntimeErrorException(
-                    $"map does not contain index '{index.Print()}'");
-            }
-        }
-
-        public IObj Set(IObj index, IObj value)
-        {
-            items[index] = value;
-            return value;
-        }
-
-        public IObj Set(IndexValuePair indexValuePair, Environment environment)
-        {
-            var index = indexValuePair.Index.Evaluate(environment);
-            var value = indexValuePair.Value.Evaluate(environment);
-            return Set(index, value);
         }
 
         public string Print()
@@ -52,6 +28,36 @@ namespace Crisp.Eval
             }
             sb.AppendLine("}");
             return sb.ToString();
+        }
+
+        public IObj IndexGet(IObj index)
+        {
+            if (items.TryGetValue(index, out IObj value))
+            {
+                return value;
+            }
+            else
+            {
+                throw new RuntimeErrorException(
+                    $"map does not contain index '{index.Print()}'");
+            }
+        }
+
+        public IObj IndexSet(IObj index, IObj value)
+        {
+            items[index] = value;
+            return value;
+        }
+
+        public (IObj, GetStatus) MemberGet(string name)
+        {
+            switch (name)
+            {
+                case "count":
+                    return (new ObjInt(items.Count), GetStatus.Found);
+                default:
+                    return (ObjNull.Instance, GetStatus.NotFound);
+            }
         }
     }
 }

@@ -28,6 +28,7 @@
         LessThanOrEqualTo,
         Let,
         LParen,
+        Period,
         Mod,
         Multiply,
         Not,

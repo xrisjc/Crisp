@@ -35,9 +35,9 @@ namespace Crisp.Parsing
                 [TokenTag.Mod] = Precedence.Multiplicitive,
                 [TokenTag.Multiply] = Precedence.Multiplicitive,
 
-                [TokenTag.LBracket] = Precedence.Index,
-
-                [TokenTag.LParen] = Precedence.Parentheses,
+                [TokenTag.LBracket] = Precedence.Expression,
+                [TokenTag.LParen] = Precedence.Expression,
+                [TokenTag.Period] = Precedence.Expression,
             };
 
         static Dictionary<TokenTag, OperatorInfix> tokenOp =
@@ -326,6 +326,14 @@ namespace Crisp.Parsing
                         } while (Match(TokenTag.Comma));
                         Expect(TokenTag.RParen);
                         return new Call(left, argumentExpressions);
+                    }
+
+                case TokenTag.Period:
+                    {
+                        var memberName = ExpectValue<string>(TokenTag.Identifier);
+                        return new MemberLookup(
+                            left,
+                            new Identifier(memberName.Value));
                     }
 
 

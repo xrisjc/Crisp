@@ -22,7 +22,7 @@ namespace Crisp.Eval
             return $"'{Value}'";
         }
 
-        public IObj Get(IObj index)
+        public IObj IndexGet(IObj index)
         {
             if (index is ObjInt i && 0 <= i.Value && i.Value <= Value.Length)
             {

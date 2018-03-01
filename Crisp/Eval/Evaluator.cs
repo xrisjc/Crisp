@@ -11,7 +11,7 @@ namespace Crisp.Eval
             {
                 case AssignmentIndex e
                 when e.Index.Indexable.Evaluate(environment) is IIndexSet indexSet:
-                    return indexSet.Set(
+                    return indexSet.IndexSet(
                         e.Index.Index.Evaluate(environment),
                         e.Value.Evaluate(environment));
 
@@ -62,6 +62,25 @@ namespace Crisp.Eval
                 case NamedFunction fn:
                     return environment.Create(fn.Name.Name, new ObjFnNative(fn, environment));
 
+                case MemberLookup ml
+                when ml.Expression.Evaluate(environment) is IMemberGet mg:
+                    {
+                        var (value, status) = mg.MemberGet(ml.MemberIdentifier.Name);
+                        if (status == GetStatus.Found)
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException(
+                                $"cannot get memeber {ml.MemberIdentifier.Name}");
+                        }
+                    }
+
+                case MemberLookup ml:
+                    throw new RuntimeErrorException(
+                        $"cannot get memeber {ml.MemberIdentifier.Name}");
+
                 case Function fn:
                     return new ObjFnNative(fn, environment);
 
@@ -73,7 +92,7 @@ namespace Crisp.Eval
 
                 case Indexing indexing 
                 when indexing.Indexable.Evaluate(environment) is IIndexGet indexable:
-                    return indexable.Get(indexing.Index.Evaluate(environment));
+                    return indexable.IndexGet(indexing.Index.Evaluate(environment));
 
                 case Indexing indexing:
                     throw new RuntimeErrorException("Non-indexable object indexed.");

@@ -36,6 +36,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,6 +61,7 @@
     <Compile Include="Ast\Literal.cs" />
     <Compile Include="Ast\LiteralNull.cs" />
     <Compile Include="Ast\Map.cs" />
+    <Compile Include="Ast\MemberLookup.cs" />
     <Compile Include="Ast\NamedFunction.cs" />
     <Compile Include="Ast\OperatorInfix.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
@@ -65,9 +69,11 @@
     <Compile Include="Ast\OperatorUnary.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="Eval\Evaluator.cs" />
+    <Compile Include="Eval\GetStatus.cs" />
     <Compile Include="Eval\IIndexable.cs" />
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
+    <Compile Include="Eval\IMemberGet.cs" />
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
     <Compile Include="Eval\ObjFnReadLn.cs" />
@@ -95,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="Sys.crisp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
