@@ -1,4 +1,5 @@
 ﻿using Crisp.Ast;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Crisp.Eval
@@ -183,6 +184,28 @@ namespace Crisp.Eval
                     return Evaluate(
                         opUn.Op,
                         opUn.Expression.Evaluate(environment));
+
+                case Record rec when rec.Members.Count == 0:
+                    return new ObjRecord();
+
+                case Record rec:
+                    return new ObjRecord(rec.Members.Select(x => x.Name).ToList());
+
+                case RecordConstructor ctor
+                when ctor.Record.Evaluate(environment) is ObjRecord rec:
+                    {
+                        var members = new Dictionary<string, IObj>();
+                        foreach (var (id, expr) in ctor.Initializers)
+                        {
+                            var value = expr.Evaluate(environment);
+                            members[id.Name] = value;
+                        }
+                        return rec.Construct(members);
+                    }
+
+                case RecordConstructor ctor:
+                    throw new RuntimeErrorException(
+                        $"Record construction requires a record object.");
 
                 case While @while:
                     while (true)

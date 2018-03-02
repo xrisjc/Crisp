@@ -13,5 +13,10 @@ namespace Crisp.Ast
             Record = record;
             Initializers = initializers;
         }
+
+        public RecordConstructor(IExpression record)
+            : this(record, new List<(Identifier, IExpression)>())
+        {
+        }
     }
 }

@@ -516,6 +516,35 @@ begin
 end
 
 ///////////////////////////////////////////////////////////////////////////////
+// Records
+///////////////////////////////////////////////////////////////////////////////
+
+begin
+  // Records (aka structs) are objects, and assigned to variables.
+  let Point := record
+                 x
+                 y
+                 z
+               end
+               
+   // Record constructors look like maps a bit, but with an expression before
+   // it that returns a record object.
+   let p := Point { x: 20  y: 200 }
+   
+   // Get to members using the usual dot.
+   assertEq(p.x, 20, 'Member access')
+   assertEq(p.y, 200, 'Member access')
+   
+   // Uninitalized members are set to null
+   assertEq(p.z, null, 'Uninitalized member are null')
+   
+   // You can also make empty records.
+   let Empty := record end
+   let e := Empty { }
+   assert(e <> null, 'Empty record')
+end
+
+///////////////////////////////////////////////////////////////////////////////
 // The End
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -35,6 +35,7 @@ namespace Crisp.Parsing
                 [TokenTag.Mod] = Precedence.Multiplicitive,
                 [TokenTag.Multiply] = Precedence.Multiplicitive,
 
+                [TokenTag.LBrace] = Precedence.Expression,
                 [TokenTag.LBracket] = Precedence.Expression,
                 [TokenTag.LParen] = Precedence.Expression,
                 [TokenTag.Period] = Precedence.Expression,
@@ -321,6 +322,25 @@ namespace Crisp.Parsing
                         tokenOp[token.Tag],
                         left,
                         ParseExpression(Lbp(token)));
+
+                case TokenTag.LBrace when Match(TokenTag.RBrace):
+                    return new RecordConstructor(left);
+
+                case TokenTag.LBrace:
+                    {
+                        var initalizers = new List<(Identifier, IExpression)>();
+                        do
+                        {
+                            var idToken = ExpectValue<string>(TokenTag.Identifier);
+                            var id = new Identifier(idToken.Value);
+                            Expect(TokenTag.Colon);
+                            var value = ParseExpression();
+                            var initalizer = (id, value);
+                            initalizers.Add(initalizer);
+                        }
+                        while (!Match(TokenTag.RBrace));
+                        return new RecordConstructor(left, initalizers);
+                    }
 
                 case TokenTag.LBracket:
                     {

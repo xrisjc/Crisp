@@ -85,6 +85,8 @@
     <Compile Include="Eval\ObjFnNative.cs" />
     <Compile Include="Eval\ObjInt.cs" />
     <Compile Include="Eval\ObjMap.cs" />
+    <Compile Include="Eval\ObjRecord.cs" />
+    <Compile Include="Eval\ObjRecordInstance.cs" />
     <Compile Include="Eval\ObjStr.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenValue.cs" />
