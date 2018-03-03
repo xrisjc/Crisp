@@ -21,41 +21,49 @@
 // errors occur.
 ///////////////////////////////////////////////////////////////////////////////
 
-let nTests := 0
-let nErrors := 0
-let showPassedTest := true
+let Test := record
+    nTests
+    nErrors
+    showPassedTest
+end
+
+let t := Test {
+    nTests: 0
+    nErrors: 0
+    showPassedTest: true
+}
 
 fn assert(condition, message)
   begin
-    nTests := nTests + 1
+    t.nTests := t.nTests + 1
     if condition = false then
       begin
         writeLn('[FAILED] "', message, '"')
-        nErrors := nErrors + 1
+        t.nErrors := t.nErrors + 1
       end
-    else if showPassedTest then
+    else if t.showPassedTest then
         writeLn('[OK] "', message, '"')
   end
 
 fn assertEq(test, expected, message)
   begin
-    nTests := nTests + 1
+    t.nTests := t.nTests + 1
     if test <> expected then
       begin
         writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
             test, '>')
-        nErrors := nErrors + 1
+        t.nErrors := t.nErrors + 1
       end
-    else if showPassedTest then
+    else if t.showPassedTest then
         writeLn('[OK] "', message, '"')
   end
 
 fn displaySummary()
   begin
     writeLn()
-    writeLn(nTests - nErrors, ' out of ', nTests, ' tests passed.')
-    writeLn('There are ', nErrors, ' errors. ',
-        if nErrors=0 then ':-)' else 'D-:')
+    writeLn(t.nTests - t.nErrors, ' out of ', t.nTests, ' tests passed.')
+    writeLn('There are ', t.nErrors, ' errors. ',
+        if t.nErrors=0 then ':-)' else 'D-:')
   end
 
 
