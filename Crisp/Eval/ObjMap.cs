@@ -54,7 +54,7 @@ namespace Crisp.Eval
             switch (name)
             {
                 case "count":
-                    return (new ObjInt(items.Count), GetStatus.Found);
+                    return (new ObjInt(items.Count), GetStatus.Got);
                 default:
                     return (ObjNull.Instance, GetStatus.NotFound);
             }

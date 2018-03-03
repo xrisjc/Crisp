@@ -296,10 +296,13 @@ namespace Crisp.Parsing
             switch (token.Tag)
             {
                 case TokenTag.Assignment when left is Identifier identifier:
-                    return new AssignmentVariable(identifier, ParseExpression(Lbp(token)));
+                    return new Assignment<Identifier>(identifier, ParseExpression(Lbp(token)));
 
                 case TokenTag.Assignment when left is Indexing index:
-                    return new AssignmentIndex(index, ParseExpression(Lbp(token)));
+                    return new Assignment<Indexing>(index, ParseExpression(Lbp(token)));
+
+                case TokenTag.Assignment when left is Member member:
+                    return new Assignment<Member>(member, ParseExpression(Lbp(token)));
 
                 case TokenTag.Assignment:
                     throw new SyntaxErrorException(
@@ -366,7 +369,7 @@ namespace Crisp.Parsing
                 case TokenTag.Period:
                     {
                         var memberName = ExpectValue<string>(TokenTag.Identifier);
-                        return new MemberLookup(
+                        return new Member(
                             left,
                             new Identifier(memberName.Value));
                     }

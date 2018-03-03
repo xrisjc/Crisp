@@ -47,8 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ast\AssignmentIndex.cs" />
-    <Compile Include="Ast\AssignmentVariable.cs" />
+    <Compile Include="Ast\Assignment.cs" />
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
@@ -60,7 +59,7 @@
     <Compile Include="Ast\Literal.cs" />
     <Compile Include="Ast\LiteralNull.cs" />
     <Compile Include="Ast\Map.cs" />
-    <Compile Include="Ast\MemberLookup.cs" />
+    <Compile Include="Ast\Member.cs" />
     <Compile Include="Ast\NamedFunction.cs" />
     <Compile Include="Ast\OperatorInfix.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
@@ -75,6 +74,7 @@
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
     <Compile Include="Eval\IMemberGet.cs" />
+    <Compile Include="Eval\IMemberSet.cs" />
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
     <Compile Include="Eval\ObjFnReadLn.cs" />
@@ -88,6 +88,7 @@
     <Compile Include="Eval\ObjRecord.cs" />
     <Compile Include="Eval\ObjRecordInstance.cs" />
     <Compile Include="Eval\ObjStr.cs" />
+    <Compile Include="Eval\SetStatus.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenValue.cs" />
     <Compile Include="Parsing\TokenTag.cs" />

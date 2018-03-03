@@ -537,6 +537,10 @@ begin
    
    // Uninitalized members are set to null
    assertEq(p.z, null, 'Uninitalized member are null')
+
+   // You can set a member with an assignemnt statement
+   p.z := 2000
+   assertEq(p.z, 2000, 'Member set')
    
    // You can also make empty records.
    let Empty := record end

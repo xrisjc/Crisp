@@ -10,17 +10,34 @@ namespace Crisp.Eval
         {
             switch (expression)
             {
-                case AssignmentIndex e
-                when e.Index.Indexable.Evaluate(environment) is IIndexSet indexSet:
+                case Assignment<Indexing> e
+                when e.Target.Indexable.Evaluate(environment) is IIndexSet indexSet:
                     return indexSet.IndexSet(
-                        e.Index.Index.Evaluate(environment),
+                        e.Target.Index.Evaluate(environment),
                         e.Value.Evaluate(environment));
 
-                case AssignmentIndex e:
+                case Assignment<Indexing> e:
                     throw new RuntimeErrorException("Non-indexable object indexed.");
 
-                case AssignmentVariable e:
-                    return environment.Set(e.Identifier.Name, e.Value.Evaluate(environment));
+                case Assignment<Identifier> e:
+                    return environment.Set(e.Target.Name, e.Value.Evaluate(environment));
+
+                case Assignment<Member> e:
+                    {
+                        var member = e.Target.Expression.Evaluate(environment) as IMemberSet;
+                        if (member == null)
+                        {
+                            throw new RuntimeErrorException("Object doesn't have members.");
+                        }
+                        var name = e.Target.MemberIdentifier.Name;
+                        var value1 = e.Value.Evaluate(environment);
+                        var (value2, status) = member.MemberSet(name, value1);
+                        if (status == SetStatus.NotFound)
+                        {
+                            throw new RuntimeErrorException($"Member {name} not found.");
+                        }
+                        return value2;
+                    }
 
                 case Block block:
                     {
@@ -63,11 +80,11 @@ namespace Crisp.Eval
                 case NamedFunction fn:
                     return environment.Create(fn.Name.Name, new ObjFnNative(fn, environment));
 
-                case MemberLookup ml
+                case Member ml
                 when ml.Expression.Evaluate(environment) is IMemberGet mg:
                     {
                         var (value, status) = mg.MemberGet(ml.MemberIdentifier.Name);
-                        if (status == GetStatus.Found)
+                        if (status == GetStatus.Got)
                         {
                             return value;
                         }
@@ -78,7 +95,7 @@ namespace Crisp.Eval
                         }
                     }
 
-                case MemberLookup ml:
+                case Member ml:
                     throw new RuntimeErrorException(
                         $"cannot get memeber {ml.MemberIdentifier.Name}");
 

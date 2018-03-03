@@ -2,7 +2,7 @@
 
 namespace Crisp.Eval
 {
-    class ObjRecordInstance : IObj, IMemberGet
+    class ObjRecordInstance : IObj, IMemberGet, IMemberSet
     {
         ObjRecord record;
         Dictionary<string, IObj> members;
@@ -13,11 +13,16 @@ namespace Crisp.Eval
             this.members = members;
         }
 
+        public string Print()
+        {
+            return "<RecordInstance>";
+        }
+
         public (IObj, GetStatus) MemberGet(string name)
         {
             if (members.TryGetValue(name, out var value))
             {
-                return (value, GetStatus.Found);
+                return (value, GetStatus.Got);
             }
             else
             {
@@ -25,9 +30,17 @@ namespace Crisp.Eval
             }
         }
 
-        public string Print()
+        public (IObj, SetStatus) MemberSet(string name, IObj value)
         {
-            return "<RecordInstance>";
+            if (members.ContainsKey(name))
+            {
+                members[name] = value;
+                return (value, SetStatus.Set);
+            }
+            else
+            {
+                return (ObjNull.Instance, SetStatus.NotFound);
+            }
         }
     }
 }

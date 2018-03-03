@@ -1,12 +1,12 @@
 ﻿namespace Crisp.Ast
 {
-    class MemberLookup : IExpression
+    class Member : IExpression
     {
         public IExpression Expression { get; }
 
         public Identifier MemberIdentifier { get; }
 
-        public MemberLookup(IExpression expression, Identifier memberIdentifier)
+        public Member(IExpression expression, Identifier memberIdentifier)
         {
             Expression = expression;
             MemberIdentifier = memberIdentifier;
