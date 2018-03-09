@@ -84,36 +84,13 @@ namespace Crisp.Parsing
             return isMatch;
         }
 
-        bool MatchValue<T>(TokenTag tag, out TokenValue<T> tokenValue)
+        Token Expect(TokenTag tag)
         {
-            if (current.Tag == tag && current is TokenValue<T> tv)
+            if (current.Tag == tag)
             {
-                tokenValue = tv;
+                var token = current;
                 NextToken();
-                return true;
-            }
-            else
-            {
-                tokenValue = null;
-                return false;
-            }
-        }
-
-        void Expect(TokenTag tag)
-        {
-            if (!Match(tag))
-            {
-                throw new SyntaxErrorException(
-                    $"exepected, but didn't match, token {tag} at position {current.Position}");
-            }
-        }
-
-        TokenValue<T> ExpectValue<T>(TokenTag tag)
-        {
-            if (current.Tag == tag && current is TokenValue<T> tokenValue)
-            {
-                NextToken();
-                return tokenValue;
+                return token;
             }
             else
             {
@@ -159,8 +136,8 @@ namespace Crisp.Parsing
 
                 case TokenTag.Let:
                     {
-                        var name = ExpectValue<string>(TokenTag.Identifier);
-                        var identifier = new Identifier(name.Value);
+                        var name = Expect(TokenTag.Identifier);
+                        var identifier = new Identifier(name.Lexeme);
                         Expect(TokenTag.Assignment);
                         var value = ParseExpression(Precedence.Assignment);
                         return new Let(identifier, value);
@@ -179,7 +156,17 @@ namespace Crisp.Parsing
                 case TokenTag.Fn:
                     {
                         // Function name
-                        var hasName = MatchValue<string>(TokenTag.Identifier, out var nameToken);
+                        bool hasName = current.Tag == TokenTag.Identifier;
+                        Token nameToken;
+                        if (hasName)
+                        {
+                            nameToken = current;
+                            NextToken();
+                        }
+                        else
+                        {
+                            nameToken = null;
+                        }
 
                         // Function parameter list
                         Expect(TokenTag.LParen);
@@ -188,8 +175,8 @@ namespace Crisp.Parsing
                         {
                             do
                             {
-                                var parameterToken = ExpectValue<string>(TokenTag.Identifier);
-                                parameters.Add(new Identifier(parameterToken.Value));
+                                var parameterToken = Expect(TokenTag.Identifier);
+                                parameters.Add(new Identifier(parameterToken.Lexeme));
                             }
                             while (Match(TokenTag.Comma));
                             Expect(TokenTag.RParen);
@@ -201,7 +188,7 @@ namespace Crisp.Parsing
                         // Create AST
                         if (hasName)
                         {
-                            var name = new Identifier(nameToken.Value);
+                            var name = new Identifier(nameToken.Lexeme);
                             return new NamedFunction(name, parameters, body);
                         }
                         else
@@ -235,13 +222,16 @@ namespace Crisp.Parsing
                         return expression;
                     }
 
-                case TokenTag.Identifier
-                when token is TokenValue<string> tokenValue:
-                    return new Identifier(tokenValue.Value);
+                case TokenTag.Identifier:
+                    return new Identifier(token.Lexeme);
 
                 case TokenTag.Integer
-                when token is TokenValue<int> tokenValue:
-                    return new Literal<int>(tokenValue.Value);
+                when int.TryParse(token.Lexeme, out int value):
+                    return new Literal<int>(value);
+
+                case TokenTag.Integer:
+                    throw new SyntaxErrorException(
+                        $"Unable to convert <{token.Lexeme}> into an 32 bit integer.");
 
                 case TokenTag.Record when Match(TokenTag.End):
                     return new Record();
@@ -249,18 +239,18 @@ namespace Crisp.Parsing
                 case TokenTag.Record:
                     {
                         var members = new List<Identifier>();
-                        while (MatchValue<string>(TokenTag.Identifier, out var idToken))
+                        while (current.Tag == TokenTag.Identifier)
                         {
-                            var id = new Identifier(idToken.Value);
+                            var id = new Identifier(current.Lexeme);
                             members.Add(id);
+                            NextToken();
                         }
                         Expect(TokenTag.End);
                         return new Record(members);
                     }
 
-                case TokenTag.String
-                when token is TokenValue<string> tokenValue:
-                    return new Literal<string>(tokenValue.Value);
+                case TokenTag.String:
+                    return new Literal<string>(token.Lexeme);
 
                 case TokenTag.Subtract:
                     return new OperatorUnary(
@@ -268,8 +258,12 @@ namespace Crisp.Parsing
                         ParseExpression());
 
                 case TokenTag.Float
-                when token is TokenValue<double> tokenValue:
-                    return new Literal<double>(tokenValue.Value);
+                when double.TryParse(token.Lexeme, out var value):
+                    return new Literal<double>(value);
+
+                case TokenTag.Float:
+                    throw new SyntaxErrorException(
+                        $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit");
 
                 case TokenTag.False:
                     return new Literal<bool>(false);
@@ -334,8 +328,8 @@ namespace Crisp.Parsing
                         var initalizers = new List<(Identifier, IExpression)>();
                         do
                         {
-                            var idToken = ExpectValue<string>(TokenTag.Identifier);
-                            var id = new Identifier(idToken.Value);
+                            var idToken = Expect(TokenTag.Identifier);
+                            var id = new Identifier(idToken.Lexeme);
                             Expect(TokenTag.Colon);
                             var value = ParseExpression();
                             var initalizer = (id, value);
@@ -368,10 +362,10 @@ namespace Crisp.Parsing
 
                 case TokenTag.Period:
                     {
-                        var memberName = ExpectValue<string>(TokenTag.Identifier);
+                        var memberName = Expect(TokenTag.Identifier);
                         return new Member(
                             left,
-                            new Identifier(memberName.Value));
+                            new Identifier(memberName.Lexeme));
                     }
 
 

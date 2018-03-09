@@ -24,13 +24,17 @@ namespace Crisp.Eval
 
         public IObj IndexGet(IObj index)
         {
-            if (index is ObjInt i && 0 <= i.Value && i.Value <= Value.Length)
+            switch (index)
             {
-                return new ObjStr(Value[i.Value].ToString());
-            }
-            else
-            {
-                throw new RuntimeErrorException($"index out of bounds");
+                case ObjInt i
+                when 0 <= i.Value && i.Value < Value.Length:
+                    return new ObjStr(Value[i.Value].ToString());
+
+                case ObjInt i:
+                    throw new RuntimeErrorException("Index out of bounds.");
+
+                default:
+                    throw new RuntimeErrorException("Can only index a string with an integer.");
             }
         }
 

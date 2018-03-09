@@ -90,7 +90,6 @@
     <Compile Include="Eval\ObjStr.cs" />
     <Compile Include="Eval\SetStatus.cs" />
     <Compile Include="Parsing\Token.cs" />
-    <Compile Include="Parsing\TokenValue.cs" />
     <Compile Include="Parsing\TokenTag.cs" />
     <Compile Include="Parsing\Position.cs" />
     <Compile Include="Parsing\Precedence.cs" />

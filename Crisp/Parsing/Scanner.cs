@@ -108,7 +108,7 @@ namespace Crisp.Parsing
                             throw new SyntaxErrorException("unexpected end of input");
                         }
                         Next();
-                        return new TokenValue<string>(TokenTag.String, startPosition, sb.ToString());
+                        return new Token(sb.ToString(), TokenTag.String, startPosition);
                     }
 
                 case char c when char.IsDigit(c):
@@ -120,6 +120,7 @@ namespace Crisp.Parsing
                             sb.Append(current);
                             Next();
                         }
+                        TokenTag tag;
                         if (current == '.' && peek.HasValue && char.IsDigit(peek.Value))
                         {
                             do
@@ -128,21 +129,13 @@ namespace Crisp.Parsing
                                 Next();
                             }
                             while (current.HasValue && char.IsDigit(current.Value));
-                        }
-                        var tokenText = sb.ToString();
-                        if (int.TryParse(tokenText, out var intValue))
-                        {
-                            return new TokenValue<int>(TokenTag.Integer, startPosition, intValue);
-                        }
-                        else if (double.TryParse(tokenText, out var value))
-                        {
-                            return new TokenValue<double>(TokenTag.Float, startPosition, value);
+                            tag = TokenTag.Float;
                         }
                         else
                         {
-                            throw new SyntaxErrorException(
-                                $"unable to convert '{tokenText}' to int64 or float64");
+                            tag = TokenTag.Integer;
                         }
+                        return new Token(sb.ToString(), tag, startPosition);
                     }
 
                 case char c when char.IsLetter(c):
@@ -175,10 +168,7 @@ namespace Crisp.Parsing
                             case "true":   return new Token(TokenTag.True,   startPosition);
                             case "while":  return new Token(TokenTag.While,  startPosition);
                             default:
-                                return new TokenValue<string>(
-                                    TokenTag.Identifier,
-                                    startPosition,
-                                    value: tokenText);
+                                return new Token(tokenText, TokenTag.Identifier, startPosition);
                         }
                     }
 
