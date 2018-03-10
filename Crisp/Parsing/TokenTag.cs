@@ -2,6 +2,7 @@
 {
     enum TokenTag
     {
+        Unknown,
         Add,
         And,
         Assignment,

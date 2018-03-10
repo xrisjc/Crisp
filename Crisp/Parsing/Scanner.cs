@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Crisp.Parsing
 {
@@ -6,19 +6,45 @@ namespace Crisp.Parsing
     {
         readonly string code;
         int i;
+        int mark;
         char? current;
         char? peek;
         Position position;
+        Position markPosition;
+
+        Dictionary<string, TokenTag> keywords =
+            new Dictionary<string, TokenTag>
+            {
+                ["and"]    = TokenTag.And,
+                ["begin"]  = TokenTag.Begin,
+                ["do"]     = TokenTag.Do,
+                ["else"]   = TokenTag.Else,
+                ["end"]    = TokenTag.End,
+                ["false"]  = TokenTag.False,
+                ["fn"]     = TokenTag.Fn,
+                ["if"]     = TokenTag.If,
+                ["let"]    = TokenTag.Let,
+                ["not"]    = TokenTag.Not,
+                ["null"]   = TokenTag.Null,
+                ["mod"]    = TokenTag.Mod,
+                ["or"]     = TokenTag.Or,
+                ["record"] = TokenTag.Record,
+                ["then"]   = TokenTag.Then,
+                ["true"]   = TokenTag.True,
+                ["while"]  = TokenTag.While,
+            };
 
         public Scanner(string code)
         {
             this.code = code;
             i = 0;
+            mark = 0;
             current = GetChar(code, i);
             peek = GetChar(code, i + 1);
             position = current.HasValue
                 ? new Position(line: 1, column: 1)
                 : new Position(line: 1, column: 0);
+            markPosition = position;
         }
 
         static char? GetChar(string s, int i)
@@ -39,12 +65,32 @@ namespace Crisp.Parsing
             }
         }
 
+        void Mark()
+        {
+            mark = i;
+            markPosition = position;
+        }
+
         Token Accept(TokenTag tag, int delta = 1)
         {
-            var lexeme = code.Substring(i, delta);
-            var token = new Token(lexeme, tag, position);
+            var token = new Token
+            {
+                Lexeme = code.Substring(i, delta),
+                Tag = tag,
+                Position = position
+            };
             Next(delta);
             return token;
+        }
+
+        Token AcceptMark(TokenTag tag = TokenTag.Unknown)
+        {
+            return new Token
+            {
+                Lexeme = code.Substring(mark, i - mark),
+                Tag = tag,
+                Position = markPosition
+            };
         }
 
         public Token NextToken()
@@ -96,29 +142,26 @@ namespace Crisp.Parsing
 
                 case '\'':
                     {
-                        var startPosition = position;
-                        var sb = new StringBuilder();
                         Next();
+                        Mark();
                         while (current.HasValue && current != '\'')
                         {
-                            sb.Append(current);
                             Next();
                         }
                         if (current == null)
                         {
                             throw new SyntaxErrorException("unexpected end of input");
                         }
+                        var token = AcceptMark(TokenTag.String);
                         Next();
-                        return new Token(sb.ToString(), TokenTag.String, startPosition);
+                        return token;
                     }
 
                 case char c when char.IsDigit(c):
                     {
-                        var startPosition = position;
-                        var sb = new StringBuilder();
+                        Mark();
                         while (current.HasValue && char.IsDigit(current.Value))
                         {
-                            sb.Append(current);
                             Next();
                         }
                         TokenTag tag;
@@ -126,7 +169,6 @@ namespace Crisp.Parsing
                         {
                             do
                             {
-                                sb.Append(current);
                                 Next();
                             }
                             while (current.HasValue && char.IsDigit(current.Value));
@@ -136,41 +178,26 @@ namespace Crisp.Parsing
                         {
                             tag = TokenTag.Integer;
                         }
-                        return new Token(sb.ToString(), tag, startPosition);
+                        return AcceptMark(tag);
                     }
 
                 case char c when char.IsLetter(c):
                     {
-                        var startPosition = position;
-                        var sb = new StringBuilder();
+                        Mark();
                         while (current.HasValue && char.IsLetter(current.Value))
                         {
-                            sb.Append(current);
                             Next();
                         }
-                        var tokenText = sb.ToString();
-                        switch (tokenText)
+                        var token = AcceptMark();
+                        if (keywords.TryGetValue(token.Lexeme, out var tag))
                         {
-                            case "and":    return new Token(TokenTag.And,    startPosition);
-                            case "begin":  return new Token(TokenTag.Begin,  startPosition);
-                            case "do":     return new Token(TokenTag.Do,     startPosition);
-                            case "else":   return new Token(TokenTag.Else,   startPosition);
-                            case "end":    return new Token(TokenTag.End,    startPosition);
-                            case "false":  return new Token(TokenTag.False,  startPosition);
-                            case "fn":     return new Token(TokenTag.Fn,     startPosition);
-                            case "if":     return new Token(TokenTag.If,     startPosition);
-                            case "let":    return new Token(TokenTag.Let,    startPosition);
-                            case "not":    return new Token(TokenTag.Not,    startPosition);
-                            case "null":   return new Token(TokenTag.Null,   startPosition);
-                            case "mod":    return new Token(TokenTag.Mod,    startPosition);
-                            case "or":     return new Token(TokenTag.Or,     startPosition);
-                            case "record": return new Token(TokenTag.Record, startPosition);
-                            case "then":   return new Token(TokenTag.Then,   startPosition);                         
-                            case "true":   return new Token(TokenTag.True,   startPosition);
-                            case "while":  return new Token(TokenTag.While,  startPosition);
-                            default:
-                                return new Token(tokenText, TokenTag.Identifier, startPosition);
+                            token.Tag = tag;
                         }
+                        else
+                        {
+                            token.Tag = TokenTag.Identifier;
+                        }
+                        return token;
                     }
 
                 default:

@@ -2,23 +2,11 @@
 {
     class Token
     {
-        public string Lexeme { get; }
+        public string Lexeme { get; set; }
 
-        public TokenTag Tag { get; }
+        public TokenTag Tag { get; set; }
 
-        public Position Position { get; }
-
-        public Token(string lexeme, TokenTag tag, Position position)
-        {
-            Lexeme = lexeme;
-            Tag = tag;
-            Position = position;
-        }
-
-        public Token(TokenTag tag, Position position)
-            : this("", tag, position)
-        {
-        }
+        public Position Position { get; set; }
 
         public override string ToString()
         {
