@@ -101,14 +101,7 @@ namespace Crisp.Parsing
 
         Precedence Lbp(Token token)
         {
-            if (precedences.TryGetValue(token.Tag, out var precedence))
-            {
-                return precedence;
-            }
-            else
-            {
-                return Precedence.Lowest;
-            }
+            return precedences.GetValue(token.Tag, Precedence.Lowest);
         }
 
         IExpression Nud(Token token)

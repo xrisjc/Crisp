@@ -189,14 +189,7 @@ namespace Crisp.Parsing
                             Next();
                         }
                         var token = AcceptMark();
-                        if (keywords.TryGetValue(token.Lexeme, out var tag))
-                        {
-                            token.Tag = tag;
-                        }
-                        else
-                        {
-                            token.Tag = TokenTag.Identifier;
-                        }
+                        token.Tag = keywords.GetValue(token.Lexeme, TokenTag.Identifier);
                         return token;
                     }
 

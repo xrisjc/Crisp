@@ -31,14 +31,7 @@ namespace Crisp.Eval
             var instanceMembers = new Dictionary<string, IObj>();
             foreach (var member in members)
             {
-                if (initalizers.TryGetValue(member, out var value))
-                {
-                    instanceMembers[member] = value;
-                }
-                else
-                {
-                    instanceMembers[member] = ObjNull.Instance;
-                }
+                instanceMembers[member] = initalizers.GetValue(member, ObjNull.Instance);
             }
 
             return new ObjRecordInstance(this, instanceMembers);
