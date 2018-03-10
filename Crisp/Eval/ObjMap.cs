@@ -36,14 +36,14 @@ namespace Crisp.Eval
             return value;
         }
 
-        public (IObj, GetStatus) MemberGet(string name)
+        public (IObj, MemberStatus) MemberGet(string name)
         {
             switch (name)
             {
                 case "count":
-                    return (new ObjInt(items.Count), GetStatus.Got);
+                    return (new ObjInt(items.Count), MemberStatus.Ok);
                 default:
-                    return (ObjNull.Instance, GetStatus.NotFound);
+                    return (ObjNull.Instance, MemberStatus.NotFound);
             }
         }
     }

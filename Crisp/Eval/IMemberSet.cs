@@ -2,6 +2,6 @@
 {
     interface IMemberSet
     {
-        (IObj, SetStatus) MemberSet(string name, IObj value);
+        (IObj, MemberStatus) MemberSet(string name, IObj value);
     }
 }

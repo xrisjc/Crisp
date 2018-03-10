@@ -1,8 +1,8 @@
 ﻿namespace Crisp.Eval
 {
-    enum SetStatus
+    enum MemberStatus
     {
-        Set,
+        Ok,
         NotFound,
     }
 }

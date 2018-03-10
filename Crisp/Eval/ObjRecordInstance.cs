@@ -13,28 +13,28 @@ namespace Crisp.Eval
             this.members = members;
         }
 
-        public (IObj, GetStatus) MemberGet(string name)
+        public (IObj, MemberStatus) MemberGet(string name)
         {
             if (members.TryGetValue(name, out var value))
             {
-                return (value, GetStatus.Got);
+                return (value, MemberStatus.Ok);
             }
             else
             {
-                return (ObjNull.Instance, GetStatus.NotFound);
+                return (ObjNull.Instance, MemberStatus.NotFound);
             }
         }
 
-        public (IObj, SetStatus) MemberSet(string name, IObj value)
+        public (IObj, MemberStatus) MemberSet(string name, IObj value)
         {
             if (members.ContainsKey(name))
             {
                 members[name] = value;
-                return (value, SetStatus.Set);
+                return (value, MemberStatus.Ok);
             }
             else
             {
-                return (ObjNull.Instance, SetStatus.NotFound);
+                return (ObjNull.Instance, MemberStatus.NotFound);
             }
         }
     }

@@ -69,7 +69,7 @@
     <Compile Include="Ast\Record.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="Eval\Evaluator.cs" />
-    <Compile Include="Eval\GetStatus.cs" />
+    <Compile Include="Eval\MemberStatus.cs" />
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
     <Compile Include="Eval\IMemberGet.cs" />
@@ -87,7 +87,6 @@
     <Compile Include="Eval\ObjRecord.cs" />
     <Compile Include="Eval\ObjRecordInstance.cs" />
     <Compile Include="Eval\ObjStr.cs" />
-    <Compile Include="Eval\SetStatus.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenTag.cs" />
     <Compile Include="Parsing\Position.cs" />

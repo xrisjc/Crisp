@@ -2,6 +2,6 @@
 {
     interface IMemberGet
     {
-        (IObj, GetStatus) MemberGet(string name);
+        (IObj, MemberStatus) MemberGet(string name);
     }
 }

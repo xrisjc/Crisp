@@ -32,7 +32,7 @@ namespace Crisp.Eval
                         var name = e.Target.MemberIdentifier.Name;
                         var value1 = e.Value.Evaluate(environment);
                         var (value2, status) = member.MemberSet(name, value1);
-                        if (status == SetStatus.NotFound)
+                        if (status == MemberStatus.NotFound)
                         {
                             throw new RuntimeErrorException($"Member {name} not found.");
                         }
@@ -84,7 +84,7 @@ namespace Crisp.Eval
                 when ml.Expression.Evaluate(environment) is IMemberGet mg:
                     {
                         var (value, status) = mg.MemberGet(ml.MemberIdentifier.Name);
-                        if (status == GetStatus.Got)
+                        if (status == MemberStatus.Ok)
                         {
                             return value;
                         }
