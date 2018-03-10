@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Crisp.Eval
 {
-    class ObjMap : IObj, IIndexable, IMemberGet
+    class ObjMap : IObj, IIndexGet, IIndexSet, IMemberGet
     {
         Dictionary<IObj, IObj> items = new Dictionary<IObj, IObj>();
 

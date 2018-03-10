@@ -70,7 +70,6 @@
     <Compile Include="Ast\While.cs" />
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\GetStatus.cs" />
-    <Compile Include="Eval\IIndexable.cs" />
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
     <Compile Include="Eval\IMemberGet.cs" />
