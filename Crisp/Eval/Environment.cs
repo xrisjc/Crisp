@@ -1,12 +1,11 @@
-﻿using Crisp.Ast;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Crisp.Eval
 {
     class Environment
     {
-        readonly Environment outer;
-        protected readonly Dictionary<string, IObj> values = new Dictionary<string, IObj>();
+        Environment outer;
+        Dictionary<string, IObj> values = new Dictionary<string, IObj>();
 
         public Environment(Environment outer = null)
         {
@@ -26,11 +25,6 @@ namespace Crisp.Eval
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public IObj Get(Identifier identifier)
-        {
-            return Get(identifier.Name);
-        }
-
         public IObj Set(string name, IObj value)
         {
             for (Environment e = this; e != null; e = e.outer)
@@ -45,11 +39,6 @@ namespace Crisp.Eval
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public IObj Set(Identifier identifier, IObj value)
-        {
-            return Set(identifier.Name, value);
-        }
-
         public IObj Create(string name, IObj value)
         {
             if (values.ContainsKey(name))
@@ -61,11 +50,6 @@ namespace Crisp.Eval
                 values.Add(name, value);
                 return value;
             }
-        }
-
-        public IObj Create(Identifier identifier, IObj value)
-        {
-            return Create(identifier.Name, value);
         }
     }
 }

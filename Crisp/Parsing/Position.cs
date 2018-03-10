@@ -21,10 +21,5 @@
         {
             return new Position(Line + 1, column: 1);
         }
-
-        public override string ToString()
-        {
-            return $"Line = {Line}, Column = {Column}";
-        }
     }
 }

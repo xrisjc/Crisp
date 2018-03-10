@@ -6,9 +6,9 @@ namespace Crisp.Eval
 {
     class ObjFnNative : IObjFn
     {
-        readonly IExpression body;
-        readonly List<string> parameters;
-        readonly Environment environment;
+        IExpression body;
+        List<string> parameters;
+        Environment environment;
 
         public ObjFnNative(IExpression body, List<string> parameters, Environment environment)
         {

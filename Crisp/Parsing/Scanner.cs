@@ -4,7 +4,7 @@ namespace Crisp.Parsing
 {
     class Scanner
     {
-        readonly string code;
+        string code;
         int i;
         int mark;
         char? current;

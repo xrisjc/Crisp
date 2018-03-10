@@ -103,10 +103,10 @@ namespace Crisp.Eval
                     return new ObjFnNative(fn, environment);
 
                 case Let let:
-                    return environment.Create(let.Identifier, let.Value.Evaluate(environment));
+                    return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));
 
                 case Identifier identifier:
-                    return environment.Get(identifier);
+                    return environment.Get(identifier.Name);
 
                 case Indexing indexing 
                 when indexing.Indexable.Evaluate(environment) is IIndexGet indexable:
