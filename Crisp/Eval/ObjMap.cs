@@ -3,9 +3,11 @@ using System.Collections.Generic;
 
 namespace Crisp.Eval
 {
-    class ObjMap : IObj, IIndexGet, IIndexSet, IMemberGet
+    class ObjMap : IObj, ILen, IIndexGet, IIndexSet
     {
         Dictionary<IObj, IObj> items = new Dictionary<IObj, IObj>();
+
+        public int Len => items.Count;
 
         public ObjMap(Map map, Environment environment)
         {
@@ -34,17 +36,6 @@ namespace Crisp.Eval
         {
             items[index] = value;
             return value;
-        }
-
-        public (IObj, MemberStatus) MemberGet(string name)
-        {
-            switch (name)
-            {
-                case "count":
-                    return (new ObjInt(items.Count), MemberStatus.Ok);
-                default:
-                    return (ObjNull.Instance, MemberStatus.NotFound);
-            }
         }
     }
 }

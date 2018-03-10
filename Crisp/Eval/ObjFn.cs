@@ -4,20 +4,20 @@ using System.Linq;
 
 namespace Crisp.Eval
 {
-    class ObjFnNative : IObj, IFn
+    class ObjFn : IObj, IFn
     {
         IExpression body;
         List<string> parameters;
         Environment environment;
 
-        public ObjFnNative(IExpression body, List<string> parameters, Environment environment)
+        public ObjFn(IExpression body, List<string> parameters, Environment environment)
         {
             this.body = body;
             this.parameters = parameters;
             this.environment = environment;
         }
 
-        public ObjFnNative(Function function, Environment environment)
+        public ObjFn(Function function, Environment environment)
             : this(function.Body, function.Parameters.Select(p => p.Name).ToList(), environment)
         {
         }

@@ -78,7 +78,7 @@ namespace Crisp.Eval
                     }
 
                 case NamedFunction fn:
-                    return environment.Create(fn.Name.Name, new ObjFnNative(fn, environment));
+                    return environment.Create(fn.Name.Name, new ObjFn(fn, environment));
 
                 case Member ml
                 when ml.Expression.Evaluate(environment) is IMemberGet mg:
@@ -100,7 +100,7 @@ namespace Crisp.Eval
                         $"cannot get member {ml.MemberIdentifier.Name}");
 
                 case Function fn:
-                    return new ObjFnNative(fn, environment);
+                    return new ObjFn(fn, environment);
 
                 case Let let:
                     return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));

@@ -69,6 +69,7 @@
     <Compile Include="Ast\Record.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="Eval\Evaluator.cs" />
+    <Compile Include="Eval\ILen.cs" />
     <Compile Include="Eval\MemberStatus.cs" />
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
@@ -76,12 +77,13 @@
     <Compile Include="Eval\IMemberSet.cs" />
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
-    <Compile Include="Eval\ObjFnReadLn.cs" />
-    <Compile Include="Eval\ObjFnWriteLn.cs" />
+    <Compile Include="Fn\Len.cs" />
+    <Compile Include="Fn\ReadLn.cs" />
+    <Compile Include="Fn\WriteLn.cs" />
     <Compile Include="Eval\Environment.cs" />
     <Compile Include="Eval\IObj.cs" />
     <Compile Include="Eval\IFn.cs" />
-    <Compile Include="Eval\ObjFnNative.cs" />
+    <Compile Include="Eval\ObjFn.cs" />
     <Compile Include="Eval\ObjInt.cs" />
     <Compile Include="Eval\ObjMap.cs" />
     <Compile Include="Eval\ObjRecord.cs" />
