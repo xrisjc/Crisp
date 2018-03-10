@@ -17,10 +17,5 @@
         {
             return Value ? "true" : "false";
         }
-
-        public string Print()
-        {
-            return ToString();
-        }
     }
 }

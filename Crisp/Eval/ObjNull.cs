@@ -10,10 +10,5 @@
         {
             return "null";
         }
-
-        public string Print()
-        {
-            return ToString();
-        }
     }
 }

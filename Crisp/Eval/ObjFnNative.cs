@@ -38,10 +38,5 @@ namespace Crisp.Eval
 
             return body.Evaluate(localEnvironment);
         }
-
-        public string Print()
-        {
-            return "<fn>";
-        }
     }
 }

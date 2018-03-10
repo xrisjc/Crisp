@@ -263,7 +263,7 @@ namespace Crisp.Eval
                 case OperatorPrefix.Not when (obj is ObjBool  o): return Bool (!o.Value);
 
                 default:
-                    throw new RuntimeErrorException($"Operator {op} cannot be applied to value <{obj.Print()}>");
+                    throw new RuntimeErrorException($"Operator {op} cannot be applied to value <{obj}>");
             }
         }
 
@@ -339,7 +339,7 @@ namespace Crisp.Eval
                 default:
                     throw new RuntimeErrorException(
                         $"Operator {op} cannot be applied to values " +
-                        $"<{left.Print()}> and <{right.Print()}>");
+                        $"<{left}> and <{right}>");
             }
         }
     }

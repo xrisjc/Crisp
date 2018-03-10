@@ -11,10 +11,5 @@ namespace Crisp.Eval
             Console.WriteLine(line);
             return ObjNull.Instance;
         }
-
-        public string Print()
-        {
-            return "<fn>";
-        }
     }
 }

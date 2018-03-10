@@ -72,7 +72,7 @@ namespace Crisp
             var parser = new Parser(scanner);
             var expr = parser.ParseExpression();
             var obj = expr.Evaluate(environment);
-            writer.WriteLine(obj.Print());
+            writer.WriteLine(obj);
         }
 
         public static void Load(string filename, Eval.Environment environment)

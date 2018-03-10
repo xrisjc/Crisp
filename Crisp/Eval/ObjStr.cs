@@ -17,11 +17,6 @@ namespace Crisp.Eval
             return Value;
         }
 
-        public string Print()
-        {
-            return $"'{Value}'";
-        }
-
         public IObj IndexGet(IObj index)
         {
             switch (index)

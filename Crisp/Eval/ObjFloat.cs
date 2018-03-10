@@ -16,11 +16,6 @@ namespace Crisp.Eval
             return Value.ToString();
         }
 
-        public string Print()
-        {
-            return ToString();
-        }
-
         public override bool Equals(object obj)
         {
             return Equals(obj as ObjFloat);

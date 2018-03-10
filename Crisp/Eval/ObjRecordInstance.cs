@@ -13,11 +13,6 @@ namespace Crisp.Eval
             this.members = members;
         }
 
-        public string Print()
-        {
-            return "<RecordInstance>";
-        }
-
         public (IObj, GetStatus) MemberGet(string name)
         {
             if (members.TryGetValue(name, out var value))

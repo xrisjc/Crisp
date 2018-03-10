@@ -1,6 +1,5 @@
 ﻿using Crisp.Ast;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Crisp.Eval
 {
@@ -18,18 +17,6 @@ namespace Crisp.Eval
             }
         }
 
-        public string Print()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("{");
-            foreach (var item in items)
-            {
-                sb.AppendLine($"[{item.Key.Print()}] = {item.Value.Print()}");
-            }
-            sb.AppendLine("}");
-            return sb.ToString();
-        }
-
         public IObj IndexGet(IObj index)
         {
             if (items.TryGetValue(index, out IObj value))
@@ -39,7 +26,7 @@ namespace Crisp.Eval
             else
             {
                 throw new RuntimeErrorException(
-                    $"map does not contain index '{index.Print()}'");
+                    $"map does not contain index '{index}'");
             }
         }
 

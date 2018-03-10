@@ -16,10 +16,5 @@ namespace Crisp.Eval
             var line = Console.ReadLine();
             return new ObjStr(line);
         }
-
-        public string Print()
-        {
-            return "<fn>";
-        }
     }
 }

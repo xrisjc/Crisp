@@ -16,16 +16,6 @@ namespace Crisp.Eval
         {
         }
 
-        public override string ToString()
-        {
-            return "<record>";
-        }
-
-        public string Print()
-        {
-            return ToString();
-        }
-
         public ObjRecordInstance Construct(Dictionary<string, IObj> initalizers)
         {
             var instanceMembers = new Dictionary<string, IObj>();
