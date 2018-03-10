@@ -91,13 +91,13 @@ namespace Crisp.Eval
                         else
                         {
                             throw new RuntimeErrorException(
-                                $"cannot get memeber {ml.MemberIdentifier.Name}");
+                                $"cannot get member {ml.MemberIdentifier.Name}");
                         }
                     }
 
                 case Member ml:
                     throw new RuntimeErrorException(
-                        $"cannot get memeber {ml.MemberIdentifier.Name}");
+                        $"cannot get member {ml.MemberIdentifier.Name}");
 
                 case Function fn:
                     return new ObjFnNative(fn, environment);
