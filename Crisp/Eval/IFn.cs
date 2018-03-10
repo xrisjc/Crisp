@@ -2,7 +2,7 @@
 
 namespace Crisp.Eval
 {
-    interface IObjFn : IObj
+    interface IFn
     {
         IObj Call(List<IObj> args);
     }

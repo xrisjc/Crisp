@@ -64,7 +64,7 @@ namespace Crisp.Eval
                     }
 
                 case Call call:
-                    if (call.FunctionExpression.Evaluate(environment) is IObjFn function)
+                    if (call.FunctionExpression.Evaluate(environment) is IFn function)
                     {
                         var arguments = call.ArgumentExpressions
                                             .Select(arg => arg.Evaluate(environment))

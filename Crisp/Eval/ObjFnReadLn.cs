@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Crisp.Eval
 {
-    class ObjFnReadLn : IObjFn
+    class ObjFnReadLn : IObj, IFn
     {
         public IObj Call(List<IObj> args)
         {

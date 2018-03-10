@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Crisp.Eval
 {
-    class ObjFnWriteLn : IObjFn
+    class ObjFnWriteLn : IObj, IFn
     {
         public IObj Call(List<IObj> args)
         {
