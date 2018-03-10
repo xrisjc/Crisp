@@ -41,7 +41,8 @@ namespace Crisp.Parsing
 
         Token Accept(TokenTag tag, int delta = 1)
         {
-            var token = new Token(tag, position);
+            var lexeme = code.Substring(i, delta);
+            var token = new Token(lexeme, tag, position);
             Next(delta);
             return token;
         }
