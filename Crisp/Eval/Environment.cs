@@ -14,7 +14,7 @@ namespace Crisp.Eval
 
         public IObj Get(string name)
         {
-            for (Environment e = this; e != null; e = e.outer)
+            for (var e = this; e != null; e = e.outer)
             {
                 if (e.values.TryGetValue(name, out IObj value))
                 {
@@ -27,7 +27,7 @@ namespace Crisp.Eval
 
         public IObj Set(string name, IObj value)
         {
-            for (Environment e = this; e != null; e = e.outer)
+            for (var e = this; e != null; e = e.outer)
             {
                 if (e.values.ContainsKey(name))
                 {

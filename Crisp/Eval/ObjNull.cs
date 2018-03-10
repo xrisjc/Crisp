@@ -4,7 +4,7 @@
     {
         private ObjNull() { }
 
-        public static ObjNull Instance { get; } = new ObjNull();
+        public static IObj Instance { get; } = new ObjNull();
 
         public override string ToString()
         {

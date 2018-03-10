@@ -42,7 +42,7 @@ namespace Crisp.Eval
                 case Block block:
                     {
                         var localEnvironment = new Environment(environment);
-                        IObj result = ObjNull.Instance;
+                        var result = ObjNull.Instance;
                         foreach (var expr in block.Body)
                         {
                             result = expr.Evaluate(localEnvironment);

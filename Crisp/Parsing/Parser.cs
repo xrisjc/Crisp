@@ -149,7 +149,7 @@ namespace Crisp.Parsing
                 case TokenTag.Fn:
                     {
                         // Function name
-                        bool hasName = current.Tag == TokenTag.Identifier;
+                        var hasName = current.Tag == TokenTag.Identifier;
                         Token nameToken;
                         if (hasName)
                         {

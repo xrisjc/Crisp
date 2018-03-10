@@ -54,7 +54,7 @@ namespace Crisp.Parsing
 
         void Next(int delta = 1)
         {
-            for (int j = 0; j < delta; j++)
+            for (var j = 0; j < delta; j++)
             {
                 position = current == '\n'
                     ? position.IncreaseLine()
