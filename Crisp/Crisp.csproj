@@ -56,6 +56,7 @@
     <Compile Include="Ast\IExpression.cs" />
     <Compile Include="Ast\Indexing.cs" />
     <Compile Include="Ast\Let.cs" />
+    <Compile Include="Ast\List.cs" />
     <Compile Include="Ast\Literal.cs" />
     <Compile Include="Ast\LiteralNull.cs" />
     <Compile Include="Ast\Map.cs" />
@@ -77,7 +78,9 @@
     <Compile Include="Eval\IMemberSet.cs" />
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
+    <Compile Include="Eval\ObjList.cs" />
     <Compile Include="Fn\Len.cs" />
+    <Compile Include="Fn\Push.cs" />
     <Compile Include="Fn\ReadLn.cs" />
     <Compile Include="Fn\WriteLn.cs" />
     <Compile Include="Eval\Environment.cs" />

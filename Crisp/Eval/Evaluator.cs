@@ -115,6 +115,9 @@ namespace Crisp.Eval
                 case Indexing indexing:
                     throw new RuntimeErrorException("Non-indexable object indexed.");
 
+                case List list:
+                    return new ObjList(list, environment);
+
                 case Literal<bool> literal:
                     return literal.Value ? ObjBool.True : ObjBool.False;
 

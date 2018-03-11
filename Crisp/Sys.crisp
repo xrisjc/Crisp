@@ -1,1 +1,11 @@
 ﻿writeLn('Welcome to Crisp')
+
+fn printList(l)
+begin
+    let i := 0
+    while i < len(l) do
+    begin
+        writeLn('[', i, '] = ', l[i])
+        i := i + 1
+    end
+end

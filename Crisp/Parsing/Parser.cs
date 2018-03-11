@@ -208,6 +208,22 @@ namespace Crisp.Parsing
                         return new Map(initializers);
                     }
 
+                case TokenTag.LBracket when Match(TokenTag.RBracket):
+                    return new List();
+
+                case TokenTag.LBracket:
+                    {
+                        var list = new List();
+                        do
+                        {
+                            var initializer = ParseExpression();
+                            list.Initializers.Add(initializer);
+                        }
+                        while (Match(TokenTag.Comma));
+                        Expect(TokenTag.RBracket);
+                        return list;
+                    }
+
                 case TokenTag.LParen:
                     {
                         var expression = ParseExpression();
