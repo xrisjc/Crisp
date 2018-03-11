@@ -74,14 +74,24 @@ namespace Crisp.Parsing
 
         public bool IsFinished => current.Tag == TokenTag.EndOfInput;
 
+        bool Match(TokenTag tag, out Token token)
+        {
+            if (current.Tag == tag)
+            {
+                token = current;
+                NextToken();
+                return true;
+            }
+            else
+            {
+                token = null;
+                return false;
+            }
+        }
+
         bool Match(TokenTag tag)
         {
-            var isMatch = current.Tag == tag;
-            if (isMatch)
-            {
-                NextToken();
-            }
-            return isMatch;
+            return Match(tag, out var token);
         }
 
         Token Expect(TokenTag tag)
@@ -148,17 +158,7 @@ namespace Crisp.Parsing
                 case TokenTag.Fn:
                     {
                         // Function name
-                        var hasName = current.Tag == TokenTag.Identifier;
-                        Token nameToken;
-                        if (hasName)
-                        {
-                            nameToken = current;
-                            NextToken();
-                        }
-                        else
-                        {
-                            nameToken = null;
-                        }
+                        var hasName = Match(TokenTag.Identifier, out var nameToken);
 
                         // Function parameter list
                         Expect(TokenTag.LParen);
@@ -231,11 +231,10 @@ namespace Crisp.Parsing
                 case TokenTag.Record:
                     {
                         var members = new List<Identifier>();
-                        while (current.Tag == TokenTag.Identifier)
+                        while (Match(TokenTag.Identifier, out var idToken))
                         {
-                            var id = new Identifier(current.Lexeme);
+                            var id = new Identifier(idToken.Lexeme);
                             members.Add(id);
-                            NextToken();
                         }
                         Expect(TokenTag.End);
                         return new Record(members);
