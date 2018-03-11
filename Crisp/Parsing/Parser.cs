@@ -282,13 +282,25 @@ namespace Crisp.Parsing
             switch (token.Tag)
             {
                 case TokenTag.Assignment when left is Identifier identifier:
-                    return new Assignment<Identifier>(identifier, ParseExpression(Lbp(token)));
+                    {
+                        var assignment = new Assignment<Identifier> { Target = identifier };
+                        assignment.Value = ParseExpression(Lbp(token));
+                        return assignment;
+                    }
 
                 case TokenTag.Assignment when left is Indexing index:
-                    return new Assignment<Indexing>(index, ParseExpression(Lbp(token)));
+                    {
+                        var assignment = new Assignment<Indexing> { Target = index };
+                        assignment.Value = ParseExpression(Lbp(token));
+                        return assignment;
+                    }
 
                 case TokenTag.Assignment when left is Member member:
-                    return new Assignment<Member>(member, ParseExpression(Lbp(token)));
+                    {
+                        var assignment = new Assignment<Member> { Target = member };
+                        assignment.Value = ParseExpression(Lbp(token));
+                        return assignment;
+                    }
 
                 case TokenTag.Assignment:
                     throw new SyntaxErrorException(
