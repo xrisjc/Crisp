@@ -129,8 +129,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Let:
                     {
-                        var name = Expect(TokenTag.Identifier);
-                        var identifier = new Identifier(name.Lexeme);
+                        var identifier = ParseIdentifier();
                         Expect(TokenTag.Assignment);
                         var value = ParseExpression(Precedence.Assignment);
                         return new Let(identifier, value);
@@ -168,8 +167,8 @@ namespace Crisp.Parsing
                         {
                             do
                             {
-                                var parameterToken = Expect(TokenTag.Identifier);
-                                parameters.Add(new Identifier(parameterToken.Lexeme));
+                                var identifier = ParseIdentifier();
+                                parameters.Add(identifier);
                             }
                             while (Match(TokenTag.Comma));
                             Expect(TokenTag.RParen);
@@ -321,8 +320,7 @@ namespace Crisp.Parsing
                         var initalizers = new List<(Identifier, IExpression)>();
                         do
                         {
-                            var idToken = Expect(TokenTag.Identifier);
-                            var id = new Identifier(idToken.Lexeme);
+                            Identifier id = ParseIdentifier();
                             Expect(TokenTag.Colon);
                             var value = ParseExpression();
                             var initalizer = (id, value);
@@ -355,10 +353,8 @@ namespace Crisp.Parsing
 
                 case TokenTag.Period:
                     {
-                        var memberName = Expect(TokenTag.Identifier);
-                        return new Member(
-                            left,
-                            new Identifier(memberName.Lexeme));
+                        var identifier = ParseIdentifier();
+                        return new Member(left, identifier);
                     }
 
 
@@ -366,6 +362,12 @@ namespace Crisp.Parsing
                     throw new SyntaxErrorException(
                         $"unexpected token '{token.Tag}' at {token.Position}");
             }
+        }
+
+        Identifier ParseIdentifier()
+        {
+            var idToken = Expect(TokenTag.Identifier);
+            return new Identifier(idToken.Lexeme);
         }
 
         public IExpression ParseExpression(Precedence rbp = Precedence.Lowest)
