@@ -139,10 +139,11 @@ namespace Crisp.Parsing
 
                 case TokenTag.Let:
                     {
-                        var identifier = ParseIdentifier();
+                        var let = new Let();
+                        let.Identifier = ParseIdentifier();
                         Expect(TokenTag.Assignment);
-                        var value = ParseExpression(Precedence.Assignment);
-                        return new Let(identifier, value);
+                        let.Value = ParseExpression(Precedence.Assignment);
+                        return let;
                     }
 
                 case TokenTag.Begin:
