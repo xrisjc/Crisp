@@ -11,8 +11,8 @@
 // All other whitespace is ignored, so your free to format code as you see
 // fit.
 //
-// Oh, and one more thing before we begin, everthing is an expression.
-// Everthing.  But expressions can have side effects, so it's not "pure"
+// Oh, and one more thing before we begin, everything is an expression.
+// Everything.  But expressions can have side effects, so it's not "pure"
 // expressions.
 //
 
@@ -195,7 +195,7 @@ assertEq(1 = 1.5,  false, 'int right float left equality false')
 assertEq(1.5 <> 1,  true, 'float right int left inequality true')
 assertEq(1.0 <> 1, false, 'float right int left inequality false')
 
-// = and <> are lower than arithmatic in precedence.
+// = and <> are lower than arithmetic in precedence.
 assertEq(1  +  2 * 3 = 7, true, '= precedence')
 assertEq(1  +  2 * 3 <> 9, true, '<> precedence')
 
@@ -293,12 +293,12 @@ assertEq(x, 123, 'variable declaration')
 x := x + 1
 assertEq(x, 124, 'variable assignment')
 
-// Assignments are an expression that return the value assinged to the
+// Assignments are an expression that return the value assigned to the
 // variable.
 assertEq(x := 2 * x, 248, 'assignment expression value')
 
 //
-// begin and end delimit a block.  Within a block mulitple expressions can
+// begin and end delimit a block.  Within a block multiple expressions can
 // be listed.  Each expression is evaluated in the order they are found.  All
 // expression values are ignored, except the last one.  The last expression
 // is the result of the the last expression.  The ignored expressions usually
@@ -340,7 +340,7 @@ assertEq(x, 248, 'variable unshadowed')
 // or
 //     if <condition> then <consequent> else <alternative>
 //
-// The <condtion> expresion *must* be a Boolean value or else there will be a
+// The <condition> expression *must* be a Boolean value or else there will be a
 // runtime exception.
 
 // if / else can be used as an expression.  
@@ -371,10 +371,10 @@ assertEq(if false then if false then 'A' else 'B', null, 'Else binding #2')
 // Looping
 ///////////////////////////////////////////////////////////////////////////////
 
-// The ususal while loop is present.  The syntax is
+// The usual while loop is present.  The syntax is
 //     while <condition> do <body>
 // 
-// The <condtion> expresion *must* be a Boolean value or else there will be a
+// The <condition> expression *must* be a Boolean value or else there will be a
 // runtime exception.  Like if / else, condition and body can be any valid
 // kind of expression.
 // 
@@ -406,7 +406,7 @@ assertEq(while false do 0, null, 'While evals to null')
 ///////////////////////////////////////////////////////////////////////////////
 
 // The syntax for a function "literal" is
-//   fn (<comma seperated parameters>) <body>
+//   fn (<comma separated parameters>) <body>
 //
 // () is the "invocation" operator. The returns values is the result of the
 // body expression, which can be any valid expression including a block.
@@ -459,6 +459,40 @@ assertEq(true or counter() = 1, true, 'or short circuits #1')
 assertEq(counter(), 1, 'or short circuits #2')
 assertEq(false or counter() = 2, true, 'or short circuits #3')
 assertEq(counter(), 3, 'or short circuits #4')
+
+///////////////////////////////////////////////////////////////////////////////
+// Lists
+///////////////////////////////////////////////////////////////////////////////
+
+// Lists are constructed with [ and ] along with a comma separated list of
+// expressions that will be the list's initial contents.
+
+begin
+    // Empty list. len() is a special function that returns the size of lists.
+    let l := []
+    assertEq(len(l), 0, 'Empty list length is zero')
+    l := ['one item']
+    assertEq(len(l), 1, 'One item list length.')
+    
+    // Lists can hold any object of any kind.  You can index lists with
+    // integers starting at zero.
+    l := ['string', 5*2, 41.0 / 2.0, true, not true, null, fn (x) 2*x]
+    assertEq(l[0], 'string', 'List index 0')
+    assertEq(l[1], 10, 'List index 1')
+    assertEq(l[2], 20.5, 'List index 2')
+    assertEq(l[3], true, 'List index 3')
+    assertEq(l[4], false, 'List index 4')
+    assertEq(l[5], null, 'List index 5')
+    assertEq(l[6](2), 4, 'List index 6')
+    
+    // You can push new items on the end of a list.
+    l := []
+    push(l, 100)
+    push(l, 'pushed')
+    assertEq(l[0], 100, 'Push test 1')
+    assertEq(l[1], 'pushed', 'Push test 2')
+end
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Maps
@@ -543,10 +577,10 @@ begin
    assertEq(p.x, 20, 'Member access')
    assertEq(p.y, 200, 'Member access')
    
-   // Uninitalized members are set to null
-   assertEq(p.z, null, 'Uninitalized member are null')
+   // Uninitialized members are set to null
+   assertEq(p.z, null, 'Uninitialized member are null')
 
-   // You can set a member with an assignemnt statement
+   // You can set a member with an assignment statement
    p.z := 2000
    assertEq(p.z, 2000, 'Member set')
    
