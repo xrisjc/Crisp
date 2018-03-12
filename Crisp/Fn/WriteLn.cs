@@ -6,6 +6,8 @@ namespace Crisp.Fn
 {
     class WriteLn : IObj, IFn
     {
+        public int? Arity => null;
+
         public IObj Call(List<IObj> args)
         {
             var line = string.Join("", args);

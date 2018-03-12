@@ -5,14 +5,11 @@ namespace Crisp.Fn
 {
     class Push : IObj, IFn
     {
+        public int? Arity => 2;
+
         public IObj Call(List<IObj> args)
         {
-            if (args.Count != 2)
-            {
-                throw new RuntimeErrorException(
-                    "The push() requires 2 arguments");
-            }
-            else if (args[0] is ObjList list)
+            if (args[0] is ObjList list)
             {
                 return list.Push(args[1]);
             }

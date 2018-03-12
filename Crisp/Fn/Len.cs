@@ -5,14 +5,11 @@ namespace Crisp.Fn
 {
     class Len : IObj, IFn
     {
+        public int? Arity => 1;
+
         public IObj Call(List<IObj> args)
         {
-            if (args.Count != 1)
-            {
-                throw new RuntimeErrorException(
-                    "The len function requires 1 argument");
-            }
-            else if (args[0] is ILen len)
+            if (args[0] is ILen len)
             {
                 return new ObjInt(len.Len);
             }

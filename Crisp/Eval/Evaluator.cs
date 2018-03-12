@@ -63,8 +63,9 @@ namespace Crisp.Eval
                             "an if condition must be a bool value");
                     }
 
-                case Call call:
-                    if (call.FunctionExpression.Evaluate(environment) is IFn function)
+                case Call call
+                when call.FunctionExpression.Evaluate(environment) is IFn function:
+                    if (function.Arity == null || function.Arity == call.ArgumentExpressions.Count)
                     {
                         var arguments = call.ArgumentExpressions
                                             .Select(arg => arg.Evaluate(environment))
@@ -73,9 +74,12 @@ namespace Crisp.Eval
                     }
                     else
                     {
-                        throw new RuntimeErrorException(
-                            "function call attempted on non function value");
+                        throw new RuntimeErrorException("function arity mismatch");
                     }
+
+                case Call call:
+                    throw new RuntimeErrorException(
+                        "function call attempted on non function value");
 
                 case NamedFunction fn:
                     return environment.Create(fn.Name.Name, new ObjFn(fn, environment));

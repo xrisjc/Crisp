@@ -4,6 +4,7 @@ namespace Crisp.Eval
 {
     interface IFn
     {
+        int? Arity { get; }
         IObj Call(List<IObj> args);
     }
 }

@@ -22,13 +22,10 @@ namespace Crisp.Eval
         {
         }
 
+        public int? Arity => parameters.Count;
+
         public IObj Call(List<IObj> arguments)
         {
-            if (parameters.Count != arguments.Count)
-            {
-                throw new RuntimeErrorException("number of arguments doesn't match number of parameters");
-            }
-
             var localEnvironment = new Environment(environment);
 
             for (int i = 0; i < parameters.Count; i++)
