@@ -2,11 +2,14 @@
 
 namespace Crisp.Eval
 {
-    class RuntimeErrorException : Exception
+    class RuntimeErrorException : CrispException
     {
         public RuntimeErrorException(string message)
             : base(message)
         {
         }
+
+        public override string FormattedMessage() =>
+            $"Runtime Error: {Message}";
     }
 }

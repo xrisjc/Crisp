@@ -69,6 +69,7 @@
     <Compile Include="Ast\RecordConstructor.cs" />
     <Compile Include="Ast\Record.cs" />
     <Compile Include="Ast\While.cs" />
+    <Compile Include="CrispException.cs" />
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\ILen.cs" />
     <Compile Include="Eval\MemberStatus.cs" />

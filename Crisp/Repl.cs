@@ -35,13 +35,9 @@ namespace Crisp
                         EvalAndPrint(code, environment, writer);
                     }
                 }
-                catch (SyntaxErrorException e)
+                catch (CrispException e)
                 {
-                    writer.WriteLine($"Syntax Error: {e.Message}");
-                }
-                catch (RuntimeErrorException e)
-                {
-                    writer.WriteLine($"Runtime Error: {e.Message}");
+                    writer.WriteLine(e.FormattedMessage());
                 }
             }
         }
@@ -91,9 +87,9 @@ namespace Crisp
                     expr.Evaluate(environment);
                 }
             }
-            catch (Exception e)
+            catch (CrispException e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.FormattedMessage());
             }
         }
     }

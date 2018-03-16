@@ -150,7 +150,7 @@ namespace Crisp.Parsing
                         }
                         if (current == null)
                         {
-                            throw new SyntaxErrorException("unexpected end of input");
+                            throw new SyntaxErrorException("unexpected end of input", position);
                         }
                         var token = AcceptMark(TokenTag.String);
                         Next();
@@ -195,7 +195,8 @@ namespace Crisp.Parsing
 
                 default:
                     throw new SyntaxErrorException(
-                        $"unexpected character '{current}'");
+                        $"unexpected character '{current}'",
+                        position);
             }
         }
     }

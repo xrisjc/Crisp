@@ -105,7 +105,7 @@ namespace Crisp.Parsing
             else
             {
                 throw new SyntaxErrorException(
-                    $"exepected, but didn't match, token {tag} at position {current.Position}");
+                    $"exepected, but didn't match, token {tag}", current.Position);
             }
         }
 
@@ -240,7 +240,8 @@ namespace Crisp.Parsing
 
                 case TokenTag.Integer:
                     throw new SyntaxErrorException(
-                        $"Unable to convert <{token.Lexeme}> into an 32 bit integer.");
+                        $"Unable to convert <{token.Lexeme}> into an 32 bit integer.",
+                        token.Position);
 
                 case TokenTag.Record when Match(TokenTag.End):
                     return new Record();
@@ -271,7 +272,8 @@ namespace Crisp.Parsing
 
                 case TokenTag.Float:
                     throw new SyntaxErrorException(
-                        $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit");
+                        $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
+                        token.Position);
 
                 case TokenTag.False:
                     return new Literal<bool>(false);
@@ -289,7 +291,8 @@ namespace Crisp.Parsing
 
                 default:
                     throw new SyntaxErrorException(
-                        $"unexpected token '{token.Tag}' at {token.Position}");
+                        $"unexpected token '{token.Tag}'",
+                        token.Position);
             }
         }
 
@@ -320,7 +323,8 @@ namespace Crisp.Parsing
 
                 case TokenTag.Assignment:
                     throw new SyntaxErrorException(
-                        "left hand side of assignment must be assignable");
+                        "left hand side of assignment must be assignable",
+                        token.Position);
 
                 case TokenTag.Add:
                 case TokenTag.And:
@@ -388,7 +392,8 @@ namespace Crisp.Parsing
 
                 default:
                     throw new SyntaxErrorException(
-                        $"unexpected token '{token.Tag}' at {token.Position}");
+                        $"unexpected token '{token.Tag}'",
+                        token.Position);
             }
         }
 
