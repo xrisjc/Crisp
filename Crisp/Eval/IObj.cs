@@ -2,5 +2,6 @@
 {
     interface IObj
     {
+        IType Type { get; }
     }
 }

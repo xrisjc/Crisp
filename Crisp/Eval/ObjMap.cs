@@ -19,6 +19,8 @@ namespace Crisp.Eval
             }
         }
 
+        public IType Type => TypeMap.Instance;
+
         public IObj IndexGet(IObj index)
         {
             if (items.TryGetValue(index, out IObj value))

@@ -4,6 +4,8 @@
     {
         private ObjNull() { }
 
+        public IType Type => TypeNull.Instance;
+
         public static IObj Instance { get; } = new ObjNull();
 
         public override string ToString()

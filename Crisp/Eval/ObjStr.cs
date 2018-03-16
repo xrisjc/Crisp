@@ -17,6 +17,8 @@ namespace Crisp.Eval
             return Value;
         }
 
+        public IType Type => TypeString.Instance;
+
         public IObj IndexGet(IObj index)
         {
             switch (index)

@@ -11,6 +11,8 @@ namespace Crisp.Eval
             Value = value;
         }
 
+        public IType Type => TypeInt.Instance;
+
         public override string ToString()
         {
             return Value.ToString();

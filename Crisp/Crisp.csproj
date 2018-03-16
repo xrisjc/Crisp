@@ -72,6 +72,7 @@
     <Compile Include="CrispException.cs" />
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\ILen.cs" />
+    <Compile Include="Eval\IType.cs" />
     <Compile Include="Eval\MemberStatus.cs" />
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
@@ -90,7 +91,7 @@
     <Compile Include="Eval\ObjFn.cs" />
     <Compile Include="Eval\ObjInt.cs" />
     <Compile Include="Eval\ObjMap.cs" />
-    <Compile Include="Eval\ObjRecord.cs" />
+    <Compile Include="Eval\TypeRecord.cs" />
     <Compile Include="Eval\ObjRecordInstance.cs" />
     <Compile Include="Eval\ObjStr.cs" />
     <Compile Include="Parsing\Token.cs" />

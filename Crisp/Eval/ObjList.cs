@@ -15,6 +15,8 @@ namespace Crisp.Eval
             }
         }
 
+        public IType Type => TypeList.Instance;
+
         public int Len => items.Count;
 
         public IObj IndexGet(IObj index)

@@ -210,13 +210,13 @@ namespace Crisp.Eval
                         opUn.Expression.Evaluate(environment));
 
                 case Record rec when rec.Members.Count == 0:
-                    return new ObjRecord();
+                    return new TypeRecord();
 
                 case Record rec:
-                    return new ObjRecord(rec.Members.Select(x => x.Name).ToList());
+                    return new TypeRecord(rec.Members.Select(x => x.Name).ToList());
 
                 case RecordConstructor ctor
-                when ctor.Record.Evaluate(environment) is ObjRecord rec:
+                when ctor.Record.Evaluate(environment) is TypeRecord rec:
                     {
                         var members = new Dictionary<string, IObj>();
                         foreach (var (id, expr) in ctor.Initializers)
