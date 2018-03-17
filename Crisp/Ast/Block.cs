@@ -4,9 +4,9 @@ namespace Crisp.Ast
 {
     class Block : IExpression
     {
-        public List<IExpression> Body { get; }
+        public IEnumerable<IExpression> Body { get; }
 
-        public Block(List<IExpression> body)
+        public Block(IEnumerable<IExpression> body)
         {
             Body = body;
         }

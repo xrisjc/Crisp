@@ -213,15 +213,15 @@ namespace Crisp.Parsing
 
                 case TokenTag.LBracket:
                     {
-                        var list = new List();
+                        var initializers = new List<IExpression>();
                         do
                         {
                             var initializer = ParseExpression();
-                            list.Initializers.Add(initializer);
+                            initializers.Add(initializer);
                         }
                         while (Match(TokenTag.Comma));
                         Expect(TokenTag.RBracket);
-                        return list;
+                        return new List(initializers);
                     }
 
                 case TokenTag.LParen:
@@ -302,23 +302,20 @@ namespace Crisp.Parsing
             {
                 case TokenTag.Assignment when left is Identifier identifier:
                     {
-                        var assignment = new Assignment<Identifier> { Target = identifier };
-                        assignment.Value = ParseExpression(Lbp(token));
-                        return assignment;
+                        var value = ParseExpression(Lbp(token));
+                        return new Assignment<Identifier>(identifier, value);
                     }
 
                 case TokenTag.Assignment when left is Indexing index:
                     {
-                        var assignment = new Assignment<Indexing> { Target = index };
-                        assignment.Value = ParseExpression(Lbp(token));
-                        return assignment;
+                        var value = ParseExpression(Lbp(token));
+                        return new Assignment<Indexing>(index, value);
                     }
 
                 case TokenTag.Assignment when left is Member member:
                     {
-                        var assignment = new Assignment<Member> { Target = member };
-                        assignment.Value = ParseExpression(Lbp(token));
-                        return assignment;
+                        var value = ParseExpression(Lbp(token));
+                        return new Assignment<Member>(member, value);
                     }
 
                 case TokenTag.Assignment:

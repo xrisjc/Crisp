@@ -73,24 +73,15 @@ namespace Crisp.Parsing
 
         Token Accept(TokenTag tag, int delta = 1)
         {
-            var token = new Token
-            {
-                Lexeme = code.Substring(i, delta),
-                Tag = tag,
-                Position = position
-            };
+            var token = new Token(code.Substring(i, delta), tag, position);
             Next(delta);
             return token;
         }
 
         Token AcceptMark(TokenTag tag = TokenTag.Unknown)
         {
-            return new Token
-            {
-                Lexeme = code.Substring(mark, i - mark),
-                Tag = tag,
-                Position = markPosition
-            };
+            return new Token(code.Substring(mark, i - mark), tag,
+                markPosition);
         }
 
         public Token NextToken()
@@ -189,8 +180,8 @@ namespace Crisp.Parsing
                             Next();
                         }
                         var token = AcceptMark();
-                        token.Tag = keywords.GetValue(token.Lexeme, TokenTag.Identifier);
-                        return token;
+                        var tag = keywords.GetValue(token.Lexeme, TokenTag.Identifier);
+                        return new Token(token.Lexeme, tag, token.Position);
                     }
 
                 default:

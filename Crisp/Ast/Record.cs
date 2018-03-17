@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Crisp.Ast
 {
     class Record : IExpression
     {
-        public List<Identifier> Members { get; }
+        public IEnumerable<Identifier> Members { get; }
 
-        public Record(List<Identifier> members)
+        public Record(IEnumerable<Identifier> members)
         {
             Members = members;
         }
 
         public Record()
-            : this(new List<Identifier>())
+            : this(Enumerable.Empty<Identifier>())
         {
         }
     }

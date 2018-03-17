@@ -2,10 +2,17 @@
 {
     class Token
     {
-        public string Lexeme { get; set; }
+        public string Lexeme { get; }
 
-        public TokenTag Tag { get; set; }
+        public TokenTag Tag { get; }
 
-        public Position Position { get; set; }
+        public Position Position { get; }
+
+        public Token(string lexeme, TokenTag tag, Position position)
+        {
+            Lexeme = lexeme;
+            Tag = tag;
+            Position = position;
+        }
     }
 }

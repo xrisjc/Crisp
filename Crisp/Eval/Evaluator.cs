@@ -209,9 +209,6 @@ namespace Crisp.Eval
                         opUn.Op,
                         opUn.Expression.Evaluate(environment));
 
-                case Record rec when rec.Members.Count == 0:
-                    return new TypeRecord();
-
                 case Record rec:
                     return new TypeRecord(rec.Members.Select(x => x.Name).ToList());
 

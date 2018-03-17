@@ -11,11 +11,6 @@ namespace Crisp.Eval
             this.members = members;
         }
 
-        public TypeRecord()
-            : this(new List<string>())
-        {
-        }
-
         public IType Type => TypeType.Instance;
 
         public ObjRecordInstance Construct(Dictionary<string, IObj> initalizers)

@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Crisp.Ast
 {
     class Map : IExpression
     {
-        public List<(IExpression, IExpression)> Initializers { get; }
+        public IEnumerable<(IExpression, IExpression)> Initializers { get; }
 
-        public Map(List<(IExpression, IExpression)> initializers)
+        public Map(IEnumerable<(IExpression, IExpression)> initializers)
         {
             Initializers = initializers;
         }
 
         public Map()
-            : this(new List<(IExpression, IExpression)>())
+            : this(Enumerable.Empty<(IExpression, IExpression)>())
         {
         }
     }

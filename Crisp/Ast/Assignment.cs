@@ -2,8 +2,14 @@
 {
     class Assignment<T> : IExpression
     {
-        public T Target { get; set; }
+        public T Target { get; }
 
-        public IExpression Value { get; set; }
+        public IExpression Value { get; }
+
+        public Assignment(T target, IExpression value)
+        {
+            Target = target;
+            Value = value;
+        }
     }
 }
