@@ -6,12 +6,12 @@ namespace Crisp.Eval
     {
         public double Value { get; }
 
+        public Type ObjType => Type.Float;
+
         public ObjFloat(double value)
         {
             Value = value;
         }
-
-        public IType Type => TypeFloat.Instance;
 
         public override string ToString()
         {

@@ -4,12 +4,12 @@
     {
         public bool Value { get; }
 
+        public Type ObjType => Type.Bool;
+
         private ObjBool(bool value)
         {
             Value = value;
         }
-
-        public IType Type => TypeBool.Instance;
 
         public static ObjBool True = new ObjBool(true);
 

@@ -22,9 +22,9 @@ namespace Crisp.Eval
         {
         }
 
-        public IType Type => TypeFn.Instance;
-
         public int? Arity => parameters.Count;
+
+        public Type ObjType => Type.Fn;
 
         public IObj Call(List<IObj> arguments)
         {

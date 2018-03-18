@@ -9,6 +9,8 @@ namespace Crisp.Eval
 
         public int Len => items.Count;
 
+        public Type ObjType => Type.Map;
+
         public ObjMap(Map map, Environment environment)
         {
             foreach (var (index, value) in map.Initializers)
@@ -18,8 +20,6 @@ namespace Crisp.Eval
                 IndexSet(objIndex, objValue);
             }
         }
-
-        public IType Type => TypeMap.Instance;
 
         public IObj IndexGet(IObj index)
         {

@@ -72,7 +72,6 @@
     <Compile Include="CrispException.cs" />
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\ILen.cs" />
-    <Compile Include="Eval\IType.cs" />
     <Compile Include="Eval\MemberStatus.cs" />
     <Compile Include="Eval\IIndexGet.cs" />
     <Compile Include="Eval\IIndexSet.cs" />
@@ -81,6 +80,7 @@
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
     <Compile Include="Eval\ObjList.cs" />
+    <Compile Include="Eval\Type.cs" />
     <Compile Include="Fn\Len.cs" />
     <Compile Include="Fn\Push.cs" />
     <Compile Include="Fn\ReadLn.cs" />
