@@ -80,7 +80,6 @@
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
     <Compile Include="Eval\ObjList.cs" />
-    <Compile Include="Eval\Type.cs" />
     <Compile Include="Fn\Len.cs" />
     <Compile Include="Fn\Push.cs" />
     <Compile Include="Fn\ReadLn.cs" />
@@ -91,7 +90,7 @@
     <Compile Include="Eval\ObjFn.cs" />
     <Compile Include="Eval\ObjInt.cs" />
     <Compile Include="Eval\ObjMap.cs" />
-    <Compile Include="Eval\TypeRecord.cs" />
+    <Compile Include="Eval\ObjRecord.cs" />
     <Compile Include="Eval\ObjRecordInstance.cs" />
     <Compile Include="Eval\ObjStr.cs" />
     <Compile Include="Parsing\Token.cs" />

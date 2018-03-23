@@ -5,8 +5,6 @@ namespace Crisp.Fn
 {
     class Len : IObj, IFn
     {
-        public IType Type => TypeFn.Instance;
-
         public int? Arity => 1;
 
         public IObj Call(List<IObj> args)

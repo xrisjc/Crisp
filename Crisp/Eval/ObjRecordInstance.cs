@@ -4,16 +4,14 @@ namespace Crisp.Eval
 {
     class ObjRecordInstance : IObj, IMemberGet, IMemberSet
     {
-        TypeRecord record;
+        ObjRecord record;
         Dictionary<string, IObj> members;
 
-        public ObjRecordInstance(TypeRecord record, Dictionary<string, IObj> members)
+        public ObjRecordInstance(ObjRecord record, Dictionary<string, IObj> members)
         {
             this.record = record;
             this.members = members;
         }
-
-        public IType Type => record;
 
         public (IObj, MemberStatus) MemberGet(string name)
         {

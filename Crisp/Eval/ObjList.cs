@@ -17,8 +17,6 @@ namespace Crisp.Eval
 
         public int Len => items.Count;
 
-        public Type ObjType => Type.List;
-
         public IObj IndexGet(IObj index)
         {
             switch (index)

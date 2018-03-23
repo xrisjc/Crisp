@@ -6,8 +6,6 @@ namespace Crisp.Eval
     {
         public int Value { get; }
 
-        public Type ObjType => Type.Int;
-
         public ObjInt(int value)
         {
             Value = value;

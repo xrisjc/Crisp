@@ -5,8 +5,6 @@ namespace Crisp.Fn
 {
     class Push : IObj, IFn
     {
-        public IType Type => TypeFn.Instance;
-
         public int? Arity => 2;
 
         public IObj Call(List<IObj> args)

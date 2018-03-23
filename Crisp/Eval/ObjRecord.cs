@@ -2,16 +2,14 @@
 
 namespace Crisp.Eval
 {
-    class TypeRecord : IObj, IType
+    class ObjRecord : IObj
     {
         List<string> members;
 
-        public TypeRecord(List<string> members)
+        public ObjRecord(List<string> members)
         {
             this.members = members;
         }
-
-        public IType Type => TypeType.Instance;
 
         public ObjRecordInstance Construct(Dictionary<string, IObj> initalizers)
         {

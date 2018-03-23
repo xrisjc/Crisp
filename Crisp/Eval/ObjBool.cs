@@ -4,8 +4,6 @@
     {
         public bool Value { get; }
 
-        public Type ObjType => Type.Bool;
-
         private ObjBool(bool value)
         {
             Value = value;

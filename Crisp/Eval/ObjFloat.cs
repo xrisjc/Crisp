@@ -6,8 +6,6 @@ namespace Crisp.Eval
     {
         public double Value { get; }
 
-        public Type ObjType => Type.Float;
-
         public ObjFloat(double value)
         {
             Value = value;

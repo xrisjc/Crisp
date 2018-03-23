@@ -24,8 +24,6 @@ namespace Crisp.Eval
 
         public int? Arity => parameters.Count;
 
-        public Type ObjType => Type.Fn;
-
         public IObj Call(List<IObj> arguments)
         {
             var localEnvironment = new Environment(environment);
