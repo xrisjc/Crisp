@@ -159,7 +159,13 @@ namespace Crisp.Parsing
                 case TokenTag.Fn:
                     {
                         // Function name
-                        var hasName = Match(TokenTag.Identifier, out var nameToken);
+                        Match(TokenTag.Identifier, out var name1Token);
+
+                        Token name2Token = null;
+                        if (Match(TokenTag.Period))
+                        {
+                            name2Token = Expect(TokenTag.Identifier);
+                        }
 
                         // Function parameter list
                         Expect(TokenTag.LParen);
@@ -179,9 +185,15 @@ namespace Crisp.Parsing
                         var body = ParseExpression();
 
                         // Create AST
-                        if (hasName)
+                        if (name1Token != null && name2Token != null)
                         {
-                            var name = new Identifier(nameToken.Lexeme);
+                            var record = new Identifier(name1Token.Lexeme);
+                            var name = new Identifier(name2Token.Lexeme);
+                            return new MemberFunction(record, name, parameters, body);
+                        }
+                        else if (name1Token != null)
+                        {
+                            var name = new Identifier(name1Token.Lexeme);
                             return new NamedFunction(name, parameters, body);
                         }
                         else
@@ -366,26 +378,17 @@ namespace Crisp.Parsing
                         return new Indexing(left, index);
                     }
 
+                case TokenTag.LParen when left is Member member:
+                    return new MemberCall(member, ParseArguments());
+
                 case TokenTag.LParen when Match(TokenTag.RParen):
                     return new Call(left);
 
                 case TokenTag.LParen:
-                    {
-                        var argumentExpressions = new List<IExpression>();
-                        do
-                        {
-                            argumentExpressions.Add(ParseExpression());
-                        } while (Match(TokenTag.Comma));
-                        Expect(TokenTag.RParen);
-                        return new Call(left, argumentExpressions);
-                    }
+                    return new Call(left, ParseArguments());
 
                 case TokenTag.Period:
-                    {
-                        var identifier = ParseIdentifier();
-                        return new Member(left, identifier);
-                    }
-
+                    return new Member(left, ParseIdentifier());
 
                 default:
                     throw new SyntaxErrorException(
@@ -398,6 +401,22 @@ namespace Crisp.Parsing
         {
             var idToken = Expect(TokenTag.Identifier);
             return new Identifier(idToken.Lexeme);
+        }
+
+        List<IExpression> ParseArguments()
+        {
+            var args = new List<IExpression>();
+            if (!Match(TokenTag.RParen))
+            {
+                do
+                {
+                    var arg = ParseExpression();
+                    args.Add(arg);
+                }
+                while (Match(TokenTag.Comma));
+                Expect(TokenTag.RParen);
+            }
+            return args;
         }
 
         public IExpression ParseExpression(Precedence rbp = Precedence.Lowest)

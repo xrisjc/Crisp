@@ -81,6 +81,40 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException(
                         "function call attempted on non function value");
 
+                case MemberCall call
+                when call.Member.Expression.Evaluate(environment) is ObjRecordInstance record:
+                    {
+                        var arguments = new List<IObj> { record };
+                        foreach (var expr in call.ArgumentExpressions)
+                        {
+                            var arg = expr.Evaluate(environment);
+                            arguments.Add(arg);
+                        }
+                        var fn = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
+                        if (fn.Arity == arguments.Count)
+                        {
+                            return fn.Call(arguments);
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException("function arity mismatch");
+                        }
+                    }
+
+                case MemberCall call:
+                    throw new RuntimeErrorException("method call must be on a record instance");
+
+                case MemberFunction fn
+                when fn.Record.Evaluate(environment) is ObjRecord record:
+                    {
+                        record.AddMemberFunction(fn.Name.Name, new ObjFn(fn, environment));
+                        return ObjNull.Instance;
+                    }
+
+                case MemberFunction fn:
+                    throw new RuntimeErrorException(
+                        $"identfier {fn.Record.Name} not bound to a record");
+
                 case NamedFunction fn:
                     return environment.Create(fn.Name.Name, new ObjFn(fn, environment));
 

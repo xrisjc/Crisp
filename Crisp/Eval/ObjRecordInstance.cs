@@ -37,5 +37,10 @@ namespace Crisp.Eval
                 return (ObjNull.Instance, MemberStatus.NotFound);
             }
         }
+
+        public IFn GetMemberFunction(string name)
+        {
+            return record.GetMemberFunction(name);
+        }
     }
 }
