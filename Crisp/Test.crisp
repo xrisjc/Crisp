@@ -17,54 +17,14 @@
 //
 
 ///////////////////////////////////////////////////////////////////////////////
-// Let's setup some code to help us do tests, and keep track of how many
-// errors occur.
+// Let's setup a test record (from Sys.crisp).
 ///////////////////////////////////////////////////////////////////////////////
-
-let Test := record
-    nTests
-    nErrors
-    showPassedTest
-end
 
 let t := Test {
     nTests: 0
     nErrors: 0
     showPassedTest: true
 }
-
-fn assert(condition, message)
-  begin
-    t.nTests := t.nTests + 1
-    if condition = false then
-      begin
-        writeLn('[FAILED] "', message, '"')
-        t.nErrors := t.nErrors + 1
-      end
-    else if t.showPassedTest then
-        writeLn('[OK] "', message, '"')
-  end
-
-fn assertEq(test, expected, message)
-  begin
-    t.nTests := t.nTests + 1
-    if test <> expected then
-      begin
-        writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
-            test, '>')
-        t.nErrors := t.nErrors + 1
-      end
-    else if t.showPassedTest then
-        writeLn('[OK] "', message, '"')
-  end
-
-fn displaySummary()
-  begin
-    writeLn()
-    writeLn(t.nTests - t.nErrors, ' out of ', t.nTests, ' tests passed.')
-    writeLn('There are ', t.nErrors, ' errors. ',
-        if t.nErrors=0 then ':-)' else 'D-:')
-  end
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,20 +35,20 @@ fn displaySummary()
 
 // Strings are delimited by single quotes. The are the .NET string type
 // internally.
-assertEq('hi', 'hi', 'string literal')
+t.assertEq('hi', 'hi', 'string literal')
 
 // Number values are 32 bit integers or 64 bit floating point numbers.
-assertEq(123, 123, 'int number literal')
-assertEq(1.5, 1.5, 'floating point')
+t.assertEq(123, 123, 'int number literal')
+t.assertEq(1.5, 1.5, 'floating point')
 
 // Boolean values are given by keywords true and false representing the
 // obvious values.  The are represented by the bool type internally.
-assert(true, 'true literal')
-assertEq(false, false, 'false literal')
+t.assert(true, 'true literal')
+t.assertEq(false, false, 'false literal')
 
 // The keyword null evaluates to the null object value, which is a singleton
 // value that is not equal to any other value.
-assertEq(null, null, 'null literal')
+t.assertEq(null, null, 'null literal')
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,58 +59,58 @@ assertEq(null, null, 'null literal')
 
 // Crisp has the usual arithmetic operators for integer and floating point
 // values.
-assertEq(1 + 2,  3, 'integer addition')
-assertEq(5 - 2,  3, 'integer subtraction')
-assertEq(2 * 3,  6, 'integer multiplication')
-assertEq(12 mod 5, 2, 'integer modulo')
-assertEq(15 / 5, 3, 'integer division #1')
-assertEq(1 / 2,  0, 'integer division #2')
-assertEq(-2, 2-4, 'integer negation')
+t.assertEq(1 + 2,  3, 'integer addition')
+t.assertEq(5 - 2,  3, 'integer subtraction')
+t.assertEq(2 * 3,  6, 'integer multiplication')
+t.assertEq(12 mod 5, 2, 'integer modulo')
+t.assertEq(15 / 5, 3, 'integer division #1')
+t.assertEq(1 / 2,  0, 'integer division #2')
+t.assertEq(-2, 2-4, 'integer negation')
 
-assertEq(1.0 + 2.5,  3.5, 'floating point addition')
-assertEq(5.5 - 2.0,  3.5, 'floating point subtraction')
-assertEq(2.5 * 3.0,  7.5, 'floating point multiplication')
-assertEq(12.5 mod 5.0, 2.5, 'floating point modulo')
-assertEq(15.0 / 5.0, 3.0, 'floating point division #1')
-assertEq(1.0 / 2.0,  0.5, 'floating point division #2')
-assertEq(-0.5, 0.5-1.0, 'floating point negation')
+t.assertEq(1.0 + 2.5,  3.5, 'floating point addition')
+t.assertEq(5.5 - 2.0,  3.5, 'floating point subtraction')
+t.assertEq(2.5 * 3.0,  7.5, 'floating point multiplication')
+t.assertEq(12.5 mod 5.0, 2.5, 'floating point modulo')
+t.assertEq(15.0 / 5.0, 3.0, 'floating point division #1')
+t.assertEq(1.0 / 2.0,  0.5, 'floating point division #2')
+t.assertEq(-0.5, 0.5-1.0, 'floating point negation')
 
 // Integer and floating point can be combined. The integer  value will be
 // converted into a floating point, and the result will be floating point.
-assertEq(1 + 2.5,   3.5, 'int left float right addition')
-assertEq(5 - 2.5,   2.5, 'int left float right subtraction')
-assertEq(3 * 3.5,  10.5, 'int left float right multiplication')
-assertEq(6 mod 5.5,   0.5, 'int left float right modulo')
-assertEq(15 / 5.0,  3.0, 'int left float right division #1')
-assertEq(1 / 2.0,   0.5, 'int left float right division #2')
+t.assertEq(1 + 2.5,   3.5, 'int left float right addition')
+t.assertEq(5 - 2.5,   2.5, 'int left float right subtraction')
+t.assertEq(3 * 3.5,  10.5, 'int left float right multiplication')
+t.assertEq(6 mod 5.5,   0.5, 'int left float right modulo')
+t.assertEq(15 / 5.0,  3.0, 'int left float right division #1')
+t.assertEq(1 / 2.0,   0.5, 'int left float right division #2')
 
-assertEq(1.5 + 2,   3.5, 'float left int right addition')
-assertEq(4.5 - 2,   2.5, 'float left int right subtraction')
-assertEq(3.5 * 3,  10.5, 'float left int right multiplication')
-assertEq(5.5 mod 5,   0.5, 'float left int right modulo')
-assertEq(15.0 / 5,  3.0, 'float left int right division #1')
-assertEq(1.0 / 2,   0.5, 'float left int right division #2')
+t.assertEq(1.5 + 2,   3.5, 'float left int right addition')
+t.assertEq(4.5 - 2,   2.5, 'float left int right subtraction')
+t.assertEq(3.5 * 3,  10.5, 'float left int right multiplication')
+t.assertEq(5.5 mod 5,   0.5, 'float left int right modulo')
+t.assertEq(15.0 / 5,  3.0, 'float left int right division #1')
+t.assertEq(1.0 / 2,   0.5, 'float left int right division #2')
 
 // The arithmetic operators have the usual precedence levels.
-assertEq(1 + 2 * 3,  7, 'addition and multiplication')
-assertEq(10 - 2 * 3, 4, 'subtraction and multiplication')
-assertEq(1 + 15 / 3, 6, 'addition and division')
-assertEq(1 + 8 mod 3,  3, 'addition and modulo')
+t.assertEq(1 + 2 * 3,  7, 'addition and multiplication')
+t.assertEq(10 - 2 * 3, 4, 'subtraction and multiplication')
+t.assertEq(1 + 15 / 3, 6, 'addition and division')
+t.assertEq(1 + 8 mod 3,  3, 'addition and modulo')
 
 // But, grouping with parenthesis will change order of evaluation, as you
 // would expected.
-assertEq((1 + 2) * 3,   9, 'addition grouped and multiplication')
-assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication')
+t.assertEq((1 + 2) * 3,   9, 'addition grouped and multiplication')
+t.assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication')
 
 ///////////////////////////////////////////////////////////////////////////////
 // String Operators
 ///////////////////////////////////////////////////////////////////////////////
 
 // + also concats strings
-assertEq('first ' + 'second', 'first second', 'string concat')
+t.assertEq('first ' + 'second', 'first second', 'string concat')
 
 // string also can be indexed (zero-based).
-assertEq('first'[1], 'i', 'string indexing')
+t.assertEq('first'[1], 'i', 'string indexing')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Equality, Inequality, Relational, and Logical
@@ -159,121 +119,121 @@ assertEq('first'[1], 'i', 'string indexing')
 // All relation operators evaluate to a boolean value.
 
 // The equal operator is a single =.
-assertEq(1 = 1,          true, 'int equality true')
-assertEq(1 = 2,         false, 'int equality false')
-assertEq(1.5 = 1.5,      true, 'float equality true')
-assertEq(1.5 = 2.0,     false, 'float equality false')
-assertEq(false = false,  true, 'bool equality true')
-assertEq(false = true , false, 'bool equality false')
-assertEq('hey' = 'hey',  true, 'string equality true')
-assertEq('hey' = 'HEY', false, 'string equality false')
+t.assertEq(1 = 1,          true, 'int equality true')
+t.assertEq(1 = 2,         false, 'int equality false')
+t.assertEq(1.5 = 1.5,      true, 'float equality true')
+t.assertEq(1.5 = 2.0,     false, 'float equality false')
+t.assertEq(false = false,  true, 'bool equality true')
+t.assertEq(false = true , false, 'bool equality false')
+t.assertEq('hey' = 'hey',  true, 'string equality true')
+t.assertEq('hey' = 'HEY', false, 'string equality false')
 
 // = is a strict equality operator. There are no conversions done.
-assertEq(false = 0, false, 'false and zero are not equal')
+t.assertEq(false = 0, false, 'false and zero are not equal')
 
 // null is equal to itself but not to other values.
-assert(null = null, 'null equals itself')
-assertEq(null = 0, false, 'null and zero are not equal')
+t.assert(null = null, 'null equals itself')
+t.assertEq(null = 0, false, 'null and zero are not equal')
 
 // <> is the inequality operator
-assertEq(1 <> 1,         false, 'int inequality false')
-assertEq(1 <> 2,          true, 'int inequality true')
-assertEq(1.5 <> 1.5,     false, 'float inequality false')
-assertEq(1.5 <> 2.0,      true, 'float inequality true')
-assertEq(false <> false, false, 'bool inequality false')
-assertEq(false <> true ,  true, 'bool inequality true')
-assertEq('hey' <> 'hey', false, 'string inequality false')
-assertEq('hey' <> 'HEY',  true, 'string inequality true')
+t.assertEq(1 <> 1,         false, 'int inequality false')
+t.assertEq(1 <> 2,          true, 'int inequality true')
+t.assertEq(1.5 <> 1.5,     false, 'float inequality false')
+t.assertEq(1.5 <> 2.0,      true, 'float inequality true')
+t.assertEq(false <> false, false, 'bool inequality false')
+t.assertEq(false <> true ,  true, 'bool inequality true')
+t.assertEq('hey' <> 'hey', false, 'string inequality false')
+t.assertEq('hey' <> 'HEY',  true, 'string inequality true')
 
 // <> is also a strict inequality operator. There are no conversions done.
-assertEq(false <> 0, true, 'false and zero are inequal')
+t.assertEq(false <> 0, true, 'false and zero are inequal')
 
 // Exception! Integers are converted into floating points when testing against
 // another floating point.
-assertEq(1 = 1.0,   true, 'int right float left equality true')
-assertEq(1 = 1.5,  false, 'int right float left equality false')
-assertEq(1.5 <> 1,  true, 'float right int left inequality true')
-assertEq(1.0 <> 1, false, 'float right int left inequality false')
+t.assertEq(1 = 1.0,   true, 'int right float left equality true')
+t.assertEq(1 = 1.5,  false, 'int right float left equality false')
+t.assertEq(1.5 <> 1,  true, 'float right int left inequality true')
+t.assertEq(1.0 <> 1, false, 'float right int left inequality false')
 
 // = and <> are lower than arithmetic in precedence.
-assertEq(1  +  2 * 3 = 7, true, '= precedence')
-assertEq(1  +  2 * 3 <> 9, true, '<> precedence')
+t.assertEq(1  +  2 * 3 = 7, true, '= precedence')
+t.assertEq(1  +  2 * 3 <> 9, true, '<> precedence')
 
 // There are also the normal relational operators.  These only work for
 // number valued objects.
-assertEq(1 < 2,   true, 'Int less than #1')
-assertEq(2 < 2,  false, 'Int less than #2')
-assertEq(1 <= 2,  true, 'Int less than or equal #1')
-assertEq(2 <= 2,  true, 'Int less than or equal #2')
-assertEq(3 <= 2, false, 'Int less than or equal #3')
-assertEq(3 > 2,   true, 'Int greater than #1')
-assertEq(1 > 2,  false, 'Int greater than #2')
-assertEq(3 >= 2,  true, 'Int greater than or equal #1')
-assertEq(3 >= 3,  true, 'Int greater than or equal #2')
-assertEq(3 >= 4, false, 'Int greater than or equal #3')
+t.assertEq(1 < 2,   true, 'Int less than #1')
+t.assertEq(2 < 2,  false, 'Int less than #2')
+t.assertEq(1 <= 2,  true, 'Int less than or equal #1')
+t.assertEq(2 <= 2,  true, 'Int less than or equal #2')
+t.assertEq(3 <= 2, false, 'Int less than or equal #3')
+t.assertEq(3 > 2,   true, 'Int greater than #1')
+t.assertEq(1 > 2,  false, 'Int greater than #2')
+t.assertEq(3 >= 2,  true, 'Int greater than or equal #1')
+t.assertEq(3 >= 3,  true, 'Int greater than or equal #2')
+t.assertEq(3 >= 4, false, 'Int greater than or equal #3')
 
-assertEq(1.5 < 2.0,   true, 'Float less than #1')
-assertEq(2.0 < 2.0,  false, 'Float less than #2')
-assertEq(1.5 <= 2.0,  true, 'Float less than or equal #1')
-assertEq(2.0 <= 2.0,  true, 'Float less than or equal #2')
-assertEq(3.0 <= 2.5, false, 'Float less than or equal #3')
-assertEq(3.0 > 2.5,   true, 'Float greater than #1')
-assertEq(1.5 > 2.0,  false, 'Float greater than #2')
-assertEq(3.0 >= 2.5,  true, 'Float greater than or equal #1')
-assertEq(3.5 >= 3.5,  true, 'Float greater than or equal #2')
-assertEq(3.5 >= 4.0, false, 'Float greater than or equal #3')
+t.assertEq(1.5 < 2.0,   true, 'Float less than #1')
+t.assertEq(2.0 < 2.0,  false, 'Float less than #2')
+t.assertEq(1.5 <= 2.0,  true, 'Float less than or equal #1')
+t.assertEq(2.0 <= 2.0,  true, 'Float less than or equal #2')
+t.assertEq(3.0 <= 2.5, false, 'Float less than or equal #3')
+t.assertEq(3.0 > 2.5,   true, 'Float greater than #1')
+t.assertEq(1.5 > 2.0,  false, 'Float greater than #2')
+t.assertEq(3.0 >= 2.5,  true, 'Float greater than or equal #1')
+t.assertEq(3.5 >= 3.5,  true, 'Float greater than or equal #2')
+t.assertEq(3.5 >= 4.0, false, 'Float greater than or equal #3')
 
 // As with arithmetic and equality, mixing integer and floating point values
 // in relational operators will convert the integer to a floating point.
-assertEq(1 < 2.5,   true, 'Int left float right less than #1')
-assertEq(2 < 2.0,  false, 'Int left float right less than #2')
-assertEq(1 <= 2.0,  true, 'Int left float right less than or equal #1')
-assertEq(2 <= 2.0,  true, 'Int left float right less than or equal #2')
-assertEq(3 <= 2.5, false, 'Int left float right less than or equal #3')
-assertEq(3 > 2.5,   true, 'Int left float right greater than #1')
-assertEq(1 > 2.0,  false, 'Int left float right greater than #2')
-assertEq(3 >= 2.5,  true, 'Int left float right greater than or equal #1')
-assertEq(3 >= 3.0,  true, 'Int left float right greater than or equal #2')
-assertEq(3 >= 4.0, false, 'Int left float right greater than or equal #3')
+t.assertEq(1 < 2.5,   true, 'Int left float right less than #1')
+t.assertEq(2 < 2.0,  false, 'Int left float right less than #2')
+t.assertEq(1 <= 2.0,  true, 'Int left float right less than or equal #1')
+t.assertEq(2 <= 2.0,  true, 'Int left float right less than or equal #2')
+t.assertEq(3 <= 2.5, false, 'Int left float right less than or equal #3')
+t.assertEq(3 > 2.5,   true, 'Int left float right greater than #1')
+t.assertEq(1 > 2.0,  false, 'Int left float right greater than #2')
+t.assertEq(3 >= 2.5,  true, 'Int left float right greater than or equal #1')
+t.assertEq(3 >= 3.0,  true, 'Int left float right greater than or equal #2')
+t.assertEq(3 >= 4.0, false, 'Int left float right greater than or equal #3')
 
-assertEq(1.5 < 2,   true, 'Float left int right less than #1')
-assertEq(2.0 < 2,  false, 'Float left int right less than #2')
-assertEq(1.5 <= 2,  true, 'Float left int right less than or equal #1')
-assertEq(2.0 <= 2,  true, 'Float left int right less than or equal #2')
-assertEq(3.0 <= 2, false, 'Float left int right less than or equal #3')
-assertEq(3.0 > 2,   true, 'Float left int right greater than #1')
-assertEq(1.5 > 2,  false, 'Float left int right greater than #2')
-assertEq(3.0 >= 2,  true, 'Float left int right greater than or equal #1')
-assertEq(3.0 >= 3,  true, 'Float left int right greater than or equal #2')
-assertEq(3.5 >= 4, false, 'Float left int right greater than or equal #3')
+t.assertEq(1.5 < 2,   true, 'Float left int right less than #1')
+t.assertEq(2.0 < 2,  false, 'Float left int right less than #2')
+t.assertEq(1.5 <= 2,  true, 'Float left int right less than or equal #1')
+t.assertEq(2.0 <= 2,  true, 'Float left int right less than or equal #2')
+t.assertEq(3.0 <= 2, false, 'Float left int right less than or equal #3')
+t.assertEq(3.0 > 2,   true, 'Float left int right greater than #1')
+t.assertEq(1.5 > 2,  false, 'Float left int right greater than #2')
+t.assertEq(3.0 >= 2,  true, 'Float left int right greater than or equal #1')
+t.assertEq(3.0 >= 3,  true, 'Float left int right greater than or equal #2')
+t.assertEq(3.5 >= 4, false, 'Float left int right greater than or equal #3')
 
 // Relational operators have higher precedence over equality operators
-assert(1 <  2 = 2 >  1, 'Equal / relational precedence #1')
-assert(1 <= 2 = 2 >= 1, 'Equal / relational precedence #2')
-assert(2 >  1 = 1 <  2, 'Equal / relational precedence #3')
-assert(2 >= 1 = 1 <= 2, 'Equal / relational precedence #4')
+t.assert(1 <  2 = 2 >  1, 'Equal / relational precedence #1')
+t.assert(1 <= 2 = 2 >= 1, 'Equal / relational precedence #2')
+t.assert(2 >  1 = 1 <  2, 'Equal / relational precedence #3')
+t.assert(2 >= 1 = 1 <= 2, 'Equal / relational precedence #4')
 
 // The logical operators are 'and', 'or' and 'not'.
-assertEq(true  and true,  true,  'And #1')
-assertEq(true  and false, false, 'And #2')
-assertEq(false and true,  false, 'And #3')
-assertEq(false and false, false, 'And #4')
+t.assertEq(true  and true,  true,  'And #1')
+t.assertEq(true  and false, false, 'And #2')
+t.assertEq(false and true,  false, 'And #3')
+t.assertEq(false and false, false, 'And #4')
 
-assertEq(true  or true,  true,  'Or #1')
-assertEq(true  or false, true,  'Or #2')
-assertEq(false or true,  true,  'Or #3')
-assertEq(false or false, false, 'Or #4')
+t.assertEq(true  or true,  true,  'Or #1')
+t.assertEq(true  or false, true,  'Or #2')
+t.assertEq(false or true,  true,  'Or #3')
+t.assertEq(false or false, false, 'Or #4')
 
-assertEq(not true, false, 'Not #1')
-assertEq(not false, true, 'Not #2')
+t.assertEq(not true, false, 'Not #1')
+t.assertEq(not false, true, 'Not #2')
 
 // Logical and has lower precedence than equality and inequality.
-assert(1 <> 2 and 2 = 2, 'and precedence #1')
-assert(2 = 2 and 1 <> 2, 'and precedence #2')
+t.assert(1 <> 2 and 2 = 2, 'and precedence #1')
+t.assert(2 = 2 and 1 <> 2, 'and precedence #2')
 
 // 'or' is lower in precedence than 'and'.
-assertEq(true or false and false, true, 'or precedence #1')
-assertEq((true or false) and false, false, 'or precedence #1')
+t.assertEq(true or false and false, true, 'or precedence #1')
+t.assertEq((true or false) and false, false, 'or precedence #1')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Variables Blocks
@@ -286,16 +246,16 @@ assertEq((true or false) and false, false, 'or precedence #1')
 // Right now variable identifiers can only be upper or lower case letters.
 
 let x := 123
-assertEq(x, 123, 'variable declaration')
+t.assertEq(x, 123, 'variable declaration')
 // TODO: Add test for runtime error.
 
 // A variable may be updated with the assignment operator.
 x := x + 1
-assertEq(x, 124, 'variable assignment')
+t.assertEq(x, 124, 'variable assignment')
 
 // Assignments are an expression that return the value assigned to the
 // variable.
-assertEq(x := 2 * x, 248, 'assignment expression value')
+t.assertEq(x := 2 * x, 248, 'assignment expression value')
 
 //
 // begin and end delimit a block.  Within a block multiple expressions can
@@ -312,23 +272,23 @@ assertEq(x := 2 * x, 248, 'assignment expression value')
 // similar things happens with the end token.  It can't be used to continue
 // the 1+2 expression.
 //
-assertEq( begin 5*6  1+2 end , 3, 'Block expression return value')
+t.assertEq( begin 5*6  1+2 end , 3, 'Block expression return value')
 
 // Blocks can contain one expression.
-assertEq( begin 2+3 end, 5, 'Single expression block.')
+t.assertEq( begin 2+3 end, 5, 'Single expression block.')
 
 // Empty blocks do nothing but return null.
-assertEq( begin end , null, 'Empty block')
+t.assertEq( begin end , null, 'Empty block')
 
 // blocks also introduce a new scope for variable declarations.  You can 
 // "shadow" variables in outer scopes.
 begin
     let y := 100
     let x := 2 * y
-    assertEq(y, 100, 'block variable')
-    assertEq(x, 200, 'block variable shadowing')
+    t.assertEq(y, 100, 'block variable')
+    t.assertEq(x, 200, 'block variable shadowing')
 end
-assertEq(x, 248, 'variable unshadowed')
+t.assertEq(x, 248, 'variable unshadowed')
 // TODO: Test that y is undefined here.
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -344,18 +304,18 @@ assertEq(x, 248, 'variable unshadowed')
 // runtime exception.
 
 // if / else can be used as an expression.  
-assertEq(if true then 123, 123, 'If true expression')
+t.assertEq(if true then 123, 123, 'If true expression')
 
 // If there is no else and the condition expression is false, then the result
 // is null.
-assertEq(if false then 123, null, 'If false expression')
+t.assertEq(if false then 123, null, 'If false expression')
 
 // If there is an else, and the condition expression is false, then the result
 // is the alternative expression.
-assertEq(if false then 123 else 321, 321, 'If / else false expression')
+t.assertEq(if false then 123 else 321, 321, 'If / else false expression')
 
 // Any valid expression can go in the condition, consequent, and alternative.
-assertEq(
+t.assertEq(
     if begin let result:=1+2  result=3 end then
         begin let x:=4 let y:=2  x*y end 
     else
@@ -364,8 +324,8 @@ assertEq(
     'If / else expressions')
 
 // Else binds to the nearest if, as is usual.
-assertEq(if true then if false then 'A' else 'B', 'B', 'Else binding #1')
-assertEq(if false then if false then 'A' else 'B', null, 'Else binding #2')
+t.assertEq(if true then if false then 'A' else 'B', 'B', 'Else binding #1')
+t.assertEq(if false then if false then 'A' else 'B', null, 'Else binding #2')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Looping
@@ -386,7 +346,7 @@ begin
         sum := sum + n
         n := n + 1
       end
-    assertEq(sum, 5050, 'While loop')
+    t.assertEq(sum, 5050, 'While loop')
 end
 
 
@@ -395,11 +355,11 @@ begin
     let n := 100
     while false do
         n := n + 1
-    assertEq(n, 100, 'Never executing while loop')
+    t.assertEq(n, 100, 'Never executing while loop')
 end
 
 // A while always evaluates to null.
-assertEq(while false do 0, null, 'While evals to null')
+t.assertEq(while false do 0, null, 'While evals to null')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -413,12 +373,12 @@ assertEq(while false do 0, null, 'While evals to null')
 
 
 // Functions are values and can be anonymous and immediately invoked.
-assertEq( (fn (x, y) x*y)(100, 200), 20000, 'Inline function' )
+t.assertEq( (fn (x, y) x*y)(100, 200), 20000, 'Inline function' )
 
 // Since functions are values they can be assigned to variables and invoked
 // with ().
 let square := fn (x) x * x
-assertEq(square(3), 9, 'Function assigned to variable')
+t.assertEq(square(3), 9, 'Function assigned to variable')
 
 // A syntactic shortcut for assigning to a variable is to just put the variable
 // name between fn and the parameters
@@ -427,7 +387,7 @@ fn divides(m, n)
     let remainder := n mod m
     remainder = 0
   end
-assertEq(divides(5, 35), true, 'Named functions')
+t.assertEq(divides(5, 35), true, 'Named functions')
 
 // Functions are also closures.  Here's the standard counter function example.
 fn makeCounter()
@@ -440,7 +400,7 @@ fn makeCounter()
       end
   end
 let counter := makeCounter()
-assertEq(begin counter() counter() counter() end, 3, 'Functions with closures')
+t.assertEq(begin counter() counter() counter() end, 3, 'Functions with closures')
 
 ///////////////////////////////////////////////////////////////////////////////
 // More Logical
@@ -448,17 +408,17 @@ assertEq(begin counter() counter() counter() end, 3, 'Functions with closures')
 
 // The 'and' operator short circuits in the expected way.
 counter := makeCounter()
-assertEq(false and counter() = 1, false, 'and short circuits #1')
-assertEq(counter(), 1, 'and short circuits #2')
-assertEq(true and counter() = 2, true, 'and short circuits #3')
-assertEq(counter(), 3, 'and short circuits #4')
+t.assertEq(false and counter() = 1, false, 'and short circuits #1')
+t.assertEq(counter(), 1, 'and short circuits #2')
+t.assertEq(true and counter() = 2, true, 'and short circuits #3')
+t.assertEq(counter(), 3, 'and short circuits #4')
 
 // The 'or' operator short circuits in the expected way.
 counter := makeCounter()
-assertEq(true or counter() = 1, true, 'or short circuits #1')
-assertEq(counter(), 1, 'or short circuits #2')
-assertEq(false or counter() = 2, true, 'or short circuits #3')
-assertEq(counter(), 3, 'or short circuits #4')
+t.assertEq(true or counter() = 1, true, 'or short circuits #1')
+t.assertEq(counter(), 1, 'or short circuits #2')
+t.assertEq(false or counter() = 2, true, 'or short circuits #3')
+t.assertEq(counter(), 3, 'or short circuits #4')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Lists
@@ -470,27 +430,27 @@ assertEq(counter(), 3, 'or short circuits #4')
 begin
     // Empty list. len() is a special function that returns the size of lists.
     let l := []
-    assertEq(len(l), 0, 'Empty list length is zero')
+    t.assertEq(len(l), 0, 'Empty list length is zero')
     l := ['one item']
-    assertEq(len(l), 1, 'One item list length.')
+    t.assertEq(len(l), 1, 'One item list length.')
     
     // Lists can hold any object of any kind.  You can index lists with
     // integers starting at zero.
     l := ['string', 5*2, 41.0 / 2.0, true, not true, null, fn (x) 2*x]
-    assertEq(l[0], 'string', 'List index 0')
-    assertEq(l[1], 10, 'List index 1')
-    assertEq(l[2], 20.5, 'List index 2')
-    assertEq(l[3], true, 'List index 3')
-    assertEq(l[4], false, 'List index 4')
-    assertEq(l[5], null, 'List index 5')
-    assertEq(l[6](2), 4, 'List index 6')
+    t.assertEq(l[0], 'string', 'List index 0')
+    t.assertEq(l[1], 10, 'List index 1')
+    t.assertEq(l[2], 20.5, 'List index 2')
+    t.assertEq(l[3], true, 'List index 3')
+    t.assertEq(l[4], false, 'List index 4')
+    t.assertEq(l[5], null, 'List index 5')
+    t.assertEq(l[6](2), 4, 'List index 6')
     
     // You can push new items on the end of a list.
     l := []
     push(l, 100)
     push(l, 'pushed')
-    assertEq(l[0], 100, 'Push test 1')
-    assertEq(l[1], 'pushed', 'Push test 2')
+    t.assertEq(l[0], 100, 'Push test 1')
+    t.assertEq(l[1], 'pushed', 'Push test 2')
 end
 
 
@@ -513,14 +473,14 @@ begin
     map[null] := 'null is an object'
     map[g] := 'fn that halves'
     map[m] := null
-    assertEq(map['year'], 2018, 'map get / set value #1')
-    assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #2')
-    assertEq(map[0.5], 'one half', 'map get / set value #3')
-    assertEq(map[true],  0.5, 'map get /set #4')
-    assertEq(map[false](3), 6, 'map get / set #5')
-    assertEq(map[null], 'null is an object', 'map get / set #6')
-    assertEq(map[g], 'fn that halves', 'map get / set #7')
-    assertEq(map[m], null, 'map get / set #8')
+    t.assertEq(map['year'], 2018, 'map get / set value #1')
+    t.assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #2')
+    t.assertEq(map[0.5], 'one half', 'map get / set value #3')
+    t.assertEq(map[true],  0.5, 'map get /set #4')
+    t.assertEq(map[false](3), 6, 'map get / set #5')
+    t.assertEq(map[null], 'null is an object', 'map get / set #6')
+    t.assertEq(map[g], 'fn that halves', 'map get / set #7')
+    t.assertEq(map[m], null, 'map get / set #8')
 end
 
 // You can also initilize a map all at once as shown below.  Seperate the 
@@ -539,22 +499,22 @@ begin
         g: 'fn that halves'
         m: null
     }
-    assertEq(map['year'], 2018, 'map get / set value #9')
-    assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #10')
-    assertEq(map[0.5], 'one half', 'map get / set value #11')
-    assertEq(map[true],  0.5, 'map get /set #12')
-    assertEq(map[false](3), 6, 'map get / set #13')
-    assertEq(map[null], 'null is an object', 'map get / set #14')
-    assertEq(map[g], 'fn that halves', 'map get / set #15')
-    assertEq(map[m], null, 'map get / set #16')
+    t.assertEq(map['year'], 2018, 'map get / set value #9')
+    t.assertEq(map[9 * 1000], 'number that it is over', 'map get / set value #10')
+    t.assertEq(map[0.5], 'one half', 'map get / set value #11')
+    t.assertEq(map[true],  0.5, 'map get /set #12')
+    t.assertEq(map[false](3), 6, 'map get / set #13')
+    t.assertEq(map[null], 'null is an object', 'map get / set #14')
+    t.assertEq(map[g], 'fn that halves', 'map get / set #15')
+    t.assertEq(map[m], null, 'map get / set #16')
 end
 
 // Use the built in len() function to get the size of a map.
 begin
     let mOne := { }
     let mTwo := { 1:'one' 2:'two' 3:'three' }
-    assertEq(len(mOne), 0, 'Empty map length')
-    assertEq(len(mTwo), 3, 'Non-empty map length')
+    t.assertEq(len(mOne), 0, 'Empty map length')
+    t.assertEq(len(mTwo), 3, 'Non-empty map length')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -574,23 +534,23 @@ begin
    let p := Point { x: 20  y: 200 }
    
    // Get to members using the usual dot.
-   assertEq(p.x, 20, 'Member access')
-   assertEq(p.y, 200, 'Member access')
+   t.assertEq(p.x, 20, 'Member access')
+   t.assertEq(p.y, 200, 'Member access')
    
    // Uninitialized members are set to null
-   assertEq(p.z, null, 'Uninitialized member are null')
+   t.assertEq(p.z, null, 'Uninitialized member are null')
 
    // You can set a member with an assignment statement
    p.z := 2000
-   assertEq(p.z, 2000, 'Member set')
+   t.assertEq(p.z, 2000, 'Member set')
    
    // You can also make empty records.
    let Empty := record end
    let e := Empty { }
-   assert(e <> null, 'Empty record')
+   t.assert(e <> null, 'Empty record')
 
    // You can also use records anonymously.
-   assertEq(
+   t.assertEq(
         (record x end { x: 'hello' }).x,
         'hello',
         'Anonymous records')
@@ -600,5 +560,5 @@ end
 // The End
 ///////////////////////////////////////////////////////////////////////////////
 
-displaySummary()
+t.displaySummary()
 
