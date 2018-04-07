@@ -14,37 +14,38 @@ let Test := record
     nTests
     nErrors
     showPassedTest
+
+    fn assert(t, condition, message)
+      begin
+        t.nTests := t.nTests + 1
+        if condition = false then
+          begin
+            writeLn('[FAILED] "', message, '"')
+            t.nErrors := t.nErrors + 1
+          end
+        else if t.showPassedTest then
+            writeLn('[OK] "', message, '"')
+      end
+
+    fn assertEq(t, test, expected, message)
+      begin
+        t.nTests := t.nTests + 1
+        if test <> expected then
+          begin
+            writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
+                test, '>')
+            t.nErrors := t.nErrors + 1
+          end
+        else if t.showPassedTest then
+            writeLn('[OK] "', message, '"')
+      end
+
+    fn displaySummary(t)
+      begin
+        writeLn()
+        writeLn(t.nTests - t.nErrors, ' out of ', t.nTests, ' tests passed.')
+        writeLn('There are ', t.nErrors, ' errors. ',
+            if t.nErrors=0 then ':-)' else 'D-:')
+      end
 end
 
-fn Test.assert(t, condition, message)
-  begin
-    t.nTests := t.nTests + 1
-    if condition = false then
-      begin
-        writeLn('[FAILED] "', message, '"')
-        t.nErrors := t.nErrors + 1
-      end
-    else if t.showPassedTest then
-        writeLn('[OK] "', message, '"')
-  end
-
-fn Test.assertEq(t, test, expected, message)
-  begin
-    t.nTests := t.nTests + 1
-    if test <> expected then
-      begin
-        writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
-            test, '>')
-        t.nErrors := t.nErrors + 1
-      end
-    else if t.showPassedTest then
-        writeLn('[OK] "', message, '"')
-  end
-
-fn Test.displaySummary(t)
-  begin
-    writeLn()
-    writeLn(t.nTests - t.nErrors, ' out of ', t.nTests, ' tests passed.')
-    writeLn('There are ', t.nErrors, ' errors. ',
-        if t.nErrors=0 then ':-)' else 'D-:')
-  end

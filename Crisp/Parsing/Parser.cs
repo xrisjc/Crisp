@@ -1,6 +1,8 @@
 ﻿using Crisp.Ast;
 using Crisp.Eval;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Crisp.Parsing
 {
@@ -159,41 +161,19 @@ namespace Crisp.Parsing
                 case TokenTag.Fn:
                     {
                         // Function name
-                        Match(TokenTag.Identifier, out var name1Token);
-
-                        Token name2Token = null;
-                        if (Match(TokenTag.Period))
-                        {
-                            name2Token = Expect(TokenTag.Identifier);
-                        }
+                        Match(TokenTag.Identifier, out var nameToken);
 
                         // Function parameter list
                         Expect(TokenTag.LParen);
-                        var parameters = new List<Identifier>();
-                        if (!Match(TokenTag.RParen))
-                        {
-                            do
-                            {
-                                var identifier = ParseIdentifier();
-                                parameters.Add(identifier);
-                            }
-                            while (Match(TokenTag.Comma));
-                            Expect(TokenTag.RParen);
-                        }
+                        var parameters = ParseParameters();
 
                         // Function body
                         var body = ParseExpression();
 
                         // Create AST
-                        if (name1Token != null && name2Token != null)
+                        if (nameToken != null)
                         {
-                            var record = new Identifier(name1Token.Lexeme);
-                            var name = new Identifier(name2Token.Lexeme);
-                            return new MemberFunction(record, name, parameters, body);
-                        }
-                        else if (name1Token != null)
-                        {
-                            var name = new Identifier(name1Token.Lexeme);
+                            var name = new Identifier(nameToken.Lexeme);
                             return new NamedFunction(name, parameters, body);
                         }
                         else
@@ -266,8 +246,20 @@ namespace Crisp.Parsing
                             var id = new Identifier(idToken.Lexeme);
                             members.Add(id);
                         }
+
+                        var functions = new List<NamedFunction>();
+                        while (Match(TokenTag.Fn))
+                        {
+                            var name = ParseIdentifier();
+                            Expect(TokenTag.LParen);
+                            var parameters = ParseParameters();
+                            var body = ParseExpression();
+                            var function = new NamedFunction(name, parameters, body);
+                            functions.Add(function);
+                        }
+
                         Expect(TokenTag.End);
-                        return new Record(members);
+                        return new Record(members, functions);
                     }
 
                 case TokenTag.String:
@@ -405,18 +397,28 @@ namespace Crisp.Parsing
 
         List<IExpression> ParseArguments()
         {
-            var args = new List<IExpression>();
-            if (!Match(TokenTag.RParen))
+            return ParseTuple(() => ParseExpression()).ToList();
+        }
+
+        List<Identifier> ParseParameters()
+        {
+            return ParseTuple(() => ParseIdentifier()).ToList();
+        }
+
+        IEnumerable<T> ParseTuple<T>(Func<T> parseItem)
+        {
+            if (Match(TokenTag.RParen))
             {
-                do
-                {
-                    var arg = ParseExpression();
-                    args.Add(arg);
-                }
-                while (Match(TokenTag.Comma));
-                Expect(TokenTag.RParen);
+                yield break;
             }
-            return args;
+
+            do
+            {
+                yield return parseItem();
+            }
+            while (Match(TokenTag.Comma));
+
+            Expect(TokenTag.RParen);
         }
 
         public IExpression ParseExpression(Precedence rbp = Precedence.Lowest)

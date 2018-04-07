@@ -7,13 +7,16 @@ namespace Crisp.Ast
     {
         public IEnumerable<Identifier> Members { get; }
 
-        public Record(IEnumerable<Identifier> members)
+        public IEnumerable<NamedFunction> Functions { get; }
+
+        public Record(IEnumerable<Identifier> members, IEnumerable<NamedFunction> functions)
         {
             Members = members;
+            Functions = functions;
         }
 
         public Record()
-            : this(Enumerable.Empty<Identifier>())
+            : this(Enumerable.Empty<Identifier>(), Enumerable.Empty<NamedFunction>())
         {
         }
     }

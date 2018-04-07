@@ -4,25 +4,13 @@ namespace Crisp.Eval
 {
     class ObjRecord : IObj
     {
-        private List<string> members;
-        private Dictionary<string, IFn> memberFunctions = new Dictionary<string, IFn>();
+        List<string> members;
+        Dictionary<string, IFn> memberFunctions;
 
-        public ObjRecord(List<string> members)
+        public ObjRecord(List<string> members, Dictionary<string, IFn> functions)
         {
             this.members = members;
-        }
-
-        public void AddMemberFunction(string name, IFn function)
-        {
-            if (memberFunctions.ContainsKey(name))
-            {
-                throw new RuntimeErrorException(
-                    $"record already contains member function \"<{name}>\"");
-            }
-            else
-            {
-                memberFunctions.Add(name, function);
-            }
+            this.memberFunctions = functions;
         }
 
         public IFn GetMemberFunction(string name)

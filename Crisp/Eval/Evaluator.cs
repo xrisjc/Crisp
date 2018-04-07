@@ -104,17 +104,6 @@ namespace Crisp.Eval
                 case MemberCall call:
                     throw new RuntimeErrorException("method call must be on a record instance");
 
-                case MemberFunction fn
-                when fn.Record.Evaluate(environment) is ObjRecord record:
-                    {
-                        record.AddMemberFunction(fn.Name.Name, new ObjFn(fn, environment));
-                        return ObjNull.Instance;
-                    }
-
-                case MemberFunction fn:
-                    throw new RuntimeErrorException(
-                        $"identfier {fn.Record.Name} not bound to a record");
-
                 case NamedFunction fn:
                     return environment.Create(fn.Name.Name, new ObjFn(fn, environment));
 
@@ -244,7 +233,11 @@ namespace Crisp.Eval
                         opUn.Expression.Evaluate(environment));
 
                 case Record rec:
-                    return new ObjRecord(rec.Members.Select(x => x.Name).ToList());
+                    return new ObjRecord(
+                        rec.Members.Select(x => x.Name).ToList(),
+                        rec.Functions.ToDictionary(
+                            nf => nf.Name.Name,
+                            nf => new ObjFn(nf, environment) as IFn));
 
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is ObjRecord rec:
