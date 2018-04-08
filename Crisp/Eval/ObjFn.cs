@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Crisp.Eval
 {
-    class ObjFn : IObj, IFn
+    class ObjFn : IObj
     {
         IExpression body;
         List<string> parameters;

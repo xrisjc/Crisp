@@ -1,4 +1,5 @@
 ﻿using Crisp.Ast;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -64,12 +65,10 @@ namespace Crisp.Eval
                     }
 
                 case Call call
-                when call.FunctionExpression.Evaluate(environment) is IFn function:
+                when call.FunctionExpression.Evaluate(environment) is ObjFn function:
                     if (function.Arity == null || function.Arity == call.ArgumentExpressions.Count)
                     {
-                        var arguments = call.ArgumentExpressions
-                                            .Select(arg => arg.Evaluate(environment))
-                                            .ToList();
+                        var arguments = call.ArgumentExpressions.Evaluate(environment);
                         return function.Call(arguments);
                     }
                     else
@@ -80,6 +79,11 @@ namespace Crisp.Eval
                 case Call call:
                     throw new RuntimeErrorException(
                         "function call attempted on non function value");
+
+                case Command command:
+                    return Evaluate(
+                        command.Type,
+                        command.ArgumentExpressions.Evaluate(environment));
 
                 case MemberCall call
                 when call.Member.Expression.Evaluate(environment) is ObjRecordInstance record:
@@ -237,7 +241,7 @@ namespace Crisp.Eval
                         rec.Variables.Select(x => x.Name).ToList(),
                         rec.Functions.ToDictionary(
                             nf => nf.Name.Name,
-                            nf => new ObjFn(nf, environment) as IFn));
+                            nf => new ObjFn(nf, environment)));
 
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is ObjRecord rec:
@@ -277,6 +281,18 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException(
                         $"Unsupported AST node {expression.GetType()}.");
             }
+        }
+
+        public static List<IObj> Evaluate(this IEnumerable<IExpression> expressions,
+            Environment environment)
+        {
+            var results = new List<IObj>();
+            foreach (var expression in expressions)
+            {
+                var result = expression.Evaluate(environment);
+                results.Add(result);
+            }
+            return results;
         }
 
         static IObj Bool(bool b) => b ? ObjBool.True : ObjBool.False;
@@ -371,6 +387,55 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException(
                         $"Operator {op} cannot be applied to values " +
                         $"<{left}> and <{right}>");
+            }
+        }
+
+        public static IObj Evaluate(CommandType cmd, List<IObj> args)
+        {
+            switch (cmd)
+            {
+                case CommandType.Len:
+                    if (args[0] is ILen len)
+                    {
+                        return new ObjInt(len.Len);
+                    }
+                    else
+                    {
+                        throw new RuntimeErrorException(
+                            $"<{args[0]}> not supported by len()");
+                    }
+
+                case CommandType.Push:
+                    if (args[0] is ObjList list)
+                    {
+                        return list.Push(args[1]);
+                    }
+                    else
+                    {
+                        throw new RuntimeErrorException(
+                            $"<{args[0]}> not supported by push()");
+                    }
+
+                case CommandType.ReadLn:
+                    {
+                        if (args.Count > 0)
+                        {
+                            var prompt = string.Join("", args);
+                            Console.Write(prompt);
+                        }
+                        var line = Console.ReadLine();
+                        return new ObjStr(line);
+                    }
+
+                case CommandType.WriteLn:
+                    {
+                        var line = string.Join("", args);
+                        Console.WriteLine(line);
+                        return ObjNull.Instance;
+                    }
+
+                default:
+                    throw new RuntimeErrorException($"unknown command {cmd}");
             }
         }
     }

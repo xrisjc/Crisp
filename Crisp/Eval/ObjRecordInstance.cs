@@ -38,7 +38,7 @@ namespace Crisp.Eval
             }
         }
 
-        public IFn GetMemberFunction(string name)
+        public ObjFn GetMemberFunction(string name)
         {
             return record.GetFunction(name);
         }

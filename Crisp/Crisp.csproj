@@ -51,6 +51,8 @@
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
+    <Compile Include="Ast\Command.cs" />
+    <Compile Include="Ast\CommandType.cs" />
     <Compile Include="Ast\Function.cs" />
     <Compile Include="Ast\Identifier.cs" />
     <Compile Include="Ast\IExpression.cs" />
@@ -81,13 +83,8 @@
     <Compile Include="Eval\ObjBool.cs" />
     <Compile Include="Eval\ObjFloat.cs" />
     <Compile Include="Eval\ObjList.cs" />
-    <Compile Include="Fn\Len.cs" />
-    <Compile Include="Fn\Push.cs" />
-    <Compile Include="Fn\ReadLn.cs" />
-    <Compile Include="Fn\WriteLn.cs" />
     <Compile Include="Eval\Environment.cs" />
     <Compile Include="Eval\IObj.cs" />
-    <Compile Include="Eval\IFn.cs" />
     <Compile Include="Eval\ObjFn.cs" />
     <Compile Include="Eval\ObjInt.cs" />
     <Compile Include="Eval\ObjMap.cs" />

@@ -1,5 +1,4 @@
 ﻿using Crisp.Eval;
-using Crisp.Fn;
 using Crisp.Parsing;
 using System;
 using System.IO;
@@ -11,10 +10,6 @@ namespace Crisp
         public static void Run(TextReader reader, TextWriter writer)
         {
             var environment = new Eval.Environment();
-            environment.Create("len", new Len());
-            environment.Create("push", new Push());
-            environment.Create("writeLn", new WriteLn());
-            environment.Create("readLn", new ReadLn());
 
             Load("Sys.crisp", environment);
             Load("Test.crisp", environment);

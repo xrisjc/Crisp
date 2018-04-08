@@ -5,15 +5,15 @@ namespace Crisp.Eval
     class ObjRecord : IObj
     {
         List<string> variableNames;
-        Dictionary<string, IFn> functions;
+        Dictionary<string, ObjFn> functions;
 
-        public ObjRecord(List<string> variableNames, Dictionary<string, IFn> functions)
+        public ObjRecord(List<string> variableNames, Dictionary<string, ObjFn> functions)
         {
             this.variableNames = variableNames;
             this.functions = functions;
         }
 
-        public IFn GetFunction(string name)
+        public ObjFn GetFunction(string name)
         {
             if (functions.TryGetValue(name, out var function))
             {

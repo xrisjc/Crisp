@@ -25,11 +25,13 @@
         Integer,
         LBrace,
         LBracket,
+        Len,
         LessThan,
         LessThanOrEqualTo,
         Let,
         LParen,
         Period,
+        Push,
         Mod,
         Multiply,
         Not,
@@ -38,6 +40,7 @@
         Or,
         RBrace,
         RBracket,
+        ReadLn,
         Record,
         RParen,
         String,
@@ -45,5 +48,6 @@
         Then,
         True,
         While,
+        WriteLn,
     }
 }

@@ -61,6 +61,15 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = OperatorInfix.Sub,
             };
 
+        static Dictionary<TokenTag, CommandType> tokenCommand =
+            new Dictionary<TokenTag, CommandType>
+            {
+                [TokenTag.Len] = CommandType.Len,
+                [TokenTag.Push] = CommandType.Push,
+                [TokenTag.ReadLn] = CommandType.ReadLn,
+                [TokenTag.WriteLn] = CommandType.WriteLn,
+            };
+
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
@@ -221,6 +230,17 @@ namespace Crisp.Parsing
                         var expression = ParseExpression();
                         Expect(TokenTag.RParen);
                         return expression;
+                    }
+
+                case TokenTag.Len:
+                case TokenTag.Push:
+                case TokenTag.ReadLn:
+                case TokenTag.WriteLn:
+                    {
+                        var commandType = tokenCommand[token.Tag];
+                        Expect(TokenTag.LParen);
+                        var argumentExpressions = ParseArguments();
+                        return new Command(commandType, argumentExpressions);
                     }
 
                 case TokenTag.Identifier:
