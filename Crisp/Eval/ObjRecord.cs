@@ -4,36 +4,36 @@ namespace Crisp.Eval
 {
     class ObjRecord : IObj
     {
-        List<string> members;
-        Dictionary<string, IFn> memberFunctions;
+        List<string> variableNames;
+        Dictionary<string, IFn> functions;
 
-        public ObjRecord(List<string> members, Dictionary<string, IFn> functions)
+        public ObjRecord(List<string> variableNames, Dictionary<string, IFn> functions)
         {
-            this.members = members;
-            this.memberFunctions = functions;
+            this.variableNames = variableNames;
+            this.functions = functions;
         }
 
-        public IFn GetMemberFunction(string name)
+        public IFn GetFunction(string name)
         {
-            if (memberFunctions.TryGetValue(name, out var fn))
+            if (functions.TryGetValue(name, out var function))
             {
-                return fn;
+                return function;
             }
             else
             {
-                throw new RuntimeErrorException($"cannot find member function {name}");
+                throw new RuntimeErrorException($"cannot find function {name}");
             }
         }
 
         public ObjRecordInstance Construct(Dictionary<string, IObj> initalizers)
         {
-            var instanceMembers = new Dictionary<string, IObj>();
-            foreach (var member in members)
+            var variables = new Dictionary<string, IObj>();
+            foreach (var variableName in variableNames)
             {
-                instanceMembers[member] = initalizers.GetValue(member, ObjNull.Instance);
+                variables[variableName] = initalizers.GetValue(variableName, ObjNull.Instance);
             }
 
-            return new ObjRecordInstance(this, instanceMembers);
+            return new ObjRecordInstance(this, variables);
         }
     }
 }

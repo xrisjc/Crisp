@@ -234,7 +234,7 @@ namespace Crisp.Eval
 
                 case Record rec:
                     return new ObjRecord(
-                        rec.Members.Select(x => x.Name).ToList(),
+                        rec.Variables.Select(x => x.Name).ToList(),
                         rec.Functions.ToDictionary(
                             nf => nf.Name.Name,
                             nf => new ObjFn(nf, environment) as IFn));

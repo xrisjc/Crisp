@@ -5,17 +5,17 @@ namespace Crisp.Eval
     class ObjRecordInstance : IObj, IMemberGet, IMemberSet
     {
         ObjRecord record;
-        Dictionary<string, IObj> members;
+        Dictionary<string, IObj> variables;
 
-        public ObjRecordInstance(ObjRecord record, Dictionary<string, IObj> members)
+        public ObjRecordInstance(ObjRecord record, Dictionary<string, IObj> variables)
         {
             this.record = record;
-            this.members = members;
+            this.variables = variables;
         }
 
         public (IObj, MemberStatus) MemberGet(string name)
         {
-            if (members.TryGetValue(name, out var value))
+            if (variables.TryGetValue(name, out var value))
             {
                 return (value, MemberStatus.Ok);
             }
@@ -27,9 +27,9 @@ namespace Crisp.Eval
 
         public (IObj, MemberStatus) MemberSet(string name, IObj value)
         {
-            if (members.ContainsKey(name))
+            if (variables.ContainsKey(name))
             {
-                members[name] = value;
+                variables[name] = value;
                 return (value, MemberStatus.Ok);
             }
             else
@@ -40,7 +40,7 @@ namespace Crisp.Eval
 
         public IFn GetMemberFunction(string name)
         {
-            return record.GetMemberFunction(name);
+            return record.GetFunction(name);
         }
     }
 }

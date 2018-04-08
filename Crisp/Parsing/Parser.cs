@@ -240,11 +240,11 @@ namespace Crisp.Parsing
 
                 case TokenTag.Record:
                     {
-                        var members = new List<Identifier>();
+                        var variables = new List<Identifier>();
                         while (Match(TokenTag.Identifier, out var idToken))
                         {
                             var id = new Identifier(idToken.Lexeme);
-                            members.Add(id);
+                            variables.Add(id);
                         }
 
                         var functions = new List<NamedFunction>();
@@ -259,7 +259,7 @@ namespace Crisp.Parsing
                         }
 
                         Expect(TokenTag.End);
-                        return new Record(members, functions);
+                        return new Record(variables, functions);
                     }
 
                 case TokenTag.String:
