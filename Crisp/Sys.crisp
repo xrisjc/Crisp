@@ -15,37 +15,37 @@ let Test := record
     nErrors
     showPassedTest
 
-    fn assert(t, condition, message)
+    fn assert(condition, message)
       begin
-        t.nTests := t.nTests + 1
+        this.nTests := this.nTests + 1
         if condition = false then
           begin
             writeLn('[FAILED] "', message, '"')
-            t.nErrors := t.nErrors + 1
+            this.nErrors := this.nErrors + 1
           end
-        else if t.showPassedTest then
+        else if this.showPassedTest then
             writeLn('[OK] "', message, '"')
       end
 
-    fn assertEq(t, test, expected, message)
+    fn assertEq(test, expected, message)
       begin
-        t.nTests := t.nTests + 1
+        this.nTests := this.nTests + 1
         if test <> expected then
           begin
             writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
                 test, '>')
-            t.nErrors := t.nErrors + 1
+            this.nErrors := this.nErrors + 1
           end
-        else if t.showPassedTest then
+        else if this.showPassedTest then
             writeLn('[OK] "', message, '"')
       end
 
-    fn displaySummary(t)
+    fn displaySummary()
       begin
         writeLn()
-        writeLn(t.nTests - t.nErrors, ' out of ', t.nTests, ' tests passed.')
-        writeLn('There are ', t.nErrors, ' errors. ',
-            if t.nErrors=0 then ':-)' else 'D-:')
+        writeLn(this.nTests - this.nErrors, ' out of ', this.nTests, ' tests passed.')
+        writeLn('There are ', this.nErrors, ' errors. ',
+            if this.nErrors=0 then ':-)' else 'D-:')
       end
 end
 

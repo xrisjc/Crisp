@@ -273,6 +273,7 @@ namespace Crisp.Parsing
                             var name = ParseIdentifier();
                             Expect(TokenTag.LParen);
                             var parameters = ParseParameters();
+                            parameters.Add(Identifier.This);
                             var body = ParseExpression();
                             var function = new NamedFunction(name, parameters, body);
                             functions.Add(function);

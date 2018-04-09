@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Crisp.Ast
 {
     class Call : IExpression
     {
+        List<IExpression> argumentExpressions;
+
         public IExpression FunctionExpression { get; }
 
-        public List<IExpression> ArgumentExpressions { get; }
+        public IEnumerable<IExpression> ArgumentExpressions => argumentExpressions;
+
+        public int Arity => argumentExpressions.Count;
 
         public Call(IExpression functionExpression, List<IExpression> argumentExpressions)
         {
             FunctionExpression = functionExpression;
-            ArgumentExpressions = argumentExpressions;
+            this.argumentExpressions = argumentExpressions;
         }
 
         public Call(IExpression functionExpression)

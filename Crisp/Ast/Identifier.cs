@@ -8,5 +8,7 @@
         {
             Name = name;
         }
+
+        public static Identifier This { get; } = new Identifier("this");
     }
 }

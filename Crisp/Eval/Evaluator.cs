@@ -66,7 +66,7 @@ namespace Crisp.Eval
 
                 case Call call
                 when call.FunctionExpression.Evaluate(environment) is ObjFn function:
-                    if (function.Arity == null || function.Arity == call.ArgumentExpressions.Count)
+                    if (function.Arity == call.Arity)
                     {
                         var arguments = call.ArgumentExpressions.Evaluate(environment);
                         return function.Call(arguments);
@@ -88,21 +88,15 @@ namespace Crisp.Eval
                 case MemberCall call
                 when call.Member.Expression.Evaluate(environment) is ObjRecordInstance record:
                     {
-                        var arguments = new List<IObj> { record };
-                        foreach (var expr in call.ArgumentExpressions)
-                        {
-                            var arg = expr.Evaluate(environment);
-                            arguments.Add(arg);
-                        }
                         var fn = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
-                        if (fn.Arity == arguments.Count)
-                        {
-                            return fn.Call(arguments);
-                        }
-                        else
+                        if (fn.Arity != call.Arity + 1) // + 1 for "this" argument
                         {
                             throw new RuntimeErrorException("function arity mismatch");
                         }
+
+                        var arguments = call.ArgumentExpressions.Evaluate(environment);
+                        arguments.Add(record); // the "this" argument is at the end
+                        return fn.Call(arguments);
                     }
 
                 case MemberCall call:

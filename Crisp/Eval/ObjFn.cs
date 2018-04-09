@@ -10,6 +10,8 @@ namespace Crisp.Eval
         List<string> parameters;
         Environment environment;
 
+        public int Arity => parameters.Count;
+
         public ObjFn(IExpression body, List<string> parameters, Environment environment)
         {
             this.body = body;
@@ -21,9 +23,7 @@ namespace Crisp.Eval
             : this(function.Body, function.Parameters.Select(p => p.Name).ToList(), environment)
         {
         }
-
-        public int? Arity => parameters.Count;
-
+        
         public IObj Call(List<IObj> arguments)
         {
             var localEnvironment = new Environment(environment);
