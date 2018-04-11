@@ -11,19 +11,19 @@ namespace Crisp.Eval
         {
             switch (expression)
             {
-                case Assignment<Indexing> e
+                case AssignmentIndexing e
                 when e.Target.Indexable.Evaluate(environment) is IIndexSet indexSet:
                     return indexSet.IndexSet(
                         e.Target.Index.Evaluate(environment),
                         e.Value.Evaluate(environment));
 
-                case Assignment<Indexing> e:
+                case AssignmentIndexing e:
                     throw new RuntimeErrorException("Non-indexable object indexed.");
 
-                case Assignment<Identifier> e:
+                case AssignmentIdentifier e:
                     return environment.Set(e.Target.Name, e.Value.Evaluate(environment));
 
-                case Assignment<Member> e:
+                case AssignmentMember e:
                     {
                         var member = e.Target.Expression.Evaluate(environment) as IMemberSet;
                         if (member == null)
@@ -143,16 +143,16 @@ namespace Crisp.Eval
                 case List list:
                     return new ObjList(list, environment);
 
-                case Literal<bool> literal:
+                case LiteralBool literal:
                     return literal.Value ? ObjBool.True : ObjBool.False;
 
-                case Literal<int> literal:
+                case LiteralInt literal:
                     return new ObjInt(literal.Value);
 
-                case Literal<double> literal:
+                case LiteralDouble literal:
                     return new ObjFloat(literal.Value);
 
-                case Literal<string> literal:
+                case LiteralString literal:
                     return new ObjStr(literal.Value);
 
                 case LiteralNull literal:

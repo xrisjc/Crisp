@@ -47,7 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ast\Assignment.cs" />
+    <Compile Include="Ast\AssignmentIdentifier.cs" />
+    <Compile Include="Ast\AssignmentIndexing.cs" />
+    <Compile Include="Ast\AssignmentMember.cs" />
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
@@ -59,8 +61,11 @@
     <Compile Include="Ast\Indexing.cs" />
     <Compile Include="Ast\Let.cs" />
     <Compile Include="Ast\List.cs" />
-    <Compile Include="Ast\Literal.cs" />
+    <Compile Include="Ast\LiteralBool.cs" />
+    <Compile Include="Ast\LiteralDouble.cs" />
+    <Compile Include="Ast\LiteralInt.cs" />
     <Compile Include="Ast\LiteralNull.cs" />
+    <Compile Include="Ast\LiteralString.cs" />
     <Compile Include="Ast\Map.cs" />
     <Compile Include="Ast\Member.cs" />
     <Compile Include="Ast\MemberCall.cs" />

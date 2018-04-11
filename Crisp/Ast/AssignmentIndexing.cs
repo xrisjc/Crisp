@@ -1,12 +1,12 @@
 ﻿namespace Crisp.Ast
 {
-    class Assignment<T> : IExpression
+    class AssignmentIndexing : IExpression
     {
-        public T Target { get; }
+        public Indexing Target { get; }
 
         public IExpression Value { get; }
 
-        public Assignment(T target, IExpression value)
+        public AssignmentIndexing(Indexing target, IExpression value)
         {
             Target = target;
             Value = value;

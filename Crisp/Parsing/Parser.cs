@@ -150,11 +150,10 @@ namespace Crisp.Parsing
 
                 case TokenTag.Let:
                     {
-                        var let = new Let();
-                        let.Identifier = ParseIdentifier();
+                        var identifier = ParseIdentifier();
                         Expect(TokenTag.Assignment);
-                        let.Value = ParseExpression(Precedence.Assignment);
-                        return let;
+                        var value = ParseExpression(Precedence.Assignment);
+                        return new Let(identifier, value);
                     }
 
                 case TokenTag.Begin:
@@ -248,7 +247,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Integer
                 when int.TryParse(token.Lexeme, out int value):
-                    return new Literal<int>(value);
+                    return new LiteralInt(value);
 
                 case TokenTag.Integer:
                     throw new SyntaxErrorException(
@@ -284,7 +283,7 @@ namespace Crisp.Parsing
                     }
 
                 case TokenTag.String:
-                    return new Literal<string>(token.Lexeme);
+                    return new LiteralString(token.Lexeme);
 
                 case TokenTag.Subtract:
                     return new OperatorUnary(
@@ -293,7 +292,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Float
                 when double.TryParse(token.Lexeme, out var value):
-                    return new Literal<double>(value);
+                    return new LiteralDouble(value);
 
                 case TokenTag.Float:
                     throw new SyntaxErrorException(
@@ -301,10 +300,10 @@ namespace Crisp.Parsing
                         token.Position);
 
                 case TokenTag.False:
-                    return new Literal<bool>(false);
+                    return LiteralBool.False;
 
                 case TokenTag.True:
-                    return new Literal<bool>(true);
+                    return LiteralBool.True;
 
                 case TokenTag.Not:
                     return new OperatorUnary(
@@ -328,19 +327,19 @@ namespace Crisp.Parsing
                 case TokenTag.Assignment when left is Identifier identifier:
                     {
                         var value = ParseExpression(Lbp(token));
-                        return new Assignment<Identifier>(identifier, value);
+                        return new AssignmentIdentifier(identifier, value);
                     }
 
                 case TokenTag.Assignment when left is Indexing index:
                     {
                         var value = ParseExpression(Lbp(token));
-                        return new Assignment<Indexing>(index, value);
+                        return new AssignmentIndexing(index, value);
                     }
 
                 case TokenTag.Assignment when left is Member member:
                     {
                         var value = ParseExpression(Lbp(token));
-                        return new Assignment<Member>(member, value);
+                        return new AssignmentMember(member, value);
                     }
 
                 case TokenTag.Assignment:

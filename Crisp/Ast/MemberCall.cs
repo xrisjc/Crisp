@@ -4,7 +4,7 @@ namespace Crisp.Ast
 {
     class MemberCall : IExpression
     {
-        List<IExpression> argumentExpressions;
+        private List<IExpression> argumentExpressions;
 
         public Member Member { get; }
 
