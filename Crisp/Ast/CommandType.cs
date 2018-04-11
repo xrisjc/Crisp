@@ -2,7 +2,6 @@
 {
     enum CommandType
     {
-        Len,
         Push,
         ReadLn,
         WriteLn,

@@ -130,6 +130,12 @@ namespace Crisp.Eval
                 case Let let:
                     return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));
 
+                case Len len when len.Expression.Evaluate(environment) is ILen lenAble:
+                    return new ObjInt(lenAble.Len);
+
+                case Len len:
+                    throw new RuntimeErrorException("unsupported object passed to len()");
+
                 case Identifier identifier:
                     return environment.Get(identifier.Name);
 
@@ -384,17 +390,6 @@ namespace Crisp.Eval
         {
             switch (cmd)
             {
-                case CommandType.Len:
-                    if (args[0] is ILen len)
-                    {
-                        return new ObjInt(len.Len);
-                    }
-                    else
-                    {
-                        throw new RuntimeErrorException(
-                            $"<{args[0]}> not supported by len()");
-                    }
-
                 case CommandType.Push:
                     if (args[0] is ObjList list)
                     {

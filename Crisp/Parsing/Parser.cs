@@ -64,7 +64,6 @@ namespace Crisp.Parsing
         static Dictionary<TokenTag, CommandType> tokenCommand =
             new Dictionary<TokenTag, CommandType>
             {
-                [TokenTag.Len] = CommandType.Len,
                 [TokenTag.Push] = CommandType.Push,
                 [TokenTag.ReadLn] = CommandType.ReadLn,
                 [TokenTag.WriteLn] = CommandType.WriteLn,
@@ -232,6 +231,13 @@ namespace Crisp.Parsing
                     }
 
                 case TokenTag.Len:
+                    {
+                        Expect(TokenTag.LParen);
+                        var expression = ParseExpression();
+                        Expect(TokenTag.RParen);
+                        return new Len(expression);
+                    }
+
                 case TokenTag.Push:
                 case TokenTag.ReadLn:
                 case TokenTag.WriteLn:
