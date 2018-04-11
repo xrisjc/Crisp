@@ -358,10 +358,6 @@ namespace Crisp.Eval
                 case OperatorInfix.GtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
                 case OperatorInfix.GtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
 
-                case OperatorInfix.And  when (left is ObjBool  l) && (right is ObjBool  r) : return Bool (l.Value && r.Value);
-
-                case OperatorInfix.Or   when (left is ObjBool  l) && (right is ObjBool  r) : return Bool (l.Value || r.Value);
-
                 case OperatorInfix.Eq   when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value == r.Value);
                 case OperatorInfix.Eq   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
                 case OperatorInfix.Eq   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
