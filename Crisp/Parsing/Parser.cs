@@ -151,7 +151,7 @@ namespace Crisp.Parsing
                     {
                         var identifier = ParseIdentifier();
                         Expect(TokenTag.Assignment);
-                        var value = ParseExpression(Precedence.Assignment);
+                        var value = ParseExpression();
                         return new Let(identifier, value);
                     }
 
@@ -332,19 +332,19 @@ namespace Crisp.Parsing
             {
                 case TokenTag.Assignment when left is Identifier identifier:
                     {
-                        var value = ParseExpression(Lbp(token));
+                        var value = ParseExpression();
                         return new AssignmentIdentifier(identifier, value);
                     }
 
                 case TokenTag.Assignment when left is Indexing index:
                     {
-                        var value = ParseExpression(Lbp(token));
+                        var value = ParseExpression();
                         return new AssignmentIndexing(index, value);
                     }
 
                 case TokenTag.Assignment when left is Member member:
                     {
-                        var value = ParseExpression(Lbp(token));
+                        var value = ParseExpression();
                         return new AssignmentMember(member, value);
                     }
 

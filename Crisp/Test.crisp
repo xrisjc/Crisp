@@ -244,52 +244,53 @@ t.assertEq((true or false) and false, false, 'or precedence #1')
 // a runtime error.
 //
 // Right now variable identifiers can only be upper or lower case letters.
-
-let x := 123
-t.assertEq(x, 123, 'variable declaration')
-// TODO: Add test for runtime error.
-
-// A variable may be updated with the assignment operator.
-x := x + 1
-t.assertEq(x, 124, 'variable assignment')
-
-// Assignments are an expression that return the value assigned to the
-// variable.
-t.assertEq(x := 2 * x, 248, 'assignment expression value')
-
-//
-// begin and end delimit a block.  Within a block multiple expressions can
-// be listed.  Each expression is evaluated in the order they are found.  All
-// expression values are ignored, except the last one.  The last expression
-// is the result of the the last expression.  The ignored expressions usually
-// will be useful for their side effects.
-//
-// Crisp has no token to mark the end of an expression, not even new lines.
-// An expression ends when the next token can't be connected with the
-// current expression.  In the example below we have the expression 5*6 with
-// the next token 2.  Since 2 is not a token that can be used to extend the
-// 5*6 expression, the expression parsing stops.  For the last expression a
-// similar things happens with the end token.  It can't be used to continue
-// the 1+2 expression.
-//
-t.assertEq( begin 5*6  1+2 end , 3, 'Block expression return value')
-
-// Blocks can contain one expression.
-t.assertEq( begin 2+3 end, 5, 'Single expression block.')
-
-// Empty blocks do nothing but return null.
-t.assertEq( begin end , null, 'Empty block')
-
-// blocks also introduce a new scope for variable declarations.  You can 
-// "shadow" variables in outer scopes.
 begin
-    let y := 100
-    let x := 2 * y
-    t.assertEq(y, 100, 'block variable')
-    t.assertEq(x, 200, 'block variable shadowing')
+  let x := 123
+  t.assertEq(x, 123, 'variable declaration')
+  // TODO: Add test for runtime error.
+  
+  // A variable may be updated with the assignment operator.
+  x := x + 1
+  t.assertEq(x, 124, 'variable assignment')
+  
+  // Assignments are an expression that return the value assigned to the
+  // variable.
+  t.assertEq(x := 2 * x, 248, 'assignment expression value')
+
+  //
+  // begin and end delimit a block.  Within a block multiple expressions can
+  // be listed.  Each expression is evaluated in the order they are found.  All
+  // expression values are ignored, except the last one.  The last expression
+  // is the result of the the last expression.  The ignored expressions usually
+  // will be useful for their side effects.
+  //
+  // Crisp has no token to mark the end of an expression, not even new lines.
+  // An expression ends when the next token can't be connected with the
+  // current expression.  In the example below we have the expression 5*6 with
+  // the next token 2.  Since 2 is not a token that can be used to extend the
+  // 5*6 expression, the expression parsing stops.  For the last expression a
+  // similar things happens with the end token.  It can't be used to continue
+  // the 1+2 expression.
+  //
+  t.assertEq( begin 5*6  1+2 end , 3, 'Block expression return value')
+  
+  // Blocks can contain one expression.
+  t.assertEq( begin 2+3 end, 5, 'Single expression block.')
+  
+  // Empty blocks do nothing but return null.
+  t.assertEq( begin end , null, 'Empty block')
+  
+  // blocks also introduce a new scope for variable declarations.  You can 
+  // "shadow" variables in outer scopes.
+  begin
+      let y := 100
+      let x := 2 * y
+      t.assertEq(y, 100, 'block variable')
+      t.assertEq(x, 200, 'block variable shadowing')
+  end
+  t.assertEq(x, 248, 'variable unshadowed')
+  // TODO: Test that y is undefined here.
 end
-t.assertEq(x, 248, 'variable unshadowed')
-// TODO: Test that y is undefined here.
 
 ///////////////////////////////////////////////////////////////////////////////
 // Branching
