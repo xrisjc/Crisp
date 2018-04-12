@@ -3,7 +3,6 @@
     enum Precedence
     {
         Lowest,
-        Sequence,
         Assignment,
         LogicalOr,
         LogicalAnd,
