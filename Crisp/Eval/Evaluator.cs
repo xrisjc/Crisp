@@ -7,43 +7,48 @@ namespace Crisp.Eval
 {
     static class Evaluator
     {
-        public static IObj Evaluate(this IExpression expression, Environment environment)
+        public static dynamic Evaluate(this IExpression expression, Environment environment)
         {
             switch (expression)
             {
-                case AssignmentIndexing e
-                when e.Target.Indexable.Evaluate(environment) is IIndexSet indexSet:
-                    return indexSet.IndexSet(
-                        e.Target.Index.Evaluate(environment),
-                        e.Value.Evaluate(environment));
-
                 case AssignmentIndexing e:
-                    throw new RuntimeErrorException("Non-indexable object indexed.");
+                    {
+                        var target = e.Target.Indexable.Evaluate(environment);
+                        if (!CheckIndexing(target))
+                        {
+                            throw new RuntimeErrorException("Non-indexable object indexed.");
+                        }
+
+                        var index = e.Target.Index.Evaluate(environment);
+                        if (!CheckIntIndexing(target, index))
+                        {
+                            throw new RuntimeErrorException("Lists must be indexed by integer.");
+                        }
+
+                        var value = e.Value.Evaluate(environment);
+                        target[index] = value;
+                        return value;
+                    }
 
                 case AssignmentIdentifier e:
                     return environment.Set(e.Target.Name, e.Value.Evaluate(environment));
 
                 case AssignmentMember e:
                     {
-                        var member = e.Target.Expression.Evaluate(environment) as IMemberSet;
-                        if (member == null)
-                        {
-                            throw new RuntimeErrorException("Object doesn't have members.");
-                        }
+                        var member = e.Target.Expression.Evaluate(environment);
                         var name = e.Target.MemberIdentifier.Name;
-                        var value1 = e.Value.Evaluate(environment);
-                        var (value2, status) = member.MemberSet(name, value1);
-                        if (status == MemberStatus.NotFound)
+                        var value = e.Value.Evaluate(environment);
+                        if (!member.MemberSet(name, value))
                         {
                             throw new RuntimeErrorException($"Member {name} not found.");
                         }
-                        return value2;
+                        return value;
                     }
 
                 case Block block:
                     {
                         var localEnvironment = new Environment(environment);
-                        var result = ObjNull.Instance;
+                        dynamic result = null;
                         foreach (var expr in block.Body)
                         {
                             result = expr.Evaluate(localEnvironment);
@@ -53,10 +58,10 @@ namespace Crisp.Eval
 
                 case Branch branch:
                     {
-                        var objResult = branch.Condition.Evaluate(environment);
-                        if (objResult is ObjBool boolResult)
+                        var result = branch.Condition.Evaluate(environment);
+                        if (result is bool)
                         {
-                            var expr = boolResult.Value ? branch.Consequence : branch.Alternative;
+                            var expr = result ? branch.Consequence : branch.Alternative;
                             return expr.Evaluate(environment);
                         }
 
@@ -106,10 +111,9 @@ namespace Crisp.Eval
                     return environment.Create(fn.Name.Name, new ObjFn(fn, environment));
 
                 case Member ml
-                when ml.Expression.Evaluate(environment) is IMemberGet mg:
+                when ml.Expression.Evaluate(environment) is ObjRecordInstance mg:
                     {
-                        var (value, status) = mg.MemberGet(ml.MemberIdentifier.Name);
-                        if (status == MemberStatus.Ok)
+                        if (mg.MemberGet(ml.MemberIdentifier.Name, out var value))
                         {
                             return value;
                         }
@@ -130,56 +134,90 @@ namespace Crisp.Eval
                 case Let let:
                     return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));
 
-                case Len len when len.Expression.Evaluate(environment) is ILen lenAble:
-                    return new ObjInt(lenAble.Len);
-
                 case Len len:
-                    throw new RuntimeErrorException("unsupported object passed to len()");
+                    {
+                        var obj = len.Expression.Evaluate(environment);
+                        if (obj is Dictionary<dynamic, dynamic> || obj is List<dynamic>)
+                        {
+                            return obj.Count;
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException("unsupported object passed to len()");
+                        }
+                    }
 
                 case Identifier identifier:
                     return environment.Get(identifier.Name);
 
-                case Indexing indexing 
-                when indexing.Indexable.Evaluate(environment) is IIndexGet indexable:
-                    return indexable.IndexGet(indexing.Index.Evaluate(environment));
-
                 case Indexing indexing:
-                    throw new RuntimeErrorException("Non-indexable object indexed.");
+                    {
+                        var target = indexing.Indexable.Evaluate(environment);
+                        if (!CheckIndexing(target))
+                        {
+                            throw new RuntimeErrorException("Non-indexable object indexed.");
+                        }
+
+                        var index = indexing.Index.Evaluate(environment);
+                        if (!CheckIntIndexing(target, index))
+                        {
+                            throw new RuntimeErrorException("List must be indexed by an integer.");
+                        }
+
+                        return target[index];
+                    }
 
                 case List list:
-                    return new ObjList(list, environment);
+                    {
+                        var items = new List<dynamic>();
+                        foreach (var initializer in list.Initializers)
+                        {
+                            var item = initializer.Evaluate(environment);
+                            items.Add(item);
+                        }
+                        return items;
+                    }
 
                 case LiteralBool literal:
-                    return literal.Value ? ObjBool.True : ObjBool.False;
+                    return literal.Value;
 
                 case LiteralInt literal:
-                    return new ObjInt(literal.Value);
+                    return literal.Value;
 
                 case LiteralDouble literal:
-                    return new ObjFloat(literal.Value);
+                    return literal.Value;
 
                 case LiteralString literal:
-                    return new ObjStr(literal.Value);
+                    return literal.Value;
 
                 case LiteralNull literal:
-                    return ObjNull.Instance;
+                    return null;
 
                 case Map map:
-                    return new ObjMap(map, environment);
+                    {
+                        var dict = new Dictionary<dynamic, dynamic>();
+                        foreach (var (index, value) in map.Initializers)
+                        {
+                            var objIndex = index.Evaluate(environment);
+                            var objValue = value.Evaluate(environment);
+                            dict[objIndex] = objValue;
+                        }
+                        return dict;
+                    }
 
                 case OperatorBinary and
                 when and.Op == OperatorInfix.And:
                     {
                         var objLeft = and.Left.Evaluate(environment);
-                        if (objLeft is ObjBool boolLeft)
+                        if (objLeft is bool boolLeft)
                         {
-                            if (boolLeft.Value == false)
+                            if (boolLeft == false)
                             {
                                 return boolLeft;
                             }
 
                             var objRight = and.Right.Evaluate(environment);
-                            if (objRight is ObjBool boolRight)
+                            if (objRight is bool boolRight)
                             {
                                 return boolRight;
                             }
@@ -200,15 +238,15 @@ namespace Crisp.Eval
                 when or.Op == OperatorInfix.Or:
                     {
                         var objLeft = or.Left.Evaluate(environment);
-                        if (objLeft is ObjBool boolLeft)
+                        if (objLeft is bool boolLeft)
                         {
-                            if (boolLeft.Value)
+                            if (boolLeft)
                             {
                                 return boolLeft;
                             }
 
                             var objRight = or.Right.Evaluate(environment);
-                            if (objRight is ObjBool boolRight)
+                            if (objRight is bool boolRight)
                             {
                                 return boolRight;
                             }
@@ -246,7 +284,7 @@ namespace Crisp.Eval
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is ObjRecord rec:
                     {
-                        var members = new Dictionary<string, IObj>();
+                        var members = new Dictionary<string, dynamic>();
                         foreach (var (id, expr) in ctor.Initializers)
                         {
                             var value = expr.Evaluate(environment);
@@ -263,11 +301,11 @@ namespace Crisp.Eval
                     while (true)
                     {
                         var predicate = @while.Guard.Evaluate(environment);
-                        if (predicate is ObjBool boolPredicate)
+                        if (predicate is bool boolPredicate)
                         {
-                            if (boolPredicate.Value == false)
+                            if (boolPredicate == false)
                             {
-                                return ObjNull.Instance;
+                                return null;
                             }
                         }
                         else
@@ -283,10 +321,10 @@ namespace Crisp.Eval
             }
         }
 
-        public static List<IObj> Evaluate(this IEnumerable<IExpression> expressions,
+        public static List<dynamic> Evaluate(this IEnumerable<IExpression> expressions,
             Environment environment)
         {
-            var results = new List<IObj>();
+            var results = new List<dynamic>();
             foreach (var expression in expressions)
             {
                 var result = expression.Evaluate(environment);
@@ -295,89 +333,57 @@ namespace Crisp.Eval
             return results;
         }
 
-        static IObj Bool(bool b) => b ? ObjBool.True : ObjBool.False;
-        static IObj Int(int i) => new ObjInt(i);
-        static IObj Float(double d) => new ObjFloat(d);
-        static IObj Str(string s) => new ObjStr(s);
-
-        public static IObj Evaluate(OperatorPrefix op, IObj obj)
+        public static dynamic Evaluate(OperatorPrefix op, dynamic obj)
         {
             switch (op)
             {
-                case OperatorPrefix.Neg when (obj is ObjInt   o): return Int  (-o.Value);
-                case OperatorPrefix.Neg when (obj is ObjFloat o): return Float(-o.Value);
-
-                case OperatorPrefix.Not when (obj is ObjBool  o): return Bool (!o.Value);
-
+                case OperatorPrefix.Neg when obj is int || obj is double: return -obj;
+                case OperatorPrefix.Not when obj is bool                : return !obj;
                 default:
-                    throw new RuntimeErrorException($"Operator {op} cannot be applied to value <{obj}>");
+                    throw new RuntimeErrorException(
+                        $"Operator {op} cannot be applied to value <{obj}>");
             }
         }
 
-        public static IObj Evaluate(OperatorInfix op, IObj left, IObj right)
+        public static dynamic Evaluate(OperatorInfix op, dynamic left, dynamic right)
         {
             switch (op)
             {
-                case OperatorInfix.Add  when (left is ObjStr   l) && (right is ObjStr   r) : return Str  (l.Value +  r.Value);
-                case OperatorInfix.Add  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value +  r.Value);
-                case OperatorInfix.Add  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value +  r.Value);
-                case OperatorInfix.Add  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value +  r.Value);
-                case OperatorInfix.Add  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value +  r.Value);
+                case OperatorInfix.Add when left is string && right is string:
+                    return string.Concat(left, right);
 
-                case OperatorInfix.Sub  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value -  r.Value);
-                case OperatorInfix.Sub  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value -  r.Value);
-                case OperatorInfix.Sub  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value -  r.Value);
-                case OperatorInfix.Sub  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value -  r.Value);
+                case OperatorInfix.Add when CheckNumeric(left, right):
+                    return left + right;
 
-                case OperatorInfix.Mul  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value *  r.Value);
-                case OperatorInfix.Mul  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value *  r.Value);
-                case OperatorInfix.Mul  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value *  r.Value);
-                case OperatorInfix.Mul  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value *  r.Value);
+                case OperatorInfix.Sub when CheckNumeric(left, right):
+                    return left - right;
 
-                case OperatorInfix.Div  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value /  r.Value);
-                case OperatorInfix.Div  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value /  r.Value);
-                case OperatorInfix.Div  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value /  r.Value);
-                case OperatorInfix.Div  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value /  r.Value);
+                case OperatorInfix.Mul when CheckNumeric(left, right):
+                    return left * right;
 
-                case OperatorInfix.Mod  when (left is ObjInt   l) && (right is ObjInt   r) : return Int  (l.Value %  r.Value);
-                case OperatorInfix.Mod  when (left is ObjFloat l) && (right is ObjFloat r) : return Float(l.Value %  r.Value);
-                case OperatorInfix.Mod  when (left is ObjInt   l) && (right is ObjFloat r) : return Float(l.Value %  r.Value);
-                case OperatorInfix.Mod  when (left is ObjFloat l) && (right is ObjInt   r) : return Float(l.Value %  r.Value);
+                case OperatorInfix.Div when CheckNumeric(left, right):
+                    return left / right;
 
-                case OperatorInfix.Lt   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value <  r.Value);
-                case OperatorInfix.Lt   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value <  r.Value);
-                case OperatorInfix.Lt   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value <  r.Value);
-                case OperatorInfix.Lt   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value <  r.Value);
+                case OperatorInfix.Mod when CheckNumeric(left, right):
+                    return left % right;
 
-                case OperatorInfix.LtEq when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value <= r.Value);
-                case OperatorInfix.LtEq when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value <= r.Value);
-                case OperatorInfix.LtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value <= r.Value);
-                case OperatorInfix.LtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value <= r.Value);
+                case OperatorInfix.Lt when CheckNumeric(left, right):
+                    return left < right;
 
-                case OperatorInfix.Gt   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value >  r.Value);
-                case OperatorInfix.Gt   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value >  r.Value);
-                case OperatorInfix.Gt   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >  r.Value);
-                case OperatorInfix.Gt   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >  r.Value);
+                case OperatorInfix.LtEq when CheckNumeric(left, right):
+                    return left <= right;
 
-                case OperatorInfix.GtEq when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
-                case OperatorInfix.GtEq when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
-                case OperatorInfix.GtEq when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value >= r.Value);
-                case OperatorInfix.GtEq when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value >= r.Value);
+                case OperatorInfix.Gt when CheckNumeric(left, right):
+                    return left > right;
 
-                case OperatorInfix.Eq   when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value == r.Value);
-                case OperatorInfix.Eq   when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
-                case OperatorInfix.Eq   when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
-                case OperatorInfix.Eq   when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value == r.Value);
-                case OperatorInfix.Eq   when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value == r.Value);
+                case OperatorInfix.GtEq when CheckNumeric(left, right):
+                    return left >= right;
 
-                case OperatorInfix.Neq  when (left is ObjStr   l) && (right is ObjStr   r) : return Bool (l.Value != r.Value);
-                case OperatorInfix.Neq  when (left is ObjInt   l) && (right is ObjInt   r) : return Bool (l.Value != r.Value);
-                case OperatorInfix.Neq  when (left is ObjFloat l) && (right is ObjFloat r) : return Bool (l.Value != r.Value);
-                case OperatorInfix.Neq  when (left is ObjInt   l) && (right is ObjFloat r) : return Bool (l.Value != r.Value);
-                case OperatorInfix.Neq  when (left is ObjFloat l) && (right is ObjInt   r) : return Bool (l.Value != r.Value);
+                case OperatorInfix.Eq:
+                    return AreEqual(left, right);
 
-                case OperatorInfix.Neq: return Bool(!ReferenceEquals(left, right));
-                case OperatorInfix.Eq:  return Bool( ReferenceEquals(left, right));
+                case OperatorInfix.Neq:
+                    return !AreEqual(left, right);
 
                 default:
                     throw new RuntimeErrorException(
@@ -386,14 +392,16 @@ namespace Crisp.Eval
             }
         }
 
-        public static IObj Evaluate(CommandType cmd, List<IObj> args)
+        public static dynamic Evaluate(CommandType cmd, List<dynamic> args)
         {
             switch (cmd)
             {
                 case CommandType.Push:
-                    if (args[0] is ObjList list)
+                    if (args[0] is List<dynamic> list)
                     {
-                        return list.Push(args[1]);
+                        var value = args[1];
+                        list.Add(value);
+                        return value;
                     }
                     else
                     {
@@ -409,18 +417,51 @@ namespace Crisp.Eval
                             Console.Write(prompt);
                         }
                         var line = Console.ReadLine();
-                        return new ObjStr(line);
+                        return line;
                     }
 
                 case CommandType.WriteLn:
                     {
                         var line = string.Join("", args);
                         Console.WriteLine(line);
-                        return ObjNull.Instance;
+                        return null;
                     }
 
                 default:
                     throw new RuntimeErrorException($"unknown command {cmd}");
+            }
+        }
+
+        private static bool CheckNumeric(dynamic left, dynamic right)
+        {
+            return (left is int || left is double) && (right is int || right is double);
+        }
+
+        private static bool CheckIndexing(dynamic target)
+        {
+            return target is Dictionary<dynamic, dynamic> ||
+                   target is List<dynamic> ||
+                   target is string;
+        }
+
+        private static bool CheckIntIndexing(dynamic target, dynamic index)
+        {
+            return (target is List<dynamic> || target is string) && index is int;
+        }
+
+        private static bool AreEqual(dynamic left, dynamic right)
+        {
+            if (left == null && right == null)
+            {
+                return true;
+            }
+            else if (left == null)
+            {
+                return false;
+            }
+            else
+            {
+                return left.Equals(right);
             }
         }
     }

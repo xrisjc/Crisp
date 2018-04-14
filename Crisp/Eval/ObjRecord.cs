@@ -2,7 +2,7 @@
 
 namespace Crisp.Eval
 {
-    class ObjRecord : IObj
+    class ObjRecord
     {
         List<string> variableNames;
         Dictionary<string, ObjFn> functions;
@@ -25,12 +25,12 @@ namespace Crisp.Eval
             }
         }
 
-        public ObjRecordInstance Construct(Dictionary<string, IObj> initalizers)
+        public ObjRecordInstance Construct(Dictionary<string, dynamic> initalizers)
         {
-            var variables = new Dictionary<string, IObj>();
+            var variables = new Dictionary<string, dynamic>();
             foreach (var variableName in variableNames)
             {
-                variables[variableName] = initalizers.GetValue(variableName, ObjNull.Instance);
+                variables[variableName] = initalizers.GetValue(variableName, null);
             }
 
             return new ObjRecordInstance(this, variables);

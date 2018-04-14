@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Crisp.Eval
 {
-    class ObjFn : IObj
+    class ObjFn
     {
         IExpression body;
         List<string> parameters;
@@ -24,7 +24,7 @@ namespace Crisp.Eval
         {
         }
         
-        public IObj Call(List<IObj> arguments)
+        public dynamic Call(List<dynamic> arguments)
         {
             var localEnvironment = new Environment(environment);
 

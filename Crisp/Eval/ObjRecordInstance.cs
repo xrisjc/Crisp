@@ -2,39 +2,40 @@
 
 namespace Crisp.Eval
 {
-    class ObjRecordInstance : IObj, IMemberGet, IMemberSet
+    class ObjRecordInstance
     {
         ObjRecord record;
-        Dictionary<string, IObj> variables;
+        Dictionary<string, dynamic> variables;
 
-        public ObjRecordInstance(ObjRecord record, Dictionary<string, IObj> variables)
+        public ObjRecordInstance(ObjRecord record, Dictionary<string, dynamic> variables)
         {
             this.record = record;
             this.variables = variables;
         }
 
-        public (IObj, MemberStatus) MemberGet(string name)
+        public bool MemberGet(string name, out dynamic value)
         {
-            if (variables.TryGetValue(name, out var value))
+            if (variables.TryGetValue(name, out value))
             {
-                return (value, MemberStatus.Ok);
+                return true;
             }
             else
             {
-                return (ObjNull.Instance, MemberStatus.NotFound);
+                value = null;
+                return false;
             }
         }
 
-        public (IObj, MemberStatus) MemberSet(string name, IObj value)
+        public bool MemberSet(string name, dynamic value)
         {
             if (variables.ContainsKey(name))
             {
                 variables[name] = value;
-                return (value, MemberStatus.Ok);
+                return true;
             }
             else
             {
-                return (ObjNull.Instance, MemberStatus.NotFound);
+                return false;
             }
         }
 

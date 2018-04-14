@@ -5,18 +5,18 @@ namespace Crisp.Eval
     class Environment
     {
         Environment outer;
-        Dictionary<string, IObj> values = new Dictionary<string, IObj>();
+        Dictionary<string, dynamic> values = new Dictionary<string, dynamic>();
 
         public Environment(Environment outer = null)
         {
             this.outer = outer;
         }
 
-        public IObj Get(string name)
+        public dynamic Get(string name)
         {
             for (var e = this; e != null; e = e.outer)
             {
-                if (e.values.TryGetValue(name, out IObj value))
+                if (e.values.TryGetValue(name, out var value))
                 {
                     return value;
                 }
@@ -25,7 +25,7 @@ namespace Crisp.Eval
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public IObj Set(string name, IObj value)
+        public dynamic Set(string name, dynamic value)
         {
             for (var e = this; e != null; e = e.outer)
             {
@@ -39,7 +39,7 @@ namespace Crisp.Eval
             throw new RuntimeErrorException($"reference to undeclared variable {name}");
         }
 
-        public IObj Create(string name, IObj value)
+        public dynamic Create(string name, dynamic value)
         {
             if (values.ContainsKey(name))
             {
