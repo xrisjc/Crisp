@@ -21,7 +21,7 @@ namespace Crisp.Eval
             }
             else
             {
-                value = null;
+                value = Null.Instance;
                 return false;
             }
         }

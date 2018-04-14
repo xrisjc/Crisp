@@ -20,7 +20,7 @@ namespace Crisp.Eval
                         }
 
                         var index = e.Target.Index.Evaluate(environment);
-                        if (!CheckIntIndexing(target, index))
+                        if (!CheckIndex(target, index))
                         {
                             throw new RuntimeErrorException("Lists must be indexed by integer.");
                         }
@@ -48,7 +48,7 @@ namespace Crisp.Eval
                 case Block block:
                     {
                         var localEnvironment = new Environment(environment);
-                        dynamic result = null;
+                        dynamic result = Null.Instance;
                         foreach (var expr in block.Body)
                         {
                             result = expr.Evaluate(localEnvironment);
@@ -159,7 +159,7 @@ namespace Crisp.Eval
                         }
 
                         var index = indexing.Index.Evaluate(environment);
-                        if (!CheckIntIndexing(target, index))
+                        if (!CheckIndex(target, index))
                         {
                             throw new RuntimeErrorException("List must be indexed by an integer.");
                         }
@@ -191,7 +191,7 @@ namespace Crisp.Eval
                     return literal.Value;
 
                 case LiteralNull literal:
-                    return null;
+                    return Null.Instance;
 
                 case Map map:
                     {
@@ -305,7 +305,7 @@ namespace Crisp.Eval
                         {
                             if (boolPredicate == false)
                             {
-                                return null;
+                                return Null.Instance;
                             }
                         }
                         else
@@ -444,18 +444,19 @@ namespace Crisp.Eval
                    target is string;
         }
 
-        private static bool CheckIntIndexing(dynamic target, dynamic index)
+        private static bool CheckIndex(dynamic target, dynamic index)
         {
-            return (target is List<dynamic> || target is string) && index is int;
+            return (target is Dictionary<dynamic, dynamic>) ||
+                ((target is List<dynamic> || target is string) && index is int);
         }
 
         private static bool AreEqual(dynamic left, dynamic right)
         {
-            if (left == null && right == null)
+            if (left is Null && right is Null)
             {
                 return true;
             }
-            else if (left == null)
+            else if (left is Null)
             {
                 return false;
             }

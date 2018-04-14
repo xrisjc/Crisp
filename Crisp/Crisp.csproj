@@ -81,6 +81,7 @@
     <Compile Include="CrispException.cs" />
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\Environment.cs" />
+    <Compile Include="Eval\Null.cs" />
     <Compile Include="Eval\ObjFn.cs" />
     <Compile Include="Eval\ObjRecord.cs" />
     <Compile Include="Eval\ObjRecordInstance.cs" />

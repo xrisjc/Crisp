@@ -30,7 +30,7 @@ namespace Crisp.Eval
             var variables = new Dictionary<string, dynamic>();
             foreach (var variableName in variableNames)
             {
-                variables[variableName] = initalizers.GetValue(variableName, null);
+                variables[variableName] = initalizers.GetValue(variableName, Null.Instance);
             }
 
             return new ObjRecordInstance(this, variables);
