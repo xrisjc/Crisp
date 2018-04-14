@@ -1,4 +1,44 @@
-﻿using Crisp.Ast;
+﻿
+// Crisp Grammar
+//
+// Expression ->  Equality ;
+//
+// Equality -> Relational ( ( "=" | "<>" ) Relational)* ;
+//
+// Relation -> Addition ( ( ">" | ">=" | "<" | "<=" ) Addition )* ;
+//
+// Addition -> Multiplication ( ( "+" | "-" ) Mulitplication )* ;
+//
+// Multiplication -> Unary ( ("*" | "/" | "mod") Unary )* ;
+//
+// Unary -> ( "-" | "not" ) Unary
+//        | Primary ;
+//
+// Primary -> NUMBER | STRING | IDENTIFIER | "false" | "true" | "null" | Branch | While | Let
+//          | Block | Function | Map | List | Len | Command | "(" Expression ")" ;
+//
+// Branch -> "if" Expression "then" Expression ( "else" Expression )? ;
+//
+// While -> "while" Expression "do" Expression ;
+//
+// Let -> "let" IDENTIFIER ":=" Expression ;
+//
+// Block -> "begin" Expression* "end" ;
+//
+// Function -> "fn" IDENTIFIER? ParameterList Expression ;
+//
+// ParameterList -> "(" ( IDENTIFIER ( "," IDENTIFIER )* )? ")" ;
+//
+// Map -> "{" ( Expression ":" Expression )* "}" ;
+//
+// List -> "[" ( Expression ( "," Expression )* )? "]" ;
+//
+// Len -> "len" "(" Expression ")"
+//
+// Command ->
+//
+
+using Crisp.Ast;
 using Crisp.Eval;
 using System;
 using System.Collections.Generic;
