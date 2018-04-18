@@ -360,10 +360,10 @@ namespace Crisp.Eval
                     return left >= right;
 
                 case OperatorInfix.Eq:
-                    return AreEqual(left, right);
+                    return left.Equals(right);
 
                 case OperatorInfix.Neq:
-                    return !AreEqual(left, right);
+                    return !left.Equals(right);
 
                 default:
                     throw new RuntimeErrorException(
@@ -511,22 +511,6 @@ namespace Crisp.Eval
         private static bool CheckNumeric(dynamic left, dynamic right)
         {
             return (left is int || left is double) && (right is int || right is double);
-        }
-
-        private static bool AreEqual(dynamic left, dynamic right)
-        {
-            if (left is Null && right is Null)
-            {
-                return true;
-            }
-            else if (left is Null)
-            {
-                return false;
-            }
-            else
-            {
-                return left.Equals(right);
-            }
         }
     }
 }
