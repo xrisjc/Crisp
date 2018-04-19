@@ -225,7 +225,7 @@ namespace Crisp.Parsing
                         }
                         else
                         {
-                            return new Function(parameters, body);
+                            return new Ast.Function(parameters, body);
                         }
                     }
 
@@ -301,7 +301,7 @@ namespace Crisp.Parsing
                         token.Position);
 
                 case TokenTag.Record when Match(TokenTag.End):
-                    return new Record();
+                    return new Ast.Record();
 
                 case TokenTag.Record:
                     {
@@ -325,7 +325,7 @@ namespace Crisp.Parsing
                         }
 
                         Expect(TokenTag.End);
-                        return new Record(variables, functions);
+                        return new Ast.Record(variables, functions);
                     }
 
                 case TokenTag.String:

@@ -2,18 +2,18 @@
 
 namespace Crisp.Eval
 {
-    class ObjRecord
+    class Record
     {
         List<string> variableNames;
-        Dictionary<string, ObjFn> functions;
+        Dictionary<string, Function> functions;
 
-        public ObjRecord(List<string> variableNames, Dictionary<string, ObjFn> functions)
+        public Record(List<string> variableNames, Dictionary<string, Function> functions)
         {
             this.variableNames = variableNames;
             this.functions = functions;
         }
 
-        public ObjFn GetFunction(string name)
+        public Function GetFunction(string name)
         {
             if (functions.TryGetValue(name, out var function))
             {
@@ -25,7 +25,7 @@ namespace Crisp.Eval
             }
         }
 
-        public ObjRecordInstance Construct(Dictionary<string, dynamic> initalizers)
+        public RecordInstance Construct(Dictionary<string, dynamic> initalizers)
         {
             var variables = new Dictionary<string, dynamic>();
             foreach (var variableName in variableNames)
@@ -33,7 +33,7 @@ namespace Crisp.Eval
                 variables[variableName] = initalizers.GetValue(variableName, Null.Instance);
             }
 
-            return new ObjRecordInstance(this, variables);
+            return new RecordInstance(this, variables);
         }
     }
 }

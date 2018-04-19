@@ -52,7 +52,7 @@ namespace Crisp.Eval
                     }
 
                 case Call call
-                when call.FunctionExpression.Evaluate(environment) is ObjFn function:
+                when call.FunctionExpression.Evaluate(environment) is Function function:
                     if (function.Arity == call.Arity)
                     {
                         var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
@@ -68,12 +68,12 @@ namespace Crisp.Eval
                         "function call attempted on non function value");
 
                 case Command command:
-                    return Evaluate(
+                    return Eval.Evaluator.Evaluate(
                         command.Type,
                         command.ArgumentExpressions.Evaluate(environment).ToList());
 
                 case MemberCall call
-                when call.Member.Expression.Evaluate(environment) is ObjRecordInstance record:
+                when call.Member.Expression.Evaluate(environment) is RecordInstance record:
                     {
                         var fn = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
                         if (fn.Arity != call.Arity + 1) // + 1 for "this" argument
@@ -90,7 +90,7 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException("method call must be on a record instance");
 
                 case NamedFunction fn:
-                    return environment.Create(fn.Name.Name, new ObjFn(fn, environment));
+                    return environment.Create(fn.Name.Name, new Function((Ast.Function)fn, (Environment)environment));
 
                 case Member m:
                     {
@@ -98,8 +98,8 @@ namespace Crisp.Eval
                         return MemberGet(obj, m.MemberIdentifier.Name);
                     }
 
-                case Function fn:
-                    return new ObjFn(fn, environment);
+                case Ast.Function fn:
+                    return new Function((Ast.Function)fn, (Environment)environment);
 
                 case Let let:
                     return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));
@@ -226,15 +226,15 @@ namespace Crisp.Eval
                         opUn.Op,
                         opUn.Expression.Evaluate(environment));
 
-                case Record rec:
-                    return new ObjRecord(
+                case Ast.Record rec:
+                    return new Record(
                         rec.Variables.Select(x => x.Name).ToList(),
                         rec.Functions.ToDictionary(
                             nf => nf.Name.Name,
-                            nf => new ObjFn(nf, environment)));
+(Func<NamedFunction, Function>)(                            nf => new Function((Ast.Function)nf, (Environment)environment))));
 
                 case RecordConstructor ctor
-                when ctor.Record.Evaluate(environment) is ObjRecord rec:
+                when ctor.Record.Evaluate(environment) is Record rec:
                     {
                         var members = new Dictionary<string, dynamic>();
                         foreach (var (id, expr) in ctor.Initializers)
@@ -444,7 +444,7 @@ namespace Crisp.Eval
         {
             switch (obj)
             {
-                case ObjRecordInstance ri:
+                case RecordInstance ri:
                     if (ri.MemberGet(name, out var value))
                     {
                         return value;
@@ -463,7 +463,7 @@ namespace Crisp.Eval
         {
             switch (obj)
             {
-                case ObjRecordInstance ri:
+                case RecordInstance ri:
                     if (ri.MemberSet(name, value) == false)
                     {
                         throw new RuntimeErrorException($"Member {name} not found.");

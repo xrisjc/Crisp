@@ -82,9 +82,9 @@
     <Compile Include="Eval\Evaluator.cs" />
     <Compile Include="Eval\Environment.cs" />
     <Compile Include="Eval\Null.cs" />
-    <Compile Include="Eval\ObjFn.cs" />
-    <Compile Include="Eval\ObjRecord.cs" />
-    <Compile Include="Eval\ObjRecordInstance.cs" />
+    <Compile Include="Eval\Function.cs" />
+    <Compile Include="Eval\Record.cs" />
+    <Compile Include="Eval\RecordInstance.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenTag.cs" />
     <Compile Include="Parsing\Position.cs" />

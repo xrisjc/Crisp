@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Crisp.Eval
 {
-    class ObjFn
+    class Function
     {
         IExpression body;
         List<string> parameters;
@@ -12,14 +12,14 @@ namespace Crisp.Eval
 
         public int Arity => parameters.Count;
 
-        public ObjFn(IExpression body, List<string> parameters, Environment environment)
+        public Function(IExpression body, List<string> parameters, Environment environment)
         {
             this.body = body;
             this.parameters = parameters;
             this.environment = environment;
         }
 
-        public ObjFn(Function function, Environment environment)
+        public Function(Ast.Function function, Environment environment)
             : this(function.Body, function.Parameters.Select(p => p.Name).ToList(), environment)
         {
         }

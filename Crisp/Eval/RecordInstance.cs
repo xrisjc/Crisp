@@ -2,12 +2,12 @@
 
 namespace Crisp.Eval
 {
-    class ObjRecordInstance
+    class RecordInstance
     {
-        ObjRecord record;
+        Record record;
         Dictionary<string, dynamic> variables;
 
-        public ObjRecordInstance(ObjRecord record, Dictionary<string, dynamic> variables)
+        public RecordInstance(Record record, Dictionary<string, dynamic> variables)
         {
             this.record = record;
             this.variables = variables;
@@ -39,7 +39,7 @@ namespace Crisp.Eval
             }
         }
 
-        public ObjFn GetMemberFunction(string name)
+        public Function GetMemberFunction(string name)
         {
             return record.GetFunction(name);
         }
