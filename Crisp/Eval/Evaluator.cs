@@ -35,12 +35,7 @@ namespace Crisp.Eval
                 case Block block:
                     {
                         var localEnvironment = new Environment(environment);
-                        dynamic result = Null.Instance;
-                        foreach (var expr in block.Body)
-                        {
-                            result = expr.Evaluate(localEnvironment);
-                        }
-                        return result;
+                        return block.Body.Evaluate(localEnvironment).LastOrDefault() ?? Null.Instance;
                     }
 
                 case Branch branch:
@@ -60,7 +55,7 @@ namespace Crisp.Eval
                 when call.FunctionExpression.Evaluate(environment) is ObjFn function:
                     if (function.Arity == call.Arity)
                     {
-                        var arguments = call.ArgumentExpressions.Evaluate(environment);
+                        var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
                         return function.Call(arguments);
                     }
                     else
@@ -75,7 +70,7 @@ namespace Crisp.Eval
                 case Command command:
                     return Evaluate(
                         command.Type,
-                        command.ArgumentExpressions.Evaluate(environment));
+                        command.ArgumentExpressions.Evaluate(environment).ToList());
 
                 case MemberCall call
                 when call.Member.Expression.Evaluate(environment) is ObjRecordInstance record:
@@ -86,7 +81,7 @@ namespace Crisp.Eval
                             throw new RuntimeErrorException("function arity mismatch");
                         }
 
-                        var arguments = call.ArgumentExpressions.Evaluate(environment);
+                        var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
                         arguments.Add(record); // the "this" argument is at the end
                         return fn.Call(arguments);
                     }
@@ -133,7 +128,7 @@ namespace Crisp.Eval
                     }
 
                 case List list:
-                    return list.Initializers.Evaluate(environment);
+                    return list.Initializers.Evaluate(environment).ToList();
 
                 case LiteralBool literal:
                     return literal.Value;
@@ -278,16 +273,12 @@ namespace Crisp.Eval
             }
         }
 
-        public static List<dynamic> Evaluate(this IEnumerable<IExpression> expressions,
+        public static IEnumerable<dynamic> Evaluate(
+            this IEnumerable<IExpression> expressions,
             Environment environment)
         {
-            var results = new List<dynamic>();
-            foreach (var expression in expressions)
-            {
-                var result = expression.Evaluate(environment);
-                results.Add(result);
-            }
-            return results;
+            return from expression in expressions
+                   select expression.Evaluate(environment);
         }
 
         public static dynamic Evaluate(OperatorPrefix op, dynamic obj)
