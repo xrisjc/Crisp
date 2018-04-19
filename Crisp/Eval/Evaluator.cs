@@ -133,15 +133,7 @@ namespace Crisp.Eval
                     }
 
                 case List list:
-                    {
-                        var items = new List<dynamic>();
-                        foreach (var initializer in list.Initializers)
-                        {
-                            var item = initializer.Evaluate(environment);
-                            items.Add(item);
-                        }
-                        return items;
-                    }
+                    return list.Initializers.Evaluate(environment);
 
                 case LiteralBool literal:
                     return literal.Value;
