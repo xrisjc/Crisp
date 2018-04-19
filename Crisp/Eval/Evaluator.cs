@@ -90,7 +90,7 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException("method call must be on a record instance");
 
                 case NamedFunction fn:
-                    return environment.Create(fn.Name.Name, new Function((Ast.Function)fn, (Environment)environment));
+                    return environment.Create(fn.Name.Name, new Function(fn, environment));
 
                 case Member m:
                     {
@@ -99,7 +99,7 @@ namespace Crisp.Eval
                     }
 
                 case Ast.Function fn:
-                    return new Function((Ast.Function)fn, (Environment)environment);
+                    return new Function(fn, environment);
 
                 case Let let:
                     return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));
@@ -146,16 +146,7 @@ namespace Crisp.Eval
                     return Null.Instance;
 
                 case Map map:
-                    {
-                        var dict = new Dictionary<dynamic, dynamic>();
-                        foreach (var (index, value) in map.Initializers)
-                        {
-                            var objIndex = index.Evaluate(environment);
-                            var objValue = value.Evaluate(environment);
-                            dict[objIndex] = objValue;
-                        }
-                        return dict;
-                    }
+                    return map.Initializers.Evaluate(environment).CreateDictionary();
 
                 case OperatorBinary and
                 when and.Op == OperatorInfix.And:
@@ -279,6 +270,14 @@ namespace Crisp.Eval
         {
             return from expression in expressions
                    select expression.Evaluate(environment);
+        }
+
+        public static IEnumerable<(dynamic, dynamic)> Evaluate(
+            this IEnumerable<(IExpression, IExpression)> expressions,
+            Environment environment)
+        {
+            return from e in expressions
+                   select (e.Item1.Evaluate(environment), e.Item2.Evaluate(environment));
         }
 
         public static dynamic Evaluate(OperatorPrefix op, dynamic obj)

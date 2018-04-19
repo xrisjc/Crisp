@@ -17,5 +17,16 @@ namespace Crisp
                 return defaultValue;
             }
         }
+
+        public static Dictionary<TKey, TValue> CreateDictionary<TKey, TValue>(
+            this IEnumerable<(TKey, TValue)> items)
+        {
+            var dict = new Dictionary<TKey, TValue>();
+            foreach (var (key, value) in items)
+            {
+                dict[key] = value;
+            }
+            return dict;
+        }
     }
 }
