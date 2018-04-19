@@ -14,19 +14,9 @@ namespace Crisp.Eval
                 case AssignmentIndexing e:
                     {
                         var target = e.Target.Indexable.Evaluate(environment);
-                        if (!CheckIndexing(target))
-                        {
-                            throw new RuntimeErrorException("Non-indexable object indexed.");
-                        }
-
                         var index = e.Target.Index.Evaluate(environment);
-                        if (!CheckIndex(target, index))
-                        {
-                            throw new RuntimeErrorException("Lists must be indexed by integer.");
-                        }
-
                         var value = e.Value.Evaluate(environment);
-                        target[index] = value;
+                        SetIndex(target, index, value);
                         return value;
                     }
 
@@ -153,18 +143,8 @@ namespace Crisp.Eval
                 case Indexing indexing:
                     {
                         var target = indexing.Indexable.Evaluate(environment);
-                        if (!CheckIndexing(target))
-                        {
-                            throw new RuntimeErrorException("Non-indexable object indexed.");
-                        }
-
                         var index = indexing.Index.Evaluate(environment);
-                        if (!CheckIndex(target, index))
-                        {
-                            throw new RuntimeErrorException("List must be indexed by an integer.");
-                        }
-
-                        return target[index];
+                        return GetIndex(target, index);
                     }
 
                 case List list:
@@ -338,7 +318,7 @@ namespace Crisp.Eval
             switch (op)
             {
                 case OperatorPrefix.Neg when obj is int || obj is double: return -obj;
-                case OperatorPrefix.Not when obj is bool                : return !obj;
+                case OperatorPrefix.Not when obj is bool: return !obj;
                 default:
                     throw new RuntimeErrorException(
                         $"Operator {op} cannot be applied to value <{obj}>");
@@ -432,22 +412,69 @@ namespace Crisp.Eval
             }
         }
 
+        public static dynamic GetIndex(dynamic target, dynamic index)
+        {
+            switch (target)
+            {
+                case String s when index is int i:
+                    if (i < 0 || i >= s.Length)
+                    {
+                        throw new RuntimeErrorException("Index out of bounds of string.");
+                    }
+                    return s[i].ToString();
+
+                case String s:
+                    throw new RuntimeErrorException("Strings must be indexed by integers.");
+
+                case List<dynamic> l when index is int i:
+                    if (i < 0 || i >= l.Count)
+                    {
+                        throw new RuntimeErrorException("Index out of bounds of list.");
+                    }
+                    return l[i];
+
+                case List<dynamic> l:
+                    throw new RuntimeErrorException("Lists must be indexed by integers.");
+
+                case Dictionary<dynamic, dynamic> d:
+                    if (!d.ContainsKey(index))
+                    {
+                        throw new RuntimeErrorException("Key not found in map.");
+                    }
+                    return d[index];
+
+                default:
+                    throw new RuntimeErrorException("Get index on non-indexable object indexed.");
+            }
+        }
+
+        public static void SetIndex(dynamic target, dynamic index, dynamic value)
+        {
+            switch (target)
+            {
+                case List<dynamic> l when index is int i:
+                    if (i < 0 || i >= l.Count)
+                    {
+                        throw new RuntimeErrorException("Index out of bounds of list.");
+                    }
+                    l[i] = value;
+                    break;
+
+                case List<dynamic> l:
+                    throw new RuntimeErrorException("Lists must be indexed by integers.");
+
+                case Dictionary<dynamic, dynamic> d:
+                    d[index] = value;
+                    break;
+
+                default:
+                    throw new RuntimeErrorException("Set index on non-indexable object indexed.");
+            }
+        }
+
         private static bool CheckNumeric(dynamic left, dynamic right)
         {
             return (left is int || left is double) && (right is int || right is double);
-        }
-
-        private static bool CheckIndexing(dynamic target)
-        {
-            return target is Dictionary<dynamic, dynamic> ||
-                   target is List<dynamic> ||
-                   target is string;
-        }
-
-        private static bool CheckIndex(dynamic target, dynamic index)
-        {
-            return (target is Dictionary<dynamic, dynamic>) ||
-                ((target is List<dynamic> || target is string) && index is int);
         }
 
         private static bool AreEqual(dynamic left, dynamic right)
