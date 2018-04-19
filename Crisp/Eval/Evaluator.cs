@@ -25,13 +25,10 @@ namespace Crisp.Eval
 
                 case AssignmentMember e:
                     {
-                        var member = e.Target.Expression.Evaluate(environment);
+                        var obj = e.Target.Expression.Evaluate(environment);
                         var name = e.Target.MemberIdentifier.Name;
                         var value = e.Value.Evaluate(environment);
-                        if (!member.MemberSet(name, value))
-                        {
-                            throw new RuntimeErrorException($"Member {name} not found.");
-                        }
+                        MemberSet(obj, name, value);
                         return value;
                     }
 
@@ -100,23 +97,11 @@ namespace Crisp.Eval
                 case NamedFunction fn:
                     return environment.Create(fn.Name.Name, new ObjFn(fn, environment));
 
-                case Member ml
-                when ml.Expression.Evaluate(environment) is ObjRecordInstance mg:
+                case Member m:
                     {
-                        if (mg.MemberGet(ml.MemberIdentifier.Name, out var value))
-                        {
-                            return value;
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException(
-                                $"cannot get member {ml.MemberIdentifier.Name}");
-                        }
+                        var obj = m.Expression.Evaluate(environment);
+                        return MemberGet(obj, m.MemberIdentifier.Name);
                     }
-
-                case Member ml:
-                    throw new RuntimeErrorException(
-                        $"cannot get member {ml.MemberIdentifier.Name}");
 
                 case Function fn:
                     return new ObjFn(fn, environment);
@@ -469,6 +454,41 @@ namespace Crisp.Eval
 
                 default:
                     throw new RuntimeErrorException("Set index on non-indexable object indexed.");
+            }
+        }
+
+        public static dynamic MemberGet(dynamic obj, string name)
+        {
+            switch (obj)
+            {
+                case ObjRecordInstance ri:
+                    if (ri.MemberGet(name, out var value))
+                    {
+                        return value;
+                    }
+                    else
+                    {
+                        throw new RuntimeErrorException($"cannot get member {name}");
+                    }
+
+                default:
+                    throw new RuntimeErrorException("object doesn't support member getting");
+            }
+        }
+
+        public static void MemberSet(dynamic obj, string name, dynamic value)
+        {
+            switch (obj)
+            {
+                case ObjRecordInstance ri:
+                    if (ri.MemberSet(name, value) == false)
+                    {
+                        throw new RuntimeErrorException($"Member {name} not found.");
+                    }
+                    break;
+
+                default:
+                    throw new RuntimeErrorException("object doesn't support member setting");
             }
         }
 
