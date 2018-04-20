@@ -222,7 +222,7 @@ namespace Crisp.Eval
                         rec.Variables.Select(x => x.Name).ToList(),
                         rec.Functions.ToDictionary(
                             nf => nf.Name.Name,
-(Func<NamedFunction, Function>)(                            nf => new Function((Ast.Function)nf, (Environment)environment))));
+                            nf => new Function(nf, environment)));
 
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is Record rec:
