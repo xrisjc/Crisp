@@ -167,12 +167,14 @@ namespace Crisp.Eval
                             else
                             {
                                 throw new RuntimeErrorException(
+                                    and.Token,
                                     "Right hand side of 'and' must be Boolean.");
                             }
                         }
                         else
                         {
                             throw new RuntimeErrorException(
+                                and.Token,
                                 "Left hand side of 'and' must be Boolean.");
                         }
                     }
@@ -196,12 +198,14 @@ namespace Crisp.Eval
                             else
                             {
                                 throw new RuntimeErrorException(
+                                    or.Token,
                                     "Right hand side of 'or' must be Boolean.");
                             }
                         }
                         else
                         {
                             throw new RuntimeErrorException(
+                                or.Token,
                                 "Left hand side of 'or' must be Boolean.");
                         }
                     }
@@ -209,10 +213,8 @@ namespace Crisp.Eval
                 case OperatorBinary operatorBinary:
                     return Evaluate(operatorBinary, environment);
 
-                case OperatorUnary opUn:
-                    return Evaluate(
-                        opUn.Op,
-                        opUn.Expression.Evaluate(environment));
+                case OperatorUnary operatorUnary:
+                    return Evaluate(operatorUnary, environment);
 
                 case Ast.Record rec:
                     return new Record(
@@ -277,15 +279,18 @@ namespace Crisp.Eval
                    select (e.Item1.Evaluate(environment), e.Item2.Evaluate(environment));
         }
 
-        public static dynamic Evaluate(OperatorPrefix op, dynamic obj)
+        public static dynamic Evaluate(OperatorUnary operatorUnary, Environment environment)
         {
-            switch (op)
+            var obj = operatorUnary.Expression.Evaluate(environment);
+
+            switch (operatorUnary.Op)
             {
                 case OperatorPrefix.Neg when obj is int || obj is double: return -obj;
                 case OperatorPrefix.Not when obj is bool: return !obj;
                 default:
                     throw new RuntimeErrorException(
-                        $"Operator {op} cannot be applied to value <{obj}>");
+                        operatorUnary.Token,
+                        $"Operator {operatorUnary.Op} cannot be applied to value <{obj}>");
             }
         }
 

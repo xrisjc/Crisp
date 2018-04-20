@@ -333,6 +333,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Subtract:
                     return new OperatorUnary(
+                        token,
                         OperatorPrefix.Neg,
                         ParseExpression());
 
@@ -353,6 +354,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Not:
                     return new OperatorUnary(
+                        token,
                         OperatorPrefix.Not,
                         ParseExpression());
 
