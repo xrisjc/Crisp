@@ -407,6 +407,7 @@ namespace Crisp.Parsing
                 case TokenTag.Or:
                 case TokenTag.Subtract:
                     return new OperatorBinary(
+                        token,
                         tokenOp[token.Tag],
                         left,
                         ParseExpression(Lbp(token)));

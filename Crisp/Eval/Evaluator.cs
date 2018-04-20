@@ -206,11 +206,8 @@ namespace Crisp.Eval
                         }
                     }
 
-                case OperatorBinary opBi:
-                    return Evaluate(
-                        opBi.Op,
-                        opBi.Left.Evaluate(environment),
-                        opBi.Right.Evaluate(environment));
+                case OperatorBinary operatorBinary:
+                    return Evaluate(operatorBinary, environment);
 
                 case OperatorUnary opUn:
                     return Evaluate(
@@ -292,9 +289,12 @@ namespace Crisp.Eval
             }
         }
 
-        public static dynamic Evaluate(OperatorInfix op, dynamic left, dynamic right)
+        public static dynamic Evaluate(OperatorBinary operatorBinary, Environment environment)
         {
-            switch (op)
+            var left = operatorBinary.Left.Evaluate(environment);
+            var right = operatorBinary.Right.Evaluate(environment);
+
+            switch (operatorBinary.Op)
             {
                 case OperatorInfix.Add when left is string && right is string:
                     return string.Concat(left, right);
@@ -334,7 +334,8 @@ namespace Crisp.Eval
 
                 default:
                     throw new RuntimeErrorException(
-                        $"Operator {op} cannot be applied to values " +
+                        operatorBinary.Token,
+                        $"Operator {operatorBinary.Token} cannot be applied to values " +
                         $"<{left}> and <{right}>");
             }
         }
