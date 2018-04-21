@@ -423,6 +423,12 @@ namespace Crisp.Parsing
                         do
                         {
                             var name = Expect(TokenTag.Identifier);
+                            if (initalizers.ContainsKey(name.Lexeme))
+                            {
+                                throw new RuntimeErrorException(
+                                    name.Position,
+                                    $"Duplicate initializer <{name.Lexeme}>.");
+                            }
                             Expect(TokenTag.Colon);
                             var value = ParseExpression();
                             initalizers.Add(name.Lexeme, value);
