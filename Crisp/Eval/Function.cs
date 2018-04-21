@@ -1,6 +1,5 @@
 ﻿using Crisp.Ast;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Crisp.Eval
 {
@@ -12,16 +11,11 @@ namespace Crisp.Eval
 
         public int Arity => parameters.Count;
 
-        public Function(IExpression body, List<string> parameters, Environment environment)
+        public Function(List<string> parameters, IExpression body, Environment environment)
         {
-            this.body = body;
             this.parameters = parameters;
+            this.body = body;
             this.environment = environment;
-        }
-
-        public Function(Ast.Function function, Environment environment)
-            : this(function.Body, function.Parameters.ToList(), environment)
-        {
         }
         
         public dynamic Call(List<dynamic> arguments)

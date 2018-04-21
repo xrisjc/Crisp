@@ -108,7 +108,7 @@ namespace Crisp.Eval
                     }
 
                 case Ast.Function fn:
-                    return new Function(fn, environment);
+                    return new Function(fn.Parameters, fn.Body, environment);
 
                 case Let let:
                     {
@@ -250,10 +250,10 @@ namespace Crisp.Eval
 
                 case Ast.Record rec:
                     return new Record(
-                        rec.Variables.ToList(),
+                        rec.Variables,
                         rec.Functions.ToDictionary(
                             nf => nf.Key,
-                            nf => new Function(nf.Value, environment)));
+                            nf => new Function(nf.Value.Parameters, nf.Value.Body, environment)));
 
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is Record rec:
