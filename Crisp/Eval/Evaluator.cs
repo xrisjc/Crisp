@@ -101,9 +101,6 @@ namespace Crisp.Eval
                 case MemberCall call:
                     throw new RuntimeErrorException("method call must be on a record instance");
 
-                case NamedFunction fn:
-                    return environment.Create(fn.Name, new Function(fn, environment));
-
                 case Member m:
                     {
                         var obj = m.Expression.Evaluate(environment);
@@ -255,8 +252,8 @@ namespace Crisp.Eval
                     return new Record(
                         rec.Variables.ToList(),
                         rec.Functions.ToDictionary(
-                            nf => nf.Name,
-                            nf => new Function(nf, environment)));
+                            nf => nf.Key,
+                            nf => new Function(nf.Value, environment)));
 
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is Record rec:

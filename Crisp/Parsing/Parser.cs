@@ -218,13 +218,15 @@ namespace Crisp.Parsing
                         var body = ParseExpression();
 
                         // Create AST
+                        var function = new Ast.Function(parameters, body);
                         if (nameToken != null)
                         {
-                            return new NamedFunction(nameToken.Lexeme, parameters, body);
+                            var identifier = new Identifier(nameToken.Position, nameToken.Lexeme);
+                            return new Let(identifier, function);
                         }
                         else
                         {
-                            return new Ast.Function(parameters, body);
+                            return function;
                         }
                     }
 
@@ -310,7 +312,7 @@ namespace Crisp.Parsing
                             variables.Add(idToken.Lexeme);
                         }
 
-                        var functions = new List<NamedFunction>();
+                        var functions = new Dictionary<string, Ast.Function>();
                         while (Match(TokenTag.Fn))
                         {
                             var name = Expect(TokenTag.Identifier);
@@ -318,8 +320,8 @@ namespace Crisp.Parsing
                             var parameters = ParseParameters();
                             parameters.Add("this");
                             var body = ParseExpression();
-                            var function = new NamedFunction(name.Lexeme, parameters, body);
-                            functions.Add(function);
+                            var function = new Ast.Function(parameters, body);
+                            functions.Add(name.Lexeme, function);
                         }
 
                         Expect(TokenTag.End);

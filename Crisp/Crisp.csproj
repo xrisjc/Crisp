@@ -70,7 +70,6 @@
     <Compile Include="Ast\Map.cs" />
     <Compile Include="Ast\Member.cs" />
     <Compile Include="Ast\MemberCall.cs" />
-    <Compile Include="Ast\NamedFunction.cs" />
     <Compile Include="Ast\OperatorInfix.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
     <Compile Include="Ast\OperatorPrefix.cs" />
