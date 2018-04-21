@@ -262,7 +262,7 @@ namespace Crisp.Eval
                         foreach (var (id, expr) in ctor.Initializers)
                         {
                             var value = expr.Evaluate(environment);
-                            members[id.Name] = value;
+                            members[id] = value;
                         }
                         return rec.Construct(members);
                     }

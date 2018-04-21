@@ -419,13 +419,13 @@ namespace Crisp.Parsing
 
                 case TokenTag.LBrace:
                     {
-                        var initalizers = new List<(Identifier, IExpression)>();
+                        var initalizers = new List<(string, IExpression)>();
                         do
                         {
-                            Identifier id = ParseIdentifier();
+                            var name = Expect(TokenTag.Identifier);
                             Expect(TokenTag.Colon);
                             var value = ParseExpression();
-                            var initalizer = (id, value);
+                            var initalizer = (name.Lexeme, value);
                             initalizers.Add(initalizer);
                         }
                         while (!Match(TokenTag.RBrace));
