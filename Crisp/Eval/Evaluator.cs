@@ -21,7 +21,19 @@ namespace Crisp.Eval
                     }
 
                 case AssignmentIdentifier e:
-                    return environment.Set(e.Target.Name, e.Value.Evaluate(environment));
+                    {
+                        var value = e.Value.Evaluate(environment);
+                        if (environment.Set(e.Target.Name, value))
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException(
+                                e.Target.Position,
+                                $"Cannot assign value to unbound name <{e.Target.Name}>");
+                        }
+                    }
 
                 case AssignmentMember e:
                     {
@@ -90,7 +102,7 @@ namespace Crisp.Eval
                     throw new RuntimeErrorException("method call must be on a record instance");
 
                 case NamedFunction fn:
-                    return environment.Create(fn.Name.Name, new Function(fn, environment));
+                    return environment.Create(fn.Name, new Function(fn, environment));
 
                 case Member m:
                     {
@@ -102,7 +114,19 @@ namespace Crisp.Eval
                     return new Function(fn, environment);
 
                 case Let let:
-                    return environment.Create(let.Identifier.Name, let.Value.Evaluate(environment));
+                    {
+                        var value = let.Value.Evaluate(environment);
+                        if (environment.Create(let.Identifier.Name, value))
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException(
+                                let.Identifier.Position,
+                                $"Name <{let.Identifier.Name}> was already bound previously.");
+                        }
+                    }
 
                 case Len len:
                     {
@@ -118,7 +142,18 @@ namespace Crisp.Eval
                     }
 
                 case Identifier identifier:
-                    return environment.Get(identifier.Name);
+                    {
+                        if (environment.Get(identifier.Name, out var value))
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException(
+                                identifier.Position,
+                                $"<{identifier.Name}> not bound to a value.");
+                        }
+                    }
 
                 case Indexing indexing:
                     {
@@ -167,14 +202,14 @@ namespace Crisp.Eval
                             else
                             {
                                 throw new RuntimeErrorException(
-                                    and.Token,
+                                    and.Position,
                                     "Right hand side of 'and' must be Boolean.");
                             }
                         }
                         else
                         {
                             throw new RuntimeErrorException(
-                                and.Token,
+                                and.Position,
                                 "Left hand side of 'and' must be Boolean.");
                         }
                     }
@@ -198,14 +233,14 @@ namespace Crisp.Eval
                             else
                             {
                                 throw new RuntimeErrorException(
-                                    or.Token,
+                                    or.Position,
                                     "Right hand side of 'or' must be Boolean.");
                             }
                         }
                         else
                         {
                             throw new RuntimeErrorException(
-                                or.Token,
+                                or.Position,
                                 "Left hand side of 'or' must be Boolean.");
                         }
                     }
@@ -218,9 +253,9 @@ namespace Crisp.Eval
 
                 case Ast.Record rec:
                     return new Record(
-                        rec.Variables.Select(x => x.Name).ToList(),
+                        rec.Variables.ToList(),
                         rec.Functions.ToDictionary(
-                            nf => nf.Name.Name,
+                            nf => nf.Name,
                             nf => new Function(nf, environment)));
 
                 case RecordConstructor ctor
@@ -289,7 +324,7 @@ namespace Crisp.Eval
                 case OperatorPrefix.Not when obj is bool: return !obj;
                 default:
                     throw new RuntimeErrorException(
-                        operatorUnary.Token,
+                        operatorUnary.Position,
                         $"Operator {operatorUnary.Op} cannot be applied to value <{obj}>");
             }
         }
@@ -339,8 +374,8 @@ namespace Crisp.Eval
 
                 default:
                     throw new RuntimeErrorException(
-                        operatorBinary.Token,
-                        $"Operator {operatorBinary.Token} cannot be applied to values " +
+                        operatorBinary.Position,
+                        $"Operator {operatorBinary.Op} cannot be applied to values " +
                         $"<{left}> and <{right}>");
             }
         }

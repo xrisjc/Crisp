@@ -220,8 +220,7 @@ namespace Crisp.Parsing
                         // Create AST
                         if (nameToken != null)
                         {
-                            var name = new Identifier(nameToken.Lexeme);
-                            return new NamedFunction(name, parameters, body);
+                            return new NamedFunction(nameToken.Lexeme, parameters, body);
                         }
                         else
                         {
@@ -289,7 +288,7 @@ namespace Crisp.Parsing
                     }
 
                 case TokenTag.Identifier:
-                    return new Identifier(token.Lexeme);
+                    return new Identifier(token.Position, token.Lexeme);
 
                 case TokenTag.Integer
                 when int.TryParse(token.Lexeme, out int value):
@@ -305,22 +304,21 @@ namespace Crisp.Parsing
 
                 case TokenTag.Record:
                     {
-                        var variables = new List<Identifier>();
+                        var variables = new List<string>();
                         while (Match(TokenTag.Identifier, out var idToken))
                         {
-                            var id = new Identifier(idToken.Lexeme);
-                            variables.Add(id);
+                            variables.Add(idToken.Lexeme);
                         }
 
                         var functions = new List<NamedFunction>();
                         while (Match(TokenTag.Fn))
                         {
-                            var name = ParseIdentifier();
+                            var name = Expect(TokenTag.Identifier);
                             Expect(TokenTag.LParen);
                             var parameters = ParseParameters();
-                            parameters.Add(Identifier.This);
+                            parameters.Add("this");
                             var body = ParseExpression();
-                            var function = new NamedFunction(name, parameters, body);
+                            var function = new NamedFunction(name.Lexeme, parameters, body);
                             functions.Add(function);
                         }
 
@@ -333,7 +331,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Subtract:
                     return new OperatorUnary(
-                        token,
+                        token.Position,
                         OperatorPrefix.Neg,
                         ParseExpression());
 
@@ -354,7 +352,7 @@ namespace Crisp.Parsing
 
                 case TokenTag.Not:
                     return new OperatorUnary(
-                        token,
+                        token.Position,
                         OperatorPrefix.Not,
                         ParseExpression());
 
@@ -409,7 +407,7 @@ namespace Crisp.Parsing
                 case TokenTag.Or:
                 case TokenTag.Subtract:
                     return new OperatorBinary(
-                        token,
+                        token.Position,
                         tokenOp[token.Tag],
                         left,
                         ParseExpression(Lbp(token)));
@@ -461,7 +459,7 @@ namespace Crisp.Parsing
         Identifier ParseIdentifier()
         {
             var idToken = Expect(TokenTag.Identifier);
-            return new Identifier(idToken.Lexeme);
+            return new Identifier(idToken.Position, idToken.Lexeme);
         }
 
         List<IExpression> ParseArguments()
@@ -469,9 +467,9 @@ namespace Crisp.Parsing
             return ParseTuple(() => ParseExpression()).ToList();
         }
 
-        List<Identifier> ParseParameters()
+        List<string> ParseParameters()
         {
-            return ParseTuple(() => ParseIdentifier()).ToList();
+            return ParseTuple(() => Expect(TokenTag.Identifier).Lexeme).ToList();
         }
 
         IEnumerable<T> ParseTuple<T>(Func<T> parseItem)

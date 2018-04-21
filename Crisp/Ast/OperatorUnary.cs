@@ -4,15 +4,15 @@ namespace Crisp.Ast
 {
     class OperatorUnary : IExpression
     {
-        public Token Token { get; }
+        public Position Position { get; }
 
         public OperatorPrefix Op { get; }
 
         public IExpression Expression { get; }
 
-        public OperatorUnary(Token token, OperatorPrefix op, IExpression expression)
+        public OperatorUnary(Position position, OperatorPrefix op, IExpression expression)
         {
-            Token = token;
+            Position = position;
             Op = op;
             Expression = expression;
         }

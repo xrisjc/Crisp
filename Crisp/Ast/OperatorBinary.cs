@@ -4,7 +4,7 @@ namespace Crisp.Ast
 {
     class OperatorBinary : IExpression
     {
-        public Token Token { get; }
+        public Position Position { get; }
 
         public OperatorInfix Op { get; }
 
@@ -12,9 +12,9 @@ namespace Crisp.Ast
 
         public IExpression Right { get; }
 
-        public OperatorBinary(Token token, OperatorInfix op, IExpression left, IExpression right)
+        public OperatorBinary(Position position, OperatorInfix op, IExpression left, IExpression right)
         {
-            Token = token;
+            Position = position;
             Op = op;
             Left = left;
             Right = right;

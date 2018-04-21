@@ -1,6 +1,6 @@
 ﻿namespace Crisp.Parsing
 {
-    struct Position
+    class Position
     {
         public int Line { get; }
 

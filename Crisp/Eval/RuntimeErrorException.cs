@@ -4,12 +4,12 @@ namespace Crisp.Eval
 {
     class RuntimeErrorException : CrispException
     {
-        public Token Token { get; }
+        public Position Position { get; }
 
-        public RuntimeErrorException(Token token, string message)
+        public RuntimeErrorException(Position position, string message)
             : base(message)
         {
-            Token = token;
+            Position = position;
         }
 
         public RuntimeErrorException(string message)
@@ -17,7 +17,16 @@ namespace Crisp.Eval
         {
         }
 
-        public override string FormattedMessage() =>
-            $"Runtime Error: {Message} at {Token?.Position}";
+        public override string FormattedMessage()
+        {
+            if (Position == null)
+            {
+                return $"Runtime Error: {Message};";
+            }
+            else
+            {
+                return $"Runtime Error: {Message} @{Position}";
+            }
+        }
     }
 }

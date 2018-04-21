@@ -5,18 +5,18 @@ namespace Crisp.Ast
 {
     class Record : IExpression
     {
-        public IEnumerable<Identifier> Variables { get; }
+        public IEnumerable<string> Variables { get; }
 
         public IEnumerable<NamedFunction> Functions { get; }
 
-        public Record(IEnumerable<Identifier> variables, IEnumerable<NamedFunction> functions)
+        public Record(IEnumerable<string> variables, IEnumerable<NamedFunction> functions)
         {
             Variables = variables;
             Functions = functions;
         }
 
         public Record()
-            : this(Enumerable.Empty<Identifier>(), Enumerable.Empty<NamedFunction>())
+            : this(Enumerable.Empty<string>(), Enumerable.Empty<NamedFunction>())
         {
         }
     }

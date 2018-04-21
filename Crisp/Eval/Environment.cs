@@ -12,43 +12,43 @@ namespace Crisp.Eval
             this.outer = outer;
         }
 
-        public dynamic Get(string name)
+        public bool Get(string name, out dynamic value)
         {
             for (var e = this; e != null; e = e.outer)
             {
-                if (e.values.TryGetValue(name, out var value))
+                if (e.values.TryGetValue(name, out value))
                 {
-                    return value;
+                    return true;
                 }
             }
 
-            throw new RuntimeErrorException($"reference to undeclared variable {name}");
+            value = Null.Instance;
+            return false;
         }
 
-        public dynamic Set(string name, dynamic value)
+        public bool Set(string name, dynamic value)
         {
             for (var e = this; e != null; e = e.outer)
             {
                 if (e.values.ContainsKey(name))
                 {
                     e.values[name] = value;
-                    return value;
+                    return true;
                 }
             }
-
-            throw new RuntimeErrorException($"reference to undeclared variable {name}");
+            return false;
         }
 
-        public dynamic Create(string name, dynamic value)
+        public bool Create(string name, dynamic value)
         {
             if (values.ContainsKey(name))
             {
-                throw new RuntimeErrorException($"a variable named '{name}' already exists");
+                return false;
             }
             else
             {
                 values.Add(name, value);
-                return value;
+                return true;
             }
         }
     }

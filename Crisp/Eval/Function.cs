@@ -20,7 +20,7 @@ namespace Crisp.Eval
         }
 
         public Function(Ast.Function function, Environment environment)
-            : this(function.Body, function.Parameters.Select(p => p.Name).ToList(), environment)
+            : this(function.Body, function.Parameters.ToList(), environment)
         {
         }
         

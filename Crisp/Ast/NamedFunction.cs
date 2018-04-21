@@ -4,9 +4,9 @@ namespace Crisp.Ast
 {
     class NamedFunction : Function
     {
-        public Identifier Name { get; }
+        public string Name { get; }
 
-        public NamedFunction(Identifier name, List<Identifier> parameters, IExpression body)
+        public NamedFunction(string name, List<string> parameters, IExpression body)
             : base(parameters, body)
         {
             Name = name;
