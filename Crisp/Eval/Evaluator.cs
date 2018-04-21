@@ -251,19 +251,15 @@ namespace Crisp.Eval
                 case Ast.Record rec:
                     return new Record(
                         rec.Variables,
-                        rec.Functions.ToDictionary(
-                            nf => nf.Key,
-                            nf => new Function(nf.Value.Parameters, nf.Value.Body, environment)));
+                        rec.Functions.MapDictionary(
+                            (name, fn) => new Function(fn.Parameters, fn.Body, environment)));
 
                 case RecordConstructor ctor
                 when ctor.Record.Evaluate(environment) is Record rec:
                     {
-                        var members = new Dictionary<string, dynamic>();
-                        foreach (var (id, expr) in ctor.Initializers)
-                        {
-                            var value = expr.Evaluate(environment);
-                            members[id] = value;
-                        }
+
+                        var members = ctor.Initializers.MapDictionary(
+                            (name, expr) => expr.Evaluate(environment));
                         return rec.Construct(members);
                     }
 

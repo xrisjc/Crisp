@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Crisp.Ast
 {
@@ -7,16 +6,16 @@ namespace Crisp.Ast
     {
         public IExpression Record { get; }
 
-        public IEnumerable<(string, IExpression)> Initializers { get; }
+        public Dictionary<string, IExpression> Initializers { get; }
 
-        public RecordConstructor(IExpression record, IEnumerable<(string, IExpression)> initializers)
+        public RecordConstructor(IExpression record, Dictionary<string, IExpression> initializers)
         {
             Record = record;
             Initializers = initializers;
         }
 
         public RecordConstructor(IExpression record)
-            : this(record, Enumerable.Empty<(string, IExpression)>())
+            : this(record, new Dictionary<string, IExpression>())
         {
         }
     }

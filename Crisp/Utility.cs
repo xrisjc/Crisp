@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Crisp
 {
@@ -27,6 +28,20 @@ namespace Crisp
                 dict[key] = value;
             }
             return dict;
+        }
+
+        public static Dictionary<TKey, TVal2> MapDictionary<TKey, TVal1, TVal2>(
+            this Dictionary<TKey, TVal1> dictionary,
+            Func<TKey, TVal1, TVal2> map)
+        {
+            var result = new Dictionary<TKey, TVal2>();
+            foreach (var key in dictionary.Keys)
+            {
+                var val1 = dictionary[key];
+                var val2 = map(key, val1);
+                result.Add(key, val2);
+            }
+            return result;
         }
     }
 }
