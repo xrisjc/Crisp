@@ -359,6 +359,12 @@ namespace Crisp.Eval
                 case OperatorInfix.GtEq when CheckNumeric(left, right):
                     return left >= right;
 
+                case OperatorInfix.Eq when CheckNumeric(left, right):
+                    // If left is int and right is double then left.Equals(right) may not
+                    // be the same as right.Equals(left).  I suppose it's something to do with
+                    // calinging Int32's Equals.  == seems to work for numbers, though.
+                    return left == right;
+
                 case OperatorInfix.Eq:
                     return left.Equals(right);
 
