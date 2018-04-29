@@ -84,6 +84,7 @@
     <Compile Include="Eval\Function.cs" />
     <Compile Include="Eval\Record.cs" />
     <Compile Include="Eval\RecordInstance.cs" />
+    <Compile Include="Parsing\ParserRD.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenTag.cs" />
     <Compile Include="Parsing\Position.cs" />

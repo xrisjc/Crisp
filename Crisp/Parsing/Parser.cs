@@ -1,44 +1,4 @@
-﻿
-// Crisp Grammar
-//
-// Expression ->  Equality ;
-//
-// Equality -> Relational ( ( "=" | "<>" ) Relational)* ;
-//
-// Relation -> Addition ( ( ">" | ">=" | "<" | "<=" ) Addition )* ;
-//
-// Addition -> Multiplication ( ( "+" | "-" ) Mulitplication )* ;
-//
-// Multiplication -> Unary ( ("*" | "/" | "mod") Unary )* ;
-//
-// Unary -> ( "-" | "not" ) Unary
-//        | Primary ;
-//
-// Primary -> NUMBER | STRING | IDENTIFIER | "false" | "true" | "null" | Branch | While | Let
-//          | Block | Function | Map | List | Len | Command | "(" Expression ")" ;
-//
-// Branch -> "if" Expression "then" Expression ( "else" Expression )? ;
-//
-// While -> "while" Expression "do" Expression ;
-//
-// Let -> "let" IDENTIFIER ":=" Expression ;
-//
-// Block -> "begin" Expression* "end" ;
-//
-// Function -> "fn" IDENTIFIER? ParameterList Expression ;
-//
-// ParameterList -> "(" ( IDENTIFIER ( "," IDENTIFIER )* )? ")" ;
-//
-// Map -> "{" ( Expression ":" Expression )* "}" ;
-//
-// List -> "[" ( Expression ( "," Expression )* )? "]" ;
-//
-// Len -> "len" "(" Expression ")"
-//
-// Command ->
-//
-
-using Crisp.Ast;
+﻿using Crisp.Ast;
 using Crisp.Eval;
 using System;
 using System.Collections.Generic;
@@ -187,7 +147,7 @@ namespace Crisp.Parsing
                         return new While(guard, body);
                     }
 
-                case TokenTag.Let:
+                case TokenTag.Let: // X
                     {
                         var identifier = ParseIdentifier();
                         Expect(TokenTag.Assignment);
@@ -205,7 +165,7 @@ namespace Crisp.Parsing
                         return new Block(body);
                     }
 
-                case TokenTag.Fn:
+                case TokenTag.Fn: // X
                     {
                         // Function name
                         Match(TokenTag.Identifier, out var nameToken);
@@ -264,7 +224,7 @@ namespace Crisp.Parsing
                         return new List(initializers);
                     }
 
-                case TokenTag.LParen:
+                case TokenTag.LParen: // X
                     {
                         var expression = ParseExpression();
                         Expect(TokenTag.RParen);
@@ -289,14 +249,14 @@ namespace Crisp.Parsing
                         return new Command(commandType, argumentExpressions);
                     }
 
-                case TokenTag.Identifier:
+                case TokenTag.Identifier: // X
                     return new Identifier(token.Position, token.Lexeme);
 
-                case TokenTag.Integer
+                case TokenTag.Integer // X
                 when int.TryParse(token.Lexeme, out int value):
                     return new LiteralInt(value);
 
-                case TokenTag.Integer:
+                case TokenTag.Integer: // X
                     throw new SyntaxErrorException(
                         $"Unable to convert <{token.Lexeme}> into an 32 bit integer.",
                         token.Position);
@@ -304,7 +264,7 @@ namespace Crisp.Parsing
                 case TokenTag.Record when Match(TokenTag.End):
                     return new Ast.Record();
 
-                case TokenTag.Record:
+                case TokenTag.Record: // X
                     {
                         var variables = new List<string>();
                         while (Match(TokenTag.Identifier, out var idToken))
@@ -328,40 +288,40 @@ namespace Crisp.Parsing
                         return new Ast.Record(variables, functions);
                     }
 
-                case TokenTag.String:
+                case TokenTag.String: // X
                     return new LiteralString(token.Lexeme);
 
-                case TokenTag.Subtract:
+                case TokenTag.Subtract: // X
                     return new OperatorUnary(
                         token.Position,
                         OperatorPrefix.Neg,
                         ParseExpression());
 
-                case TokenTag.Float
+                case TokenTag.Float // X
                 when double.TryParse(token.Lexeme, out var value):
                     return new LiteralDouble(value);
 
-                case TokenTag.Float:
+                case TokenTag.Float: // X
                     throw new SyntaxErrorException(
                         $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
                         token.Position);
 
-                case TokenTag.False:
+                case TokenTag.False: // X
                     return LiteralBool.False;
 
-                case TokenTag.True:
+                case TokenTag.True: // X
                     return LiteralBool.True;
 
-                case TokenTag.Not:
+                case TokenTag.Not: // X
                     return new OperatorUnary(
                         token.Position,
                         OperatorPrefix.Not,
                         ParseExpression());
 
-                case TokenTag.Null:
+                case TokenTag.Null: // X
                     return LiteralNull.Instance;
 
-                default:
+                default: // X
                     throw new SyntaxErrorException(
                         $"unexpected token '{token.Tag}'",
                         token.Position);
@@ -372,7 +332,7 @@ namespace Crisp.Parsing
         {
             switch (token.Tag)
             {
-                case TokenTag.Assignment when left is Identifier identifier:
+                case TokenTag.Assignment when left is Identifier identifier: // X
                     {
                         var value = ParseExpression();
                         return new AssignmentIdentifier(identifier, value);
@@ -390,34 +350,34 @@ namespace Crisp.Parsing
                         return new AssignmentMember(member, value);
                     }
 
-                case TokenTag.Assignment:
+                case TokenTag.Assignment: // X
                     throw new SyntaxErrorException(
                         "left hand side of assignment must be assignable",
                         token.Position);
 
-                case TokenTag.Add:
-                case TokenTag.And:
-                case TokenTag.Divide:
-                case TokenTag.Equals:
-                case TokenTag.GreaterThan:
-                case TokenTag.GreaterThanOrEqualTo:
-                case TokenTag.InequalTo:
-                case TokenTag.LessThan:
-                case TokenTag.LessThanOrEqualTo:
-                case TokenTag.Mod:
-                case TokenTag.Multiply:
-                case TokenTag.Or:
-                case TokenTag.Subtract:
+                case TokenTag.Add: // X
+                case TokenTag.And: // X
+                case TokenTag.Divide: // X
+                case TokenTag.Equals: // X
+                case TokenTag.GreaterThan: // X
+                case TokenTag.GreaterThanOrEqualTo: // X
+                case TokenTag.InequalTo: // X
+                case TokenTag.LessThan: // X
+                case TokenTag.LessThanOrEqualTo: // X
+                case TokenTag.Mod: // X
+                case TokenTag.Multiply: // X
+                case TokenTag.Or: // X
+                case TokenTag.Subtract: // X
                     return new OperatorBinary(
                         token.Position,
                         tokenOp[token.Tag],
                         left,
                         ParseExpression(Lbp(token)));
 
-                case TokenTag.LBrace when Match(TokenTag.RBrace):
+                case TokenTag.LBrace when Match(TokenTag.RBrace): // X
                     return new RecordConstructor(left);
 
-                case TokenTag.LBrace:
+                case TokenTag.LBrace: // X
                     {
                         var initalizers = new Dictionary<string, IExpression>();
                         do
@@ -447,13 +407,13 @@ namespace Crisp.Parsing
                 case TokenTag.LParen when left is Member member:
                     return new MemberCall(member, ParseArguments());
 
-                case TokenTag.LParen when Match(TokenTag.RParen):
+                case TokenTag.LParen when Match(TokenTag.RParen): // X
                     return new Call(left);
 
-                case TokenTag.LParen:
+                case TokenTag.LParen: // X
                     return new Call(left, ParseArguments());
 
-                case TokenTag.Period:
+                case TokenTag.Period: // X
                     return new Member(left, ParseIdentifier());
 
                 default:

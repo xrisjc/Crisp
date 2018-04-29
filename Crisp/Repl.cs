@@ -11,8 +11,8 @@ namespace Crisp
         {
             var environment = new Eval.Environment();
 
-            Load("Sys.crisp", environment);
-            Load("Test.crisp", environment);
+            //Load("Sys.crisp", environment);
+            //Load("Test.crisp", environment);
 
             var quit = false;
             while (!quit)
@@ -27,7 +27,7 @@ namespace Crisp
                     }
                     else
                     {
-                        EvalAndPrint(code, environment, writer);
+                        EvalAndPrintRD(code, environment, writer);
                     }
                 }
                 catch (CrispException e)
@@ -67,6 +67,19 @@ namespace Crisp
             var expr = parser.ParseExpression();
             var obj = expr.Evaluate(environment);
             writer.WriteLine(obj);
+        }
+
+        private static void EvalAndPrintRD(string code,
+            Eval.Environment environment, TextWriter writer)
+        {
+            var scanner = new Scanner(code);
+            var parser = new ParserRD(scanner);
+            var expressions = parser.Program();
+            foreach (var expression in expressions)
+            {
+                var value = expression.Evaluate(environment);
+                writer.WriteLine(value);
+            }
         }
 
         public static void Load(string filename, Eval.Environment environment)
