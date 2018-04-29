@@ -84,7 +84,7 @@
     <Compile Include="Eval\Function.cs" />
     <Compile Include="Eval\Record.cs" />
     <Compile Include="Eval\RecordInstance.cs" />
-    <Compile Include="Parsing\ParserRD.cs" />
+    <Compile Include="Parsing\Parser.cs" />
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenTag.cs" />
     <Compile Include="Parsing\Position.cs" />
@@ -93,7 +93,6 @@
     <Compile Include="Eval\RuntimeErrorException.cs" />
     <Compile Include="Parsing\SyntaxErrorException.cs" />
     <Compile Include="Parsing\Scanner.cs" />
-    <Compile Include="Parsing\Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />

@@ -411,7 +411,7 @@ namespace Crisp.Eval
                     {
                         var line = string.Join("", args);
                         Console.WriteLine(line);
-                        return null;
+                        return Null.Instance;
                     }
 
                 default:

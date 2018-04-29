@@ -1,48 +1,14 @@
 ﻿using Crisp.Ast;
-using Crisp.Eval;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Crisp.Parsing
 {
     class Parser
     {
-        readonly Scanner scanner;
-        Token current = null;
-        Token peek = null;
-
-        static Dictionary<TokenTag, Precedence> precedences =
-            new Dictionary<TokenTag, Precedence>
-            {
-                [TokenTag.Assignment] = Precedence.Assignment,
-
-                [TokenTag.Or] = Precedence.LogicalOr,
-
-                [TokenTag.And] = Precedence.LogicalAnd,
-
-                [TokenTag.Equals] = Precedence.Equality,
-                [TokenTag.InequalTo] = Precedence.Equality,
-
-
-                [TokenTag.GreaterThan] = Precedence.Relational,
-                [TokenTag.GreaterThanOrEqualTo] = Precedence.Relational,
-                [TokenTag.LessThan] = Precedence.Relational,
-                [TokenTag.LessThanOrEqualTo] = Precedence.Relational,
-
-                [TokenTag.Add] = Precedence.Additive,
-                [TokenTag.Subtract] = Precedence.Additive,
-
-                [TokenTag.Divide] = Precedence.Multiplicitive,
-                [TokenTag.Mod] = Precedence.Multiplicitive,
-                [TokenTag.Multiply] = Precedence.Multiplicitive,
-
-                [TokenTag.LBrace] = Precedence.Expression,
-                [TokenTag.LBracket] = Precedence.Expression,
-                [TokenTag.LParen] = Precedence.Expression,
-                [TokenTag.Period] = Precedence.Expression,
-            };
-
         static Dictionary<TokenTag, OperatorInfix> tokenOp =
             new Dictionary<TokenTag, OperatorInfix>
             {
@@ -69,6 +35,10 @@ namespace Crisp.Parsing
                 [TokenTag.WriteLn] = CommandType.WriteLn,
             };
 
+        readonly Scanner scanner;
+        Token current = null;
+        Token peek = null;
+
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
@@ -82,9 +52,7 @@ namespace Crisp.Parsing
             peek = scanner.NextToken();
         }
 
-        public bool IsFinished => current.Tag == TokenTag.EndOfInput;
-
-        bool Match(TokenTag tag, out Token token)
+        bool Match(out Token token, TokenTag tag)
         {
             if (current.Tag == tag)
             {
@@ -101,7 +69,20 @@ namespace Crisp.Parsing
 
         bool Match(TokenTag tag)
         {
-            return Match(tag, out var token);
+            return Match(out var token, tag);
+        }
+
+        bool Match(out Token token, params TokenTag[] tags)
+        {
+            foreach (var tag in tags)
+            {
+                if (Match(out token, tag))
+                {
+                    return true;
+                }
+            }
+            token = null;
+            return false;
         }
 
         Token Expect(TokenTag tag)
@@ -119,355 +100,501 @@ namespace Crisp.Parsing
             }
         }
 
-        Precedence Lbp(Token token)
+        public List<IExpression> Program()
         {
-            return precedences.GetValue(token.Tag, Precedence.Lowest);
+            var expressions = new List<IExpression>();
+            while (current.Tag != TokenTag.EndOfInput)
+            {
+                var expression = Expression();
+                expressions.Add(expression);
+            }
+            return expressions;
         }
 
-        IExpression Nud(Token token)
+        IExpression Expression()
         {
-            switch (token.Tag)
+            if (Match(TokenTag.Let))
             {
-                case TokenTag.If:
-                    {
-                        var condition = ParseExpression();
-                        Expect(TokenTag.Then);
-                        var consequence = ParseExpression();
-                        var alternative = Match(TokenTag.Else)
-                            ? ParseExpression()
-                            : LiteralNull.Instance;
-                        return new Branch(condition, consequence, alternative);
-                    }
+                return Let();
+            }
 
-                case TokenTag.While:
-                    {
-                        var guard = ParseExpression();
-                        Expect(TokenTag.Do);
-                        var body = ParseExpression();
-                        return new While(guard, body);
-                    }
+            if (Match(TokenTag.Fn))
+            {
+                return Function();
+            }
 
-                case TokenTag.Let: // X
-                    {
-                        var identifier = ParseIdentifier();
-                        Expect(TokenTag.Assignment);
-                        var value = ParseExpression();
-                        return new Let(identifier, value);
-                    }
+            if (Match(TokenTag.If))
+            {
+                return If();
+            }
 
-                case TokenTag.Begin:
-                    {
-                        var body = new List<IExpression>();
-                        while (!Match(TokenTag.End))
-                        {
-                            body.Add(ParseExpression());
-                        }
-                        return new Block(body);
-                    }
+            if (Match(TokenTag.While))
+            {
+                return While();
+            }
 
-                case TokenTag.Fn: // X
-                    {
-                        // Function name
-                        Match(TokenTag.Identifier, out var nameToken);
+            if (Match(TokenTag.Begin))
+            {
+                return Block();
+            }
 
-                        // Function parameter list
-                        Expect(TokenTag.LParen);
-                        var parameters = ParseParameters();
+            return Assignment();
+        }
 
-                        // Function body
-                        var body = ParseExpression();
+        IExpression Let()
+        {
+            var nameToken = Expect(TokenTag.Identifier);
+            var identifier = new Identifier(nameToken.Position, nameToken.Lexeme);
+            Expect(TokenTag.Assignment);
+            var value = Expression();
+            return new Let(identifier, value);
+        }
 
-                        // Create AST
-                        var function = new Ast.Function(parameters, body);
-                        if (nameToken != null)
-                        {
-                            var identifier = new Identifier(nameToken.Position, nameToken.Lexeme);
-                            return new Let(identifier, function);
-                        }
-                        else
-                        {
-                            return function;
-                        }
-                    }
+        IExpression Function()
+        {
+            // Function name
+            Match(out var nameToken, TokenTag.Identifier);
 
-                case TokenTag.LBrace when Match(TokenTag.RBrace):
-                    return new Map();
+            // Function parameter list
+            List<string> parameters = Parameters();
 
-                case TokenTag.LBrace:
-                    {
-                        var initializers = new List<(IExpression, IExpression)>();
-                        do
-                        {
-                            var index = ParseExpression();
-                            Expect(TokenTag.Colon);
-                            var value = ParseExpression();
-                            var initializer = (index, value);
-                            initializers.Add(initializer);
+            // Function body
+            var body = Expression();
 
-                        } while (!Match(TokenTag.RBrace));
-                        return new Map(initializers);
-                    }
-
-                case TokenTag.LBracket when Match(TokenTag.RBracket):
-                    return new List();
-
-                case TokenTag.LBracket:
-                    {
-                        var initializers = new List<IExpression>();
-                        do
-                        {
-                            var initializer = ParseExpression();
-                            initializers.Add(initializer);
-                        }
-                        while (Match(TokenTag.Comma));
-                        Expect(TokenTag.RBracket);
-                        return new List(initializers);
-                    }
-
-                case TokenTag.LParen: // X
-                    {
-                        var expression = ParseExpression();
-                        Expect(TokenTag.RParen);
-                        return expression;
-                    }
-
-                case TokenTag.Len:
-                    {
-                        Expect(TokenTag.LParen);
-                        var expression = ParseExpression();
-                        Expect(TokenTag.RParen);
-                        return new Len(expression);
-                    }
-
-                case TokenTag.Push:
-                case TokenTag.ReadLn:
-                case TokenTag.WriteLn:
-                    {
-                        var commandType = tokenCommand[token.Tag];
-                        Expect(TokenTag.LParen);
-                        var argumentExpressions = ParseArguments();
-                        return new Command(commandType, argumentExpressions);
-                    }
-
-                case TokenTag.Identifier: // X
-                    return new Identifier(token.Position, token.Lexeme);
-
-                case TokenTag.Integer // X
-                when int.TryParse(token.Lexeme, out int value):
-                    return new LiteralInt(value);
-
-                case TokenTag.Integer: // X
-                    throw new SyntaxErrorException(
-                        $"Unable to convert <{token.Lexeme}> into an 32 bit integer.",
-                        token.Position);
-
-                case TokenTag.Record when Match(TokenTag.End):
-                    return new Ast.Record();
-
-                case TokenTag.Record: // X
-                    {
-                        var variables = new List<string>();
-                        while (Match(TokenTag.Identifier, out var idToken))
-                        {
-                            variables.Add(idToken.Lexeme);
-                        }
-
-                        var functions = new Dictionary<string, Ast.Function>();
-                        while (Match(TokenTag.Fn))
-                        {
-                            var name = Expect(TokenTag.Identifier);
-                            Expect(TokenTag.LParen);
-                            var parameters = ParseParameters();
-                            parameters.Add("this");
-                            var body = ParseExpression();
-                            var function = new Ast.Function(parameters, body);
-                            functions.Add(name.Lexeme, function);
-                        }
-
-                        Expect(TokenTag.End);
-                        return new Ast.Record(variables, functions);
-                    }
-
-                case TokenTag.String: // X
-                    return new LiteralString(token.Lexeme);
-
-                case TokenTag.Subtract: // X
-                    return new OperatorUnary(
-                        token.Position,
-                        OperatorPrefix.Neg,
-                        ParseExpression());
-
-                case TokenTag.Float // X
-                when double.TryParse(token.Lexeme, out var value):
-                    return new LiteralDouble(value);
-
-                case TokenTag.Float: // X
-                    throw new SyntaxErrorException(
-                        $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
-                        token.Position);
-
-                case TokenTag.False: // X
-                    return LiteralBool.False;
-
-                case TokenTag.True: // X
-                    return LiteralBool.True;
-
-                case TokenTag.Not: // X
-                    return new OperatorUnary(
-                        token.Position,
-                        OperatorPrefix.Not,
-                        ParseExpression());
-
-                case TokenTag.Null: // X
-                    return LiteralNull.Instance;
-
-                default: // X
-                    throw new SyntaxErrorException(
-                        $"unexpected token '{token.Tag}'",
-                        token.Position);
+            // Create AST
+            var function = new Function(parameters, body);
+            if (nameToken != null)
+            {
+                var identifier = new Identifier(nameToken.Position, nameToken.Lexeme);
+                return new Let(identifier, function);
+            }
+            else
+            {
+                return function;
             }
         }
 
-        IExpression Led(Token token, IExpression left)
+        IExpression If()
         {
-            switch (token.Tag)
+            var condition = Expression();
+            Expect(TokenTag.Then);
+            var consequence = Expression();
+            var alternative = Match(TokenTag.Else)
+                ? Expression()
+                : LiteralNull.Instance;
+            return new Branch(condition, consequence, alternative);
+        }
+
+        IExpression While()
+        {
+            var guard = Expression();
+            Expect(TokenTag.Do);
+            var body = Expression();
+            return new While(guard, body);
+        }
+
+        IExpression Block()
+        {
+            var body = new List<IExpression>();
+            while (!Match(TokenTag.End))
             {
-                case TokenTag.Assignment when left is Identifier identifier: // X
-                    {
-                        var value = ParseExpression();
-                        return new AssignmentIdentifier(identifier, value);
-                    }
-
-                case TokenTag.Assignment when left is Indexing index:
-                    {
-                        var value = ParseExpression();
-                        return new AssignmentIndexing(index, value);
-                    }
-
-                case TokenTag.Assignment when left is Member member:
-                    {
-                        var value = ParseExpression();
-                        return new AssignmentMember(member, value);
-                    }
-
-                case TokenTag.Assignment: // X
-                    throw new SyntaxErrorException(
-                        "left hand side of assignment must be assignable",
-                        token.Position);
-
-                case TokenTag.Add: // X
-                case TokenTag.And: // X
-                case TokenTag.Divide: // X
-                case TokenTag.Equals: // X
-                case TokenTag.GreaterThan: // X
-                case TokenTag.GreaterThanOrEqualTo: // X
-                case TokenTag.InequalTo: // X
-                case TokenTag.LessThan: // X
-                case TokenTag.LessThanOrEqualTo: // X
-                case TokenTag.Mod: // X
-                case TokenTag.Multiply: // X
-                case TokenTag.Or: // X
-                case TokenTag.Subtract: // X
-                    return new OperatorBinary(
-                        token.Position,
-                        tokenOp[token.Tag],
-                        left,
-                        ParseExpression(Lbp(token)));
-
-                case TokenTag.LBrace when Match(TokenTag.RBrace): // X
-                    return new RecordConstructor(left);
-
-                case TokenTag.LBrace: // X
-                    {
-                        var initalizers = new Dictionary<string, IExpression>();
-                        do
-                        {
-                            var name = Expect(TokenTag.Identifier);
-                            if (initalizers.ContainsKey(name.Lexeme))
-                            {
-                                throw new RuntimeErrorException(
-                                    name.Position,
-                                    $"Duplicate initializer <{name.Lexeme}>.");
-                            }
-                            Expect(TokenTag.Colon);
-                            var value = ParseExpression();
-                            initalizers.Add(name.Lexeme, value);
-                        }
-                        while (!Match(TokenTag.RBrace));
-                        return new RecordConstructor(left, initalizers);
-                    }
-
-                case TokenTag.LBracket:
-                    {
-                        var index = ParseExpression();
-                        Expect(TokenTag.RBracket);
-                        return new Indexing(left, index);
-                    }
-
-                case TokenTag.LParen when left is Member member:
-                    return new MemberCall(member, ParseArguments());
-
-                case TokenTag.LParen when Match(TokenTag.RParen): // X
-                    return new Call(left);
-
-                case TokenTag.LParen: // X
-                    return new Call(left, ParseArguments());
-
-                case TokenTag.Period: // X
-                    return new Member(left, ParseIdentifier());
-
-                default:
-                    throw new SyntaxErrorException(
-                        $"unexpected token '{token.Tag}'",
-                        token.Position);
+                var expr = Expression();
+                body.Add(expr);
             }
+            return new Block(body);
         }
 
-        Identifier ParseIdentifier()
+        List<string> Parameters()
         {
-            var idToken = Expect(TokenTag.Identifier);
-            return new Identifier(idToken.Position, idToken.Lexeme);
-        }
-
-        List<IExpression> ParseArguments()
-        {
-            return ParseTuple(() => ParseExpression()).ToList();
-        }
-
-        List<string> ParseParameters()
-        {
-            return ParseTuple(() => Expect(TokenTag.Identifier).Lexeme).ToList();
-        }
-
-        IEnumerable<T> ParseTuple<T>(Func<T> parseItem)
-        {
-            if (Match(TokenTag.RParen))
+            var parameters = new List<string>();
+            Expect(TokenTag.LParen);
+            if (!Match(TokenTag.RParen))
             {
-                yield break;
+                do
+                {
+                    var parameterToken = Expect(TokenTag.Identifier);
+                    parameters.Add(parameterToken.Lexeme);
+                }
+                while (Match(TokenTag.Comma));
+                Expect(TokenTag.RParen);
             }
 
-            do
-            {
-                yield return parseItem();
-            }
-            while (Match(TokenTag.Comma));
-
-            Expect(TokenTag.RParen);
+            return parameters;
         }
 
-        public IExpression ParseExpression(Precedence rbp = Precedence.Lowest)
+        IExpression Assignment()
         {
-            var t = current;
-            NextToken();
-            var left = Nud(t);
-            while (rbp < Lbp(current))
+            var left = LogicalOr();
+
+            if (Match(out var token, TokenTag.Assignment))
             {
-                t = current;
-                NextToken();
-                left = Led(t, left);
+                var right = Expression();
+
+                if (left is Identifier identifier)
+                {
+                    return new AssignmentIdentifier(identifier, right);
+                }
+
+                if (left is Indexing index)
+                {
+                    return new AssignmentIndexing(index, right);
+                }
+
+                if (left is Member member)
+                {
+                    return new AssignmentMember(member, right);
+                }
+
+                throw new SyntaxErrorException(
+                    "Left hand side of assignment must be assignable,",
+                    token.Position);
+
+            }
+
+            return left;
+        }
+
+        IExpression LogicalOr()
+        {
+            var left = LogicalAnd();
+            while (Match(out var token, TokenTag.Or))
+            {
+                var op = tokenOp[token.Tag];
+                var right = LogicalAnd();
+                left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
+        IExpression LogicalAnd()
+        {
+            var left = Equality();
+            while (Match(out var token, TokenTag.And))
+            {
+                var op = tokenOp[token.Tag];
+                var right = Equality();
+                left = new OperatorBinary(token.Position, op, left, right);
+            }
+            return left;
+        }
+
+        IExpression Equality()
+        {
+            var left = Relation();
+            while (Match(out var token, TokenTag.Equals, TokenTag.InequalTo))
+            {
+                var op = tokenOp[token.Tag];
+                var right = Relation();
+                left = new OperatorBinary(token.Position, op, left, right);
+            }
+            return left;
+        }
+
+        IExpression Relation()
+        {
+            var left = Addition();
+            while (Match(out var token, TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo,
+                TokenTag.LessThan, TokenTag.LessThanOrEqualTo))
+            {
+                var op = tokenOp[token.Tag];
+                var right = Addition();
+                left = new OperatorBinary(token.Position, op, left, right);
+            }
+            return left;
+        }
+
+        IExpression Addition()
+        {
+            var left = Multiplication();
+            while (Match(out var token, TokenTag.Add, TokenTag.Subtract))
+            {
+                var op = tokenOp[token.Tag];
+                var right = Multiplication();
+                left = new OperatorBinary(token.Position, op, left, right);
+            }
+            return left;
+        }
+
+        IExpression Multiplication()
+        {
+            var left = Unary();
+            while (Match(out var token, TokenTag.Multiply, TokenTag.Divide, TokenTag.Mod))
+            {
+                var op = tokenOp[token.Tag];
+                var right = Unary();
+                left = new OperatorBinary(token.Position, op, left, right);
+            }
+            return left;
+        }
+
+        IExpression Unary()
+        {
+            if (Match(out var token, TokenTag.Subtract))
+            {
+                var expression = Expression();
+                return new OperatorUnary(token.Position, OperatorPrefix.Neg, expression);
+            }
+
+            if (Match(out token, TokenTag.Not))
+            {
+                var expression = Expression();
+                return new OperatorUnary(token.Position, OperatorPrefix.Not, expression);
+            }
+
+            return Invoke();
+        }
+
+        IExpression Invoke()
+        {
+            var expr = Primary();
+
+            while (Match(out var token, TokenTag.LParen, TokenTag.Period,
+                TokenTag.LBrace, TokenTag.LBracket))
+            {
+                if (token.Tag == TokenTag.LParen)
+                {
+                    expr = Call(expr);
+                }
+                else if (token.Tag == TokenTag.Period)
+                {
+                    expr = Member(expr);
+                }
+                else if (token.Tag == TokenTag.LBrace)
+                {
+                    expr = Constructor(expr);
+                }
+                else if (token.Tag == TokenTag.LBracket)
+                {
+                    expr = Indexing(expr);
+                }
+            }
+
+            return expr;
+        }
+
+        IExpression Call(IExpression left)
+        {
+            List<IExpression> arguments = Arguments();
+            if (left is Member member)
+            {
+                return new MemberCall(member, arguments);
+            }
+            else
+            {
+                return new Call(left, arguments);
+            }
+        }
+
+        List<IExpression> Arguments()
+        {
+            var arguments = new List<IExpression>();
+            if (!Match(TokenTag.RParen))
+            {
+                do
+                {
+                    var argument = Expression();
+                    arguments.Add(argument);
+                }
+                while (Match(TokenTag.Comma));
+                Expect(TokenTag.RParen);
+            }
+            return arguments;
+        }
+
+        IExpression Member(IExpression left)
+        {
+            var identifierToken = Expect(TokenTag.Identifier);
+            var name = new Identifier(identifierToken.Position, identifierToken.Lexeme);
+            return new Member(left, name);
+        }
+
+        IExpression Constructor(IExpression left)
+        {
+            // TODO: This should really be a list to enforce an order.
+            var initalizers = new Dictionary<string, IExpression>();
+
+            while (!Match(TokenTag.RBrace))
+            {
+                var name = Expect(TokenTag.Identifier);
+                if (initalizers.ContainsKey(name.Lexeme))
+                {
+                    throw new SyntaxErrorException(
+                        $"Duplicate initializer <{name.Lexeme}>.",
+                        name.Position);
+                }
+                Expect(TokenTag.Colon);
+                var value = Expression();
+                initalizers.Add(name.Lexeme, value);
+            }
+
+            return new RecordConstructor(left, initalizers);
+        }
+
+        IExpression Indexing(IExpression left)
+        {
+            var index = Expression();
+            Expect(TokenTag.RBracket);
+            return new Indexing(left, index);
+        }
+
+        IExpression Primary()
+        {
+            Token token;
+
+            if (Match(out token, TokenTag.Float))
+            {
+                if (double.TryParse(token.Lexeme, out var value))
+                {
+                    return new LiteralDouble(value);
+                }
+                throw new SyntaxErrorException(
+                    $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
+                    token.Position);
+            }
+
+            if (Match(out token, TokenTag.Integer))
+            {
+                if (int.TryParse(token.Lexeme, out var value))
+                {
+                    return new LiteralInt(value);
+                }
+                throw new SyntaxErrorException(
+                    $"Unable to convert <{token.Lexeme}> into a 32 bit integer.",
+                    token.Position);
+            }
+
+            if (Match(out token, TokenTag.String))
+            {
+                return new LiteralString(token.Lexeme);
+            }
+
+            if (Match(TokenTag.True))
+            {
+                return LiteralBool.True;
+            }
+
+            if (Match(TokenTag.False))
+            {
+                return LiteralBool.False;
+            }
+
+            if (Match(out token, TokenTag.Identifier))
+            {
+                return new Identifier(token.Position, token.Lexeme);
+            }
+
+            if (Match(TokenTag.Null))
+            {
+                return LiteralNull.Instance;
+            }
+
+            if (Match(TokenTag.LParen))
+            {
+                var expression = Expression();
+                Expect(TokenTag.RParen);
+                return expression;
+            }
+
+            if (Match(TokenTag.LBracket))
+            {
+                return List();
+            }
+
+            if (Match(TokenTag.LBrace))
+            {
+                return Map();
+            }
+
+            if (Match(TokenTag.Len))
+            {
+                return Len();
+            }
+
+            if (Match(out token, TokenTag.Push, TokenTag.ReadLn,
+                TokenTag.WriteLn))
+            {
+                return Command(token);
+            }
+
+            if (Match(TokenTag.Record))
+            {
+                return Record();
+            }
+
+            throw new SyntaxErrorException($"unexpected token '{current.Tag}'", current.Position);
+        }
+
+        IExpression List()
+        {
+            var initializers = new List<IExpression>();
+            if (!Match(TokenTag.RBracket))
+            {
+                do
+                {
+                    var initializer = Expression();
+                    initializers.Add(initializer);
+                }
+                while (Match(TokenTag.Comma));
+                Expect(TokenTag.RBracket);
+            }
+            return new List(initializers);
+        }
+
+        IExpression Map()
+        {
+            var initializers = new List<(IExpression, IExpression)>();
+            if (!Match(TokenTag.RBrace))
+            {
+                do
+                {
+                    var index = Expression();
+                    Expect(TokenTag.Colon);
+                    var value = Expression();
+                    var initializer = (index, value);
+                    initializers.Add(initializer);
+                }
+                while (!Match(TokenTag.RBrace));
+            }
+            return new Map(initializers);
+        }
+
+        IExpression Len()
+        {
+            Expect(TokenTag.LParen);
+            var expression = Expression();
+            Expect(TokenTag.RParen);
+            return new Len(expression);
+        }
+
+        IExpression Command(Token token)
+        {
+            var commandType = tokenCommand[token.Tag];
+            Expect(TokenTag.LParen);
+            var arguments = Arguments();
+            return new Command(commandType, arguments);
+        }
+
+        IExpression Record()
+        {
+            var variables = new List<string>();
+            while (Match(out var idToken, TokenTag.Identifier))
+            {
+                variables.Add(idToken.Lexeme);
+            }
+
+            var functions = new Dictionary<string, Ast.Function>();
+            while (Match(TokenTag.Fn))
+            {
+                var name = Expect(TokenTag.Identifier);
+                var parameters = Parameters();
+                parameters.Add("this");
+                var body = Expression();
+                var function = new Function(parameters, body);
+                functions.Add(name.Lexeme, function);
+            }
+
+            Expect(TokenTag.End);
+            return new Ast.Record(variables, functions);
+        }
     }
 }
