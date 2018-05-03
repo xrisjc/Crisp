@@ -180,67 +180,11 @@ namespace Crisp.Eval
                 case Map map:
                     return map.Initializers.Evaluate(environment).CreateDictionary();
 
-                case OperatorBinary and
-                when and.Op == OperatorInfix.And:
-                    {
-                        var objLeft = and.Left.Evaluate(environment);
-                        if (objLeft is bool boolLeft)
-                        {
-                            if (boolLeft == false)
-                            {
-                                return boolLeft;
-                            }
+                case OperatorBinary and when and.Op == OperatorInfix.And:
+                    return IsTrue(and.Left.Evaluate(environment)) && IsTrue(and.Right.Evaluate(environment));
 
-                            var objRight = and.Right.Evaluate(environment);
-                            if (objRight is bool boolRight)
-                            {
-                                return boolRight;
-                            }
-                            else
-                            {
-                                throw new RuntimeErrorException(
-                                    and.Position,
-                                    "Right hand side of 'and' must be Boolean.");
-                            }
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException(
-                                and.Position,
-                                "Left hand side of 'and' must be Boolean.");
-                        }
-                    }
-
-                case OperatorBinary or
-                when or.Op == OperatorInfix.Or:
-                    {
-                        var objLeft = or.Left.Evaluate(environment);
-                        if (objLeft is bool boolLeft)
-                        {
-                            if (boolLeft)
-                            {
-                                return boolLeft;
-                            }
-
-                            var objRight = or.Right.Evaluate(environment);
-                            if (objRight is bool boolRight)
-                            {
-                                return boolRight;
-                            }
-                            else
-                            {
-                                throw new RuntimeErrorException(
-                                    or.Position,
-                                    "Right hand side of 'or' must be Boolean.");
-                            }
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException(
-                                or.Position,
-                                "Left hand side of 'or' must be Boolean.");
-                        }
-                    }
+                case OperatorBinary or when or.Op == OperatorInfix.Or:
+                    return IsTrue(or.Left.Evaluate(environment)) || IsTrue(or.Right.Evaluate(environment));
 
                 case OperatorBinary operatorBinary:
                     return Evaluate(operatorBinary, environment);
@@ -268,22 +212,11 @@ namespace Crisp.Eval
                         $"Record construction requires a record object.");
 
                 case While @while:
-                    while (true)
+                    while (IsTrue(@while.Guard.Evaluate(environment)))
                     {
-                        var predicate = @while.Guard.Evaluate(environment);
-                        if (predicate is bool boolPredicate)
-                        {
-                            if (boolPredicate == false)
-                            {
-                                return Null.Instance;
-                            }
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException("a while guard must be a bool value");
-                        }
                         @while.Body.Evaluate(environment);
                     }
+                    return Null.Instance;
 
                 default:
                     throw new RuntimeErrorException(
@@ -313,8 +246,10 @@ namespace Crisp.Eval
 
             switch (operatorUnary.Op)
             {
-                case OperatorPrefix.Neg when obj is int || obj is double: return -obj;
-                case OperatorPrefix.Not when obj is bool: return !obj;
+                case OperatorPrefix.Neg when obj is int || obj is double:
+                    return -obj;
+                case OperatorPrefix.Not:
+                    return !IsTrue(obj);
                 default:
                     throw new RuntimeErrorException(
                         operatorUnary.Position,
@@ -417,6 +352,11 @@ namespace Crisp.Eval
                 default:
                     throw new RuntimeErrorException($"unknown command {cmd}");
             }
+        }
+
+        public static bool IsTrue(object x)
+        {
+            return !x.Equals(false) && !ReferenceEquals(x, Null.Instance);
         }
 
         public static dynamic GetIndex(dynamic target, dynamic index)

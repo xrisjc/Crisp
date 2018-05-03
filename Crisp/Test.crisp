@@ -235,6 +235,13 @@ t.assert(2 = 2 and 1 <> 2, 'and precedence #2')
 t.assertEq(true or false and false, true, 'or precedence #1')
 t.assertEq((true or false) and false, false, 'or precedence #1')
 
+// All values have a truth value.  false and null are false, everything else
+// is considered true.
+t.assertEq(not null, true, 'Null considered false #1')
+t.assertEq(null or true, true, 'Null considered false #2')
+t.assertEq(null and true, false, 'Null considered false #3')
+t.assertEq(not 1, false, 'Objects considered true.')
+
 ///////////////////////////////////////////////////////////////////////////////
 // Variables Blocks
 ///////////////////////////////////////////////////////////////////////////////
