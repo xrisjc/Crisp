@@ -369,6 +369,27 @@ end
 // A while always evaluates to null.
 t.assertEq(while false do 0, null, 'While evals to null')
 
+// For loops!
+begin
+    let sum := 0
+    for n := 1 to 100 do
+      begin
+        sum := sum + n
+      end
+    t.assertEq(sum, 5050, 'For loop')
+end
+
+// As usual for loops can fail to run at all.
+begin
+    let n := 100
+    for i := 100 to 50 do
+        n := n + 1
+    t.assertEq(n, 100, 'Never executing for loop')
+end
+
+// A while always evaluates to null.
+t.assertEq(for i:=1 to 10 do 0, null, 'For evals to null')
+
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
 ///////////////////////////////////////////////////////////////////////////////

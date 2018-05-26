@@ -218,6 +218,21 @@ namespace Crisp.Eval
                     }
                     return Null.Instance;
 
+                case For @for:
+                    {
+                        var start = @for.Start.Evaluate(environment);
+                        CheckNumeric(start);
+                        var end = @for.End.Evaluate(environment);
+                        CheckNumeric(end);
+                        for (var i = start; i <= end; i = i + 1)
+                        {
+                            var localEnvironment = new Environment(environment);
+                            localEnvironment.Create(@for.VariableName, i);
+                            @for.Body.Evaluate(localEnvironment);
+                        }
+                    }
+                    return Null.Instance;
+
                 default:
                     throw new RuntimeErrorException(
                         $"Unsupported AST node {expression.GetType()}.");
@@ -454,9 +469,14 @@ namespace Crisp.Eval
             }
         }
 
+        private static bool CheckNumeric(dynamic x)
+        {
+            return x is int || x is double;
+        }
+
         private static bool CheckNumeric(dynamic left, dynamic right)
         {
-            return (left is int || left is double) && (right is int || right is double);
+            return CheckNumeric(left) && CheckNumeric(right);
         }
     }
 }

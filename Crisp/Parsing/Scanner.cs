@@ -22,6 +22,7 @@ namespace Crisp.Parsing
                 ["end"]     = TokenTag.End,
                 ["false"]   = TokenTag.False,
                 ["fn"]      = TokenTag.Fn,
+                ["for"]     = TokenTag.For,
                 ["if"]      = TokenTag.If,
                 ["len"]     = TokenTag.Len,
                 ["let"]     = TokenTag.Let,
@@ -34,6 +35,7 @@ namespace Crisp.Parsing
                 ["record"]  = TokenTag.Record,
                 ["then"]    = TokenTag.Then,
                 ["true"]    = TokenTag.True,
+                ["to"]      = TokenTag.To,
                 ["while"]   = TokenTag.While,
                 ["writeLn"] = TokenTag.WriteLn,
             };
