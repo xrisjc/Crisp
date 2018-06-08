@@ -387,7 +387,7 @@ begin
     t.assertEq(n, 100, 'Never executing for loop')
 end
 
-// A while always evaluates to null.
+// A for always evaluates to null.
 t.assertEq(for i:=1 to 10 do 0, null, 'For evals to null')
 
 ///////////////////////////////////////////////////////////////////////////////
