@@ -22,6 +22,7 @@
         GreaterThanOrEqualTo,
         Identifier,
         If,
+        In,
         InequalTo,
         Integer,
         LBrace,

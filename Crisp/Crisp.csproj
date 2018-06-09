@@ -56,6 +56,7 @@
     <Compile Include="Ast\Command.cs" />
     <Compile Include="Ast\CommandType.cs" />
     <Compile Include="Ast\For.cs" />
+    <Compile Include="Ast\ForIn.cs" />
     <Compile Include="Ast\Function.cs" />
     <Compile Include="Ast\Identifier.cs" />
     <Compile Include="Ast\IExpression.cs" />

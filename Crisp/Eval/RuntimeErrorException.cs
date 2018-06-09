@@ -1,7 +1,9 @@
-﻿using Crisp.Parsing;
+﻿using System;
+using Crisp.Parsing;
 
 namespace Crisp.Eval
 {
+    [Serializable]
     class RuntimeErrorException : CrispException
     {
         public Position Position { get; }

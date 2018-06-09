@@ -2,6 +2,7 @@
 
 namespace Crisp
 {
+    [Serializable]
     abstract class CrispException : Exception
     {
         public CrispException(string message)

@@ -197,13 +197,24 @@ namespace Crisp.Parsing
         IExpression For()
         {
             var varToken = Expect(TokenTag.Identifier);
-            Expect(TokenTag.Assignment);
-            var start = Expression();
-            Expect(TokenTag.To);
-            var end = Expression();
-            Expect(TokenTag.Do);
-            var body = Expression();
-            return new For(varToken.Lexeme, start, end, body);
+            if (Match(TokenTag.Assignment))
+            {
+                // Regular for loop.
+                var start = Expression();
+                Expect(TokenTag.To);
+                var end = Expression();
+                Expect(TokenTag.Do);
+                var body = Expression();
+                return new For(varToken.Lexeme, start, end, body);
+            }
+            else
+            {
+                Expect(TokenTag.In);
+                var sequence = Expression();
+                Expect(TokenTag.Do);
+                var body = Expression();
+                return new ForIn(varToken.Lexeme, sequence, body);
+            }
         }
 
         IExpression Block()

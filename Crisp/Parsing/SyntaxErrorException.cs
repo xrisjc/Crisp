@@ -2,6 +2,7 @@
 
 namespace Crisp.Parsing
 {
+    [Serializable]
     class SyntaxErrorException : CrispException
     {
         public Position Position { get; }
