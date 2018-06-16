@@ -369,7 +369,7 @@ end
 // A while always evaluates to null.
 t.assertEq(while false do 0, null, 'While evals to null')
 
-// Crips has Pascal style for loops. The syntax is
+// Crisp has Pascal style for loops. The syntax is
 //     for <identifier> := <low> to <high> do <body>
 //
 // The loop will set the identifier to the low value.  Each time through the
@@ -402,6 +402,25 @@ end
 
 // A for always evaluates to null.
 t.assertEq(for i:=1 to 10 do 0, null, 'For evals to null')
+
+// Crisp has a for in loop that iterates over an enumerable object.  The
+// syntax is
+//     for <identifier> in <enumerable> do <body>
+
+// Lists are enumerable
+begin
+    let sum := 0
+    for x in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] do
+      begin
+        sum := sum + x
+      end
+    t.assertEq(sum, 55, 'For in over a list')
+
+    sum := 0
+    for x in [] do
+        sum := sum + x
+    t.assertEq(sum, 0, 'For in over an empty list')
+end
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions

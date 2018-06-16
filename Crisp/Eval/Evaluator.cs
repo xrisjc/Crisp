@@ -233,9 +233,27 @@ namespace Crisp.Eval
                     }
                     return Null.Instance;
 
+                case ForIn forIn:
+                    switch (forIn.Sequence.Evaluate(environment))
+                    {
+                        case List<object> list:
+                            foreach (var x in list)
+                            {
+                                var localEnvironment = new Environment(environment);
+                                localEnvironment.Create(forIn.VariableName, x);
+                                forIn.Body.Evaluate(localEnvironment);
+                            }
+                            break;
+
+                        default:
+                            throw new RuntimeErrorException(
+                                $"For in loops must have an enumerable object.");
+                    }
+                    return Null.Instance;
+
                 default:
                     throw new RuntimeErrorException(
-                        $"Unsupported AST node {expression.GetType()}.");
+                        $"Unsupported AST node {expression}");
             }
         }
 
