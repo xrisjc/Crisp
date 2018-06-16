@@ -583,6 +583,20 @@ begin
         (record x end { x: 'hello' }).x,
         'hello',
         'Anonymous records')
+
+    // Records can also have methods. Use the "this" keyword to access members
+    // or functions of the current record.
+    let Vector := record
+        x
+        y
+        fn add(v) Vector { x: this.x + v.x  y: this.y + v.y }
+    end
+
+    let v := Vector { x: 10  y: 20 }
+    let w := Vector { x: 100 y: 200 }
+    let vPlusW := v.add(w)
+    t.assertEq(v.x + w.x, vPlusW.x, 'Record method test #1')
+    t.assertEq(v.y + w.y, vPlusW.y, 'Record method test #1')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
