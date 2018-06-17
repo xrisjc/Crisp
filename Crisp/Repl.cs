@@ -1,18 +1,34 @@
-﻿using Crisp.Eval;
+﻿using Crisp.Ast;
+using Crisp.Eval;
 using Crisp.Parsing;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Crisp
 {
     class Repl
     {
+        static void PrintStack(Stack<dynamic> stack)
+        {
+            Console.WriteLine("###Stack");
+            if (stack.Count == 0)
+            {
+                Console.WriteLine("<empty stack>");
+            }
+            foreach (var x in stack)
+            {
+                Console.WriteLine(x);
+            }
+        }
+
         public static void Run(TextReader reader, TextWriter writer)
         {
+            var stack = new Stack<dynamic>();
             var environment = new Eval.Environment();
 
-            Load("Sys.crisp", environment);
-            Load("Test.crisp", environment);
+            Load("Sys.crisp", stack, environment);
+            Load("Test.crisp", stack, environment);
 
             var quit = false;
             while (!quit)
@@ -23,11 +39,11 @@ namespace Crisp
                     var code = reader.ReadLine();
                     if (code.Length > 0 && code[0] == ':')
                     {
-                        quit = ExecuteCommand(code, environment, writer);
+                        quit = ExecuteCommand(code, stack, environment, writer);
                     }
                     else
                     {
-                        EvalAndPrint(code, environment, writer);
+                        EvalAndPrint(code, stack, environment, writer);
                     }
                 }
                 catch (CrispException e)
@@ -39,6 +55,7 @@ namespace Crisp
 
         private static bool ExecuteCommand(
             string code,
+            Stack<dynamic> stack,
             Eval.Environment environment,
             TextWriter writer)
         {
@@ -47,7 +64,7 @@ namespace Crisp
             switch (args[0])
             {
                 case ":l" when args.Length >= 2:
-                    Load(filename: args[1], environment: environment);
+                    Load(args[1], stack, environment);
                     break;
                 case ":q":
                     return true;
@@ -59,20 +76,21 @@ namespace Crisp
             return false;
         }
 
-        private static void EvalAndPrint(string code,
+        private static void EvalAndPrint(string code, Stack<dynamic> stack,
             Eval.Environment environment, TextWriter writer)
         {
             var scanner = new Scanner(code);
             var parser = new Parser(scanner);
             var expressions = parser.Program();
-            foreach (var expression in expressions)
+            foreach (var expr in expressions)
             {
-                var value = expression.Evaluate(environment);
+                var value = Evaluate(expr, stack, environment);
                 writer.WriteLine(value);
+                PrintStack(stack);
             }
         }
 
-        public static void Load(string filename, Eval.Environment environment)
+        public static void Load(string filename, Stack<dynamic> stack, Eval.Environment environment)
         {
             try
             {
@@ -82,13 +100,19 @@ namespace Crisp
                 var program = parser.Program();
                 foreach (var expr in program)
                 {
-                    expr.Evaluate(environment);
+                    Evaluate(expr, stack, environment);
                 }
             }
             catch (CrispException e)
             {
                 Console.WriteLine(e.FormattedMessage());
             }
+        }
+
+        static dynamic Evaluate(IExpression expr, Stack<dynamic> stack, Eval.Environment environment)
+        {
+            expr.Evaluate(stack, environment);
+            return stack.Pop();
         }
     }
 }
