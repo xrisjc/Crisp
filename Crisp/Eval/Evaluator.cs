@@ -92,12 +92,8 @@ namespace Crisp.Eval
 
                 case Command command:
                     {
-                        var arguments = new List<dynamic>();
-                        foreach (var arg in command.ArgumentExpressions)
-                        {
-                            arg.Evaluate(stack, environment);
-                            arguments.Add(stack.Pop());
-                        }
+                        command.ArgumentExpressions.Evaluate(stack, environment);
+                        var arguments = stack.Pop();
                         stack.Push(Eval.Evaluator.Evaluate(command.Type, arguments));
                     }
                     break;

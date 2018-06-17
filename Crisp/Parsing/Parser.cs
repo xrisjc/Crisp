@@ -594,7 +594,7 @@ namespace Crisp.Parsing
         {
             var commandType = tokenCommand[token.Tag];
             Expect(TokenTag.LParen);
-            var arguments = Arguments();
+            var arguments = new List(Arguments());
             return new Command(commandType, arguments);
         }
 
