@@ -18,13 +18,13 @@ namespace Crisp.Eval
             this.environment = environment;
         }
         
-        public void Call(Stack<dynamic> stack)
+        public void Call(Stack<dynamic> stack, List<dynamic> arguments)
         {
             var localEnvironment = new Environment(environment);
 
-            for (int i = parameters.Count - 1; i >= 0; i--)
+            for (int i = 0; i < parameters.Count; i++)
             {
-                localEnvironment.Create(parameters[i], stack.Pop());
+                localEnvironment.Create(parameters[i], arguments[i]);
             }
 
             body.Evaluate(stack, localEnvironment);

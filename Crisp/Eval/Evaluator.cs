@@ -75,8 +75,13 @@ namespace Crisp.Eval
                         {
                             if (function.Arity == call.Arity)
                             {
-                                Evaluate(call.ArgumentExpressions, stack, environment);
-                                function.Call(stack);
+                                var arguments = new List<dynamic>();
+                                foreach (var arg in call.ArgumentExpressions)
+                                {
+                                    arg.Evaluate(stack, environment);
+                                    arguments.Add(stack.Pop());
+                                }
+                                function.Call(stack, arguments);
                             }
                             else
                             {
@@ -114,9 +119,14 @@ namespace Crisp.Eval
                                 throw new RuntimeErrorException("function arity mismatch");
                             }
 
-                            Evaluate(call.ArgumentExpressions, stack, environment);
-                            stack.Push(record); // the "this" argument is at the end
-                            fn.Call(stack);
+                            var arguments = new List<dynamic>(call.ArgumentExpressions.Count + 1);
+                            foreach (var arg in call.ArgumentExpressions)
+                            {
+                                arg.Evaluate(stack, environment);
+                                arguments.Add(stack.Pop());
+                            }
+                            arguments.Add(record); // the "this" argument is at the end
+                            fn.Call(stack, arguments);
                         }
                         else
                         {
@@ -485,14 +495,6 @@ namespace Crisp.Eval
 
                 default:
                     throw new RuntimeErrorException($"unknown command {cmd}");
-            }
-        }
-
-        public static void Evaluate(IEnumerable<IExpression> initializers, Stack<dynamic> stack, Environment environment)
-        {
-            foreach (var init in initializers)
-            {
-                init.Evaluate(stack, environment);
             }
         }
 
