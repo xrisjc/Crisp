@@ -7,24 +7,25 @@ namespace Crisp.Eval
 {
     static class Evaluator
     {
-        public static void Evaluate(this IExpression expression, Stack<dynamic> stack, Environment environment)
+        public static dynamic Evaluate(this IExpression expression, Environment environment)
         {
             switch (expression)
             {
                 case AssignmentIndexing e:
-                    e.Target.Indexable.Evaluate(stack, environment);
-                    e.Target.Index.Evaluate(stack, environment);
-                    e.Value.Evaluate(stack, environment);
-                    SetIndex(stack);
-                    break;
+                    {
+                        var target = e.Target.Indexable.Evaluate(environment);
+                        var index = e.Target.Index.Evaluate(environment);
+                        var value = e.Value.Evaluate(environment);
+                        SetIndex(target, index, value);
+                        return value;
+                    }
 
                 case AssignmentIdentifier e:
                     {
-                        e.Value.Evaluate(stack, environment);
-                        var value = stack.Pop();
+                        var value = e.Value.Evaluate(environment);
                         if (environment.Set(e.Target.Name, value))
                         {
-                            stack.Push(value);
+                            return value;
                         }
                         else
                         {
@@ -33,124 +34,88 @@ namespace Crisp.Eval
                                 $"Cannot assign value to unbound name <{e.Target.Name}>");
                         }
                     }
-                    break;
 
                 case AssignmentMember e:
-                    e.Target.Expression.Evaluate(stack, environment);
-                    stack.Push(e.Target.MemberIdentifier.Name);
-                    e.Value.Evaluate(stack, environment);
-                    MemberSet(stack);
-                    break;
+                    {
+                        var obj = e.Target.Expression.Evaluate(environment);
+                        var name = e.Target.MemberIdentifier.Name;
+                        var value = e.Value.Evaluate(environment);
+                        MemberSet(obj, name, value);
+                        return value;
+                    }
 
                 case Block block:
                     {
                         var localEnvironment = new Environment(environment);
-                        dynamic result = Null.Instance;
-                        foreach (var expr in block.Body)
-                        {
-                            expr.Evaluate(stack, localEnvironment);
-                            result = stack.Pop();
-                        }
-                        stack.Push(result);
+                        return block.Body.Evaluate(localEnvironment).LastOrDefault() ?? Null.Instance;
                     }
-                    break;
 
                 case Branch branch:
-                    branch.Condition.Evaluate(stack, environment);
-                    if (IsTrue(stack.Pop()))
                     {
-                        branch.Consequence.Evaluate(stack, environment);
+                        var result = branch.Condition.Evaluate(environment);
+                        if (result is bool)
+                        {
+                            var expr = result ? branch.Consequence : branch.Alternative;
+                            return expr.Evaluate(environment);
+                        }
+
+                        throw new RuntimeErrorException(
+                            "an if condition must be a bool value");
+                    }
+
+                case Call call
+                when call.FunctionExpression.Evaluate(environment) is Function function:
+                    if (function.Arity == call.Arity)
+                    {
+                        var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
+                        return function.Call(arguments);
                     }
                     else
                     {
-                        branch.Alternative.Evaluate(stack, environment);
+                        throw new RuntimeErrorException("function arity mismatch");
                     }
-                    break;
 
                 case Call call:
-                    {
-                        call.FunctionExpression.Evaluate(stack, environment);
-                        var value = stack.Pop();
-                        if (value is Function function)
-                        {
-                            if (function.Arity == call.Arity)
-                            {
-                                var arguments = new List<dynamic>();
-                                foreach (var arg in call.ArgumentExpressions)
-                                {
-                                    arg.Evaluate(stack, environment);
-                                    arguments.Add(stack.Pop());
-                                }
-                                function.Call(stack, arguments);
-                            }
-                            else
-                            {
-                                throw new RuntimeErrorException("function arity mismatch");
-                            }
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException("function call attempted on non function value");
-                        }
-                    }
-                    break;
+                    throw new RuntimeErrorException(
+                        "function call attempted on non function value");
 
                 case Command command:
+                    return Eval.Evaluator.Evaluate(
+                        command.Type,
+                        command.ArgumentExpressions.Evaluate(environment).ToList());
+
+                case MemberCall call
+                when call.Member.Expression.Evaluate(environment) is RecordInstance record:
                     {
-                        var arguments = new List<dynamic>();
-                        foreach (var arg in command.ArgumentExpressions)
+                        var fn = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
+                        if (fn.Arity != call.Arity + 1) // + 1 for "this" argument
                         {
-                            arg.Evaluate(stack, environment);
-                            arguments.Add(stack.Pop());
+                            throw new RuntimeErrorException("function arity mismatch");
                         }
-                        stack.Push(Eval.Evaluator.Evaluate(command.Type, arguments));
+
+                        var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
+                        arguments.Add(record); // the "this" argument is at the end
+                        return fn.Call(arguments);
                     }
-                    break;
 
                 case MemberCall call:
-                    {
-                        call.Member.Expression.Evaluate(stack, environment);
-                        dynamic value = stack.Pop();
-                        if (value is RecordInstance record)
-                        {
-                            var fn = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
-                            if (fn.Arity != call.Arity + 1) // + 1 for "this" argument
-                            {
-                                throw new RuntimeErrorException("function arity mismatch");
-                            }
-
-                            var arguments = new List<dynamic>(call.ArgumentExpressions.Count + 1);
-                            foreach (var arg in call.ArgumentExpressions)
-                            {
-                                arg.Evaluate(stack, environment);
-                                arguments.Add(stack.Pop());
-                            }
-                            arguments.Add(record); // the "this" argument is at the end
-                            fn.Call(stack, arguments);
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException("method call must be on a record instance");
-                        }
-                    }
-                    break;
+                    throw new RuntimeErrorException("method call must be on a record instance");
 
                 case Member m:
-                    m.Expression.Evaluate(stack, environment);
-                    stack.Push(MemberGet(stack.Pop(), m.MemberIdentifier.Name));
-                    break;
+                    {
+                        var obj = m.Expression.Evaluate(environment);
+                        return MemberGet(obj, m.MemberIdentifier.Name);
+                    }
 
                 case Ast.Function fn:
-                    stack.Push(new Function(fn.Parameters, fn.Body, environment));
-                    break;
+                    return new Function(fn.Parameters, fn.Body, environment);
 
                 case Let let:
                     {
-                        let.Value.Evaluate(stack, environment);
-                        var value = stack.Pop();
+                        var value = let.Value.Evaluate(environment);
                         if (environment.Create(let.Identifier.Name, value))
                         {
-                            stack.Push(value);
+                            return value;
                         }
                         else
                         {
@@ -159,28 +124,25 @@ namespace Crisp.Eval
                                 $"Name <{let.Identifier.Name}> was already bound previously.");
                         }
                     }
-                    break;
 
                 case Len len:
                     {
-                        len.Expression.Evaluate(stack, environment);
-                        var obj = stack.Pop();
+                        var obj = len.Expression.Evaluate(environment);
                         if (obj is Dictionary<dynamic, dynamic> || obj is List<dynamic>)
                         {
-                            stack.Push(obj.Count);
+                            return obj.Count;
                         }
                         else
                         {
                             throw new RuntimeErrorException("unsupported object passed to len()");
                         }
                     }
-                    break;
 
                 case Identifier identifier:
                     {
                         if (environment.Get(identifier.Name, out var value))
                         {
-                            stack.Push(value);
+                            return value;
                         }
                         else
                         {
@@ -189,179 +151,105 @@ namespace Crisp.Eval
                                 $"<{identifier.Name}> not bound to a value.");
                         }
                     }
-                    break;
 
                 case Indexing indexing:
-                    indexing.Indexable.Evaluate(stack, environment);
-                    indexing.Index.Evaluate(stack, environment);
-                    GetIndex(stack);
-                    break;
+                    {
+                        var target = indexing.Indexable.Evaluate(environment);
+                        var index = indexing.Index.Evaluate(environment);
+                        return GetIndex(target, index);
+                    }
 
                 case List list:
-                    {
-                        var l = new List<dynamic>();
-                        foreach (var x in list.Initializers)
-                        {
-                            x.Evaluate(stack, environment);
-                            l.Add(stack.Pop());
-                        }
-                        stack.Push(l);
-                    }
-                    break;
+                    return list.Initializers.Evaluate(environment).ToList();
 
                 case LiteralBool literal:
-                    stack.Push(literal.Value);
-                    break;
+                    return literal.Value;
 
                 case LiteralInt literal:
-                    stack.Push(literal.Value);
-                    break;
+                    return literal.Value;
 
                 case LiteralDouble literal:
-                    stack.Push(literal.Value);
-                    break;
+                    return literal.Value;
 
                 case LiteralString literal:
-                    stack.Push(literal.Value);
-                    break;
+                    return literal.Value;
 
                 case LiteralNull literal:
-                    stack.Push(Null.Instance);
-                    break;
+                    return Null.Instance;
 
                 case Map map:
-                    {
-                        var m = new Dictionary<dynamic, dynamic>();
-                        foreach (var init in map.Initializers)
-                        {
-                            init.Item1.Evaluate(stack, environment);
-                            init.Item2.Evaluate(stack, environment);
-                            var value = stack.Pop();
-                            var key = stack.Pop();
-                            m[key] = value;
-                        }
-                        stack.Push(m);
-                    }
-                    break;
+                    return map.Initializers.Evaluate(environment).CreateDictionary();
 
                 case OperatorBinary and when and.Op == OperatorInfix.And:
-                    and.Left.Evaluate(stack, environment);
-                    if (IsTrue(stack.Pop()))
-                    {
-                        and.Right.Evaluate(stack, environment);
-                        stack.Push(IsTrue(stack.Pop()));
-                    }
-                    else
-                    {
-                        stack.Push(false);
-                    }
-                    break;
+                    return IsTrue(and.Left.Evaluate(environment)) && IsTrue(and.Right.Evaluate(environment));
 
                 case OperatorBinary or when or.Op == OperatorInfix.Or:
-                    or.Left.Evaluate(stack, environment);
-                    if (IsTrue(stack.Pop()))
-                    {
-                        stack.Push(true);
-                    }
-                    else
-                    {
-                        or.Right.Evaluate(stack, environment);
-                        stack.Push(IsTrue(stack.Pop()));
-                    }
-                    break;
+                    return IsTrue(or.Left.Evaluate(environment)) || IsTrue(or.Right.Evaluate(environment));
 
                 case OperatorBinary operatorBinary:
-                    operatorBinary.Left.Evaluate(stack, environment);
-                    operatorBinary.Right.Evaluate(stack, environment);
-                    Evaluate(operatorBinary, stack);
-                    break;
+                    return Evaluate(operatorBinary, environment);
 
                 case OperatorUnary operatorUnary:
-                    operatorUnary.Expression.Evaluate(stack, environment);
-                    Evaluate(operatorUnary, stack);
-                    break;
+                    return Evaluate(operatorUnary, environment);
 
                 case Ast.Record rec:
-                    stack.Push(new Record(
+                    return new Record(
                         rec.Variables,
                         rec.Functions.MapDictionary(
-                            (name, fn) => new Function(fn.Parameters, fn.Body, environment))));
-                    break;
+                            (name, fn) => new Function(fn.Parameters, fn.Body, environment)));
+
+                case RecordConstructor ctor
+                when ctor.Record.Evaluate(environment) is Record rec:
+                    {
+
+                        var members = ctor.Initializers.MapDictionary(
+                            (name, expr) => expr.Evaluate(environment));
+                        return rec.Construct(members);
+                    }
 
                 case RecordConstructor ctor:
-                    {
-                        ctor.Record.Evaluate(stack, environment);
-                        var value = stack.Pop();
-                        if (value is Record rec)
-                        {
-                            var initializers = new Dictionary<string, dynamic>();
-                            foreach (var init in ctor.Initializers)
-                            {
-                                init.Value.Evaluate(stack, environment);
-                                initializers.Add(init.Key, stack.Pop());
-                            }
-                            stack.Push(rec.Construct(initializers));
-                        }
-                        else
-                        {
-                            throw new RuntimeErrorException(
-                                $"Record construction requires a record object.");
-                        }
-                    }
-                    break;
+                    throw new RuntimeErrorException(
+                        $"Record construction requires a record object.");
 
                 case While @while:
-                    @while.Guard.Evaluate(stack, environment);
-                    while (IsTrue(stack.Pop()))
+                    while (IsTrue(@while.Guard.Evaluate(environment)))
                     {
-                        @while.Body.Evaluate(stack, environment);
-                        stack.Pop();
-                        @while.Guard.Evaluate(stack, environment);
+                        @while.Body.Evaluate(environment);
                     }
-                    stack.Push(Null.Instance);
-                    break;
+                    return Null.Instance;
 
                 case For @for:
                     {
-                        @for.Start.Evaluate(stack, environment);
-                        var start = stack.Pop();
+                        var start = @for.Start.Evaluate(environment);
                         CheckNumeric(start);
-                        @for.End.Evaluate(stack, environment);
-                        var end = stack.Pop();
+                        var end = @for.End.Evaluate(environment);
                         CheckNumeric(end);
                         for (var i = start; i <= end; i = i + 1)
                         {
                             var localEnvironment = new Environment(environment);
                             localEnvironment.Create(@for.VariableName, i);
-                            @for.Body.Evaluate(stack, localEnvironment);
-                            stack.Pop();
+                            @for.Body.Evaluate(localEnvironment);
                         }
                     }
-                    stack.Push(Null.Instance);
-                    break;
+                    return Null.Instance;
 
                 case ForIn forIn:
+                    switch (forIn.Sequence.Evaluate(environment))
                     {
-                        forIn.Sequence.Evaluate(stack, environment);
-                        switch (stack.Pop())
-                        {
-                            case List<object> list:
-                                foreach (var x in list)
-                                {
-                                    var localEnvironment = new Environment(environment);
-                                    localEnvironment.Create(forIn.VariableName, x);
-                                    forIn.Body.Evaluate(stack, localEnvironment);
-                                    stack.Pop();
-                                }
-                                break;
+                        case List<object> list:
+                            foreach (var x in list)
+                            {
+                                var localEnvironment = new Environment(environment);
+                                localEnvironment.Create(forIn.VariableName, x);
+                                forIn.Body.Evaluate(localEnvironment);
+                            }
+                            break;
 
-                            default:
-                                throw new RuntimeErrorException(
-                                    $"For in loops must have an enumerable object.");
-                        }
+                        default:
+                            throw new RuntimeErrorException(
+                                $"For in loops must have an enumerable object.");
                     }
-                    stack.Push(Null.Instance);
-                    break;
+                    return Null.Instance;
 
                 default:
                     throw new RuntimeErrorException(
@@ -369,18 +257,32 @@ namespace Crisp.Eval
             }
         }
 
-        public static void Evaluate(OperatorUnary operatorUnary, Stack<dynamic> stack)
+        public static IEnumerable<dynamic> Evaluate(
+            this IEnumerable<IExpression> expressions,
+            Environment environment)
         {
-            var obj = stack.Pop();
+            return from expression in expressions
+                   select expression.Evaluate(environment);
+        }
+
+        public static IEnumerable<(dynamic, dynamic)> Evaluate(
+            this IEnumerable<(IExpression, IExpression)> expressions,
+            Environment environment)
+        {
+            return from e in expressions
+                   select (e.Item1.Evaluate(environment), e.Item2.Evaluate(environment));
+        }
+
+        public static dynamic Evaluate(OperatorUnary operatorUnary, Environment environment)
+        {
+            var obj = operatorUnary.Expression.Evaluate(environment);
 
             switch (operatorUnary.Op)
             {
                 case OperatorPrefix.Neg when obj is int || obj is double:
-                    stack.Push(-obj);
-                    break;
+                    return -obj;
                 case OperatorPrefix.Not:
-                    stack.Push(!IsTrue(obj));
-                    break;
+                    return !IsTrue(obj);
                 default:
                     throw new RuntimeErrorException(
                         operatorUnary.Position,
@@ -388,67 +290,54 @@ namespace Crisp.Eval
             }
         }
 
-        public static void Evaluate(OperatorBinary operatorBinary, Stack<dynamic> stack)
+        public static dynamic Evaluate(OperatorBinary operatorBinary, Environment environment)
         {
-            var right = stack.Pop();
-            var left = stack.Pop();
+            var left = operatorBinary.Left.Evaluate(environment);
+            var right = operatorBinary.Right.Evaluate(environment);
 
             switch (operatorBinary.Op)
             {
                 case OperatorInfix.Add when left is string && right is string:
-                    stack.Push(string.Concat(left, right));
-                    break;
+                    return string.Concat(left, right);
 
                 case OperatorInfix.Add when CheckNumeric(left, right):
-                    stack.Push(left + right);
-                    break;
+                    return left + right;
 
                 case OperatorInfix.Sub when CheckNumeric(left, right):
-                    stack.Push(left - right);
-                    break;
+                    return left - right;
 
                 case OperatorInfix.Mul when CheckNumeric(left, right):
-                    stack.Push(left * right);
-                    break;
+                    return left * right;
 
                 case OperatorInfix.Div when CheckNumeric(left, right):
-                    stack.Push(left / right);
-                    break;
+                    return left / right;
 
                 case OperatorInfix.Mod when CheckNumeric(left, right):
-                    stack.Push(left % right);
-                    break;
+                    return left % right;
 
                 case OperatorInfix.Lt when CheckNumeric(left, right):
-                    stack.Push(left < right);
-                    break;
+                    return left < right;
 
                 case OperatorInfix.LtEq when CheckNumeric(left, right):
-                    stack.Push(left <= right);
-                    break;
+                    return left <= right;
 
                 case OperatorInfix.Gt when CheckNumeric(left, right):
-                    stack.Push(left > right);
-                    break;
+                    return left > right;
 
                 case OperatorInfix.GtEq when CheckNumeric(left, right):
-                    stack.Push(left >= right);
-                    break;
+                    return left >= right;
 
                 case OperatorInfix.Eq when CheckNumeric(left, right):
                     // If left is int and right is double then left.Equals(right) may not
                     // be the same as right.Equals(left).  I suppose it's something to do with
                     // calinging Int32's Equals.  == seems to work for numbers, though.
-                    stack.Push(left == right);
-                    break;
+                    return left == right;
 
                 case OperatorInfix.Eq:
-                    stack.Push(left.Equals(right));
-                    break;
+                    return left.Equals(right);
 
                 case OperatorInfix.Neq:
-                    stack.Push(!left.Equals(right));
-                    break;
+                    return !left.Equals(right);
 
                 default:
                     throw new RuntimeErrorException(
@@ -503,11 +392,8 @@ namespace Crisp.Eval
             return !x.Equals(false) && !ReferenceEquals(x, Null.Instance);
         }
 
-        public static void GetIndex(Stack<dynamic> stack)
+        public static dynamic GetIndex(dynamic target, dynamic index)
         {
-            var index = stack.Pop();
-            var target = stack.Pop();
-
             switch (target)
             {
                 case String s when index is int i:
@@ -515,8 +401,7 @@ namespace Crisp.Eval
                     {
                         throw new RuntimeErrorException("Index out of bounds of string.");
                     }
-                    stack.Push(s[i].ToString());
-                    break;
+                    return s[i].ToString();
 
                 case String s:
                     throw new RuntimeErrorException("Strings must be indexed by integers.");
@@ -526,8 +411,7 @@ namespace Crisp.Eval
                     {
                         throw new RuntimeErrorException("Index out of bounds of list.");
                     }
-                    stack.Push(l[i]);
-                    break;
+                    return l[i];
 
                 case List<dynamic> l:
                     throw new RuntimeErrorException("Lists must be indexed by integers.");
@@ -537,20 +421,15 @@ namespace Crisp.Eval
                     {
                         throw new RuntimeErrorException("Key not found in map.");
                     }
-                    stack.Push(d[index]);
-                    break;
+                    return d[index];
 
                 default:
                     throw new RuntimeErrorException("Get index on non-indexable object indexed.");
             }
         }
 
-        public static void SetIndex(Stack<dynamic> stack)
+        public static void SetIndex(dynamic target, dynamic index, dynamic value)
         {
-            var value = stack.Pop();
-            var index = stack.Pop();
-            var target = stack.Pop();
-
             switch (target)
             {
                 case List<dynamic> l when index is int i:
@@ -571,8 +450,6 @@ namespace Crisp.Eval
                 default:
                     throw new RuntimeErrorException("Set index on non-indexable object indexed.");
             }
-
-            stack.Push(value);
         }
 
         public static dynamic MemberGet(dynamic obj, string name)
@@ -594,12 +471,8 @@ namespace Crisp.Eval
             }
         }
 
-        public static void MemberSet(Stack<dynamic> stack)
+        public static void MemberSet(dynamic obj, string name, dynamic value)
         {
-            var value = stack.Pop();
-            var name = stack.Pop();
-            var obj = stack.Pop();
-
             switch (obj)
             {
                 case RecordInstance ri:
@@ -612,8 +485,6 @@ namespace Crisp.Eval
                 default:
                     throw new RuntimeErrorException("object doesn't support member setting");
             }
-
-            stack.Push(value);
         }
 
         private static bool CheckNumeric(dynamic x)

@@ -18,7 +18,7 @@ namespace Crisp.Eval
             this.environment = environment;
         }
         
-        public void Call(Stack<dynamic> stack, List<dynamic> arguments)
+        public dynamic Call(List<dynamic> arguments)
         {
             var localEnvironment = new Environment(environment);
 
@@ -27,7 +27,7 @@ namespace Crisp.Eval
                 localEnvironment.Create(parameters[i], arguments[i]);
             }
 
-            body.Evaluate(stack, localEnvironment);
+            return body.Evaluate(localEnvironment);
         }
     }
 }
