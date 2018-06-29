@@ -335,6 +335,16 @@ t.assertEq(
 t.assertEq(if true then if false then 'A' else 'B', 'B', 'Else binding #1')
 t.assertEq(if false then if false then 'A' else 'B', null, 'Else binding #2')
 
+// Since null is treated as false, you can check for null variables with if
+begin
+    let x := null
+    let message := 'using if to test for null'
+    if x then
+        t.fail(message)
+    else
+        t.pass(message)
+end
+
 ///////////////////////////////////////////////////////////////////////////////
 // Looping
 ///////////////////////////////////////////////////////////////////////////////

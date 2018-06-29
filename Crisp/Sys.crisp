@@ -15,16 +15,25 @@ let Test := record
     nErrors
     showPassedTest
 
-    fn assert(condition, message)
+    fn pass(message)
       begin
         this.nTests := this.nTests + 1
-        if condition = false then
-          begin
-            writeLn('[FAILED] "', message, '"')
-            this.nErrors := this.nErrors + 1
-          end
+        writeLn('[OK] "', message, '"')
+      end
+
+    fn fail(message)
+      begin
+        this.nTests := this.nTests + 1
+        this.nErrors := this.nErrors + 1
+        writeLn('[FAILED] "', message, '"')
+      end
+
+    fn assert(condition, message)
+      begin
+        if not condition then
+            this.fail(message)
         else if this.showPassedTest then
-            writeLn('[OK] "', message, '"')
+            this.pass(message)
       end
 
     fn assertEq(test, expected, message)

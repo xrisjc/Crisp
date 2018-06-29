@@ -51,16 +51,13 @@ namespace Crisp.Eval
                     }
 
                 case Branch branch:
+                    if (IsTrue(branch.Condition.Evaluate(environment)))
                     {
-                        var result = branch.Condition.Evaluate(environment);
-                        if (result is bool)
-                        {
-                            var expr = result ? branch.Consequence : branch.Alternative;
-                            return expr.Evaluate(environment);
-                        }
-
-                        throw new RuntimeErrorException(
-                            "an if condition must be a bool value");
+                        return branch.Consequence.Evaluate(environment);
+                    }
+                    else
+                    {
+                        return branch.Alternative.Evaluate(environment);
                     }
 
                 case Call call
