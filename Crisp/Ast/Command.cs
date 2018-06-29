@@ -1,12 +1,14 @@
-﻿namespace Crisp.Ast
+﻿using System.Collections.Generic;
+
+namespace Crisp.Ast
 {
     class Command : IExpression
     {
         public CommandType Type { get; }
 
-        public List ArgumentExpressions { get; }
+        public IEnumerable<IExpression> ArgumentExpressions { get; }
 
-        public Command(CommandType type, List argumentExpressions)
+        public Command(CommandType type, IEnumerable<IExpression> argumentExpressions)
         {
             Type = type;
             ArgumentExpressions = argumentExpressions;
