@@ -218,18 +218,18 @@ namespace Crisp.Eval
                         rec.Functions.MapDictionary(
                             (name, fn) => new Function(fn.Parameters, fn.Body, environment)));
 
-                case RecordConstructor ctor
-                when ctor.Record.Evaluate(environment) is Record rec:
+                case RecordConstructor ctor:
                     {
-
-                        var members = ctor.Initializers.MapDictionary(
-                            (name, expr) => expr.Evaluate(environment));
+                        var rec = ctor.Record.Evaluate(environment) as Record;
+                        if (rec == null)
+                        {
+                            throw new RuntimeErrorException(
+                                ctor.Position,
+                                "Record construction requires a record object.");
+                        }
+                        var members = ctor.Initializers.MapDictionary((name, expr) => expr.Evaluate(environment));
                         return rec.Construct(members);
                     }
-
-                case RecordConstructor ctor:
-                    throw new RuntimeErrorException(
-                        $"Record construction requires a record object.");
 
                 case While @while:
                     while (IsTrue(@while.Guard.Evaluate(environment)))

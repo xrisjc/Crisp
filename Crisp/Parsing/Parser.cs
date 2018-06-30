@@ -385,7 +385,7 @@ namespace Crisp.Parsing
                 }
                 else if (token.Tag == TokenTag.LBrace)
                 {
-                    expr = Constructor(expr);
+                    expr = Constructor(token.Position, expr);
                 }
                 else if (token.Tag == TokenTag.LBracket)
                 {
@@ -432,7 +432,7 @@ namespace Crisp.Parsing
             return new Member(left, name);
         }
 
-        IExpression Constructor(IExpression left)
+        IExpression Constructor(Position position, IExpression left)
         {
             // TODO: This should really be a list to enforce an order.
             var initalizers = new Dictionary<string, IExpression>();
@@ -451,7 +451,7 @@ namespace Crisp.Parsing
                 initalizers.Add(name.Lexeme, value);
             }
 
-            return new RecordConstructor(left, initalizers);
+            return new RecordConstructor(position, left, initalizers);
         }
 
         IExpression Indexing(IExpression left)
