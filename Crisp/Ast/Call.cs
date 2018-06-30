@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Crisp.Parsing;
+using System.Collections.Generic;
 
 namespace Crisp.Ast
 {
     class Call : IExpression
     {
+        public Position Position { get; }
+
         List<IExpression> argumentExpressions;
 
         public IExpression FunctionExpression { get; }
@@ -12,14 +15,15 @@ namespace Crisp.Ast
 
         public int Arity => argumentExpressions.Count;
 
-        public Call(IExpression functionExpression, List<IExpression> argumentExpressions)
+        public Call(Position position, IExpression functionExpression, List<IExpression> argumentExpressions)
         {
+            Position = position;
             FunctionExpression = functionExpression;
             this.argumentExpressions = argumentExpressions;
         }
 
-        public Call(IExpression functionExpression)
-            : this(functionExpression, new List<IExpression>())
+        public Call(Position position, IExpression functionExpression)
+            : this(position, functionExpression, new List<IExpression>())
         {
         }
     }

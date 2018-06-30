@@ -60,43 +60,66 @@ namespace Crisp.Eval
                         return branch.Alternative.Evaluate(environment);
                     }
 
-                case Call call
-                when call.FunctionExpression.Evaluate(environment) is Function function:
-                    if (function.Arity == call.Arity)
-                    {
-                        var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
-                        return function.Call(arguments);
-                    }
-                    else
-                    {
-                        throw new RuntimeErrorException("function arity mismatch");
-                    }
-
                 case Call call:
-                    throw new RuntimeErrorException(
-                        "function call attempted on non function value");
+                    {
+                        var function = call.FunctionExpression.Evaluate(environment) as Function;
+                        if (function == null)
+                        {
+                            throw new RuntimeErrorException(
+                                call.Position,
+                                "function call attempted on non function value");
+                        }
+
+                        if (function.Parameters.Count != call.Arity)
+                        {
+                            throw new RuntimeErrorException(
+                                call.Position,
+                                "function arity mismatch");
+                        }
+                        var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
+
+                        var localEnvironment = new Environment(function.Environment);
+                        for (int i = 0; i < function.Parameters.Count; i++)
+                        {
+                            localEnvironment.Create(function.Parameters[i], arguments[i]);
+                        }
+
+                        return function.Body.Evaluate(localEnvironment);
+                    }
 
                 case Command command:
                     return Eval.Evaluator.Evaluate(
                         command.Type,
                         command.ArgumentExpressions.Evaluate(environment).ToList());
 
-                case MemberCall call
-                when call.Member.Expression.Evaluate(environment) is RecordInstance record:
+                case MemberCall call:
                     {
-                        var fn = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
-                        if (fn.Arity != call.Arity + 1) // + 1 for "this" argument
+                        var record = call.Member.Expression.Evaluate(environment) as RecordInstance;
+                        if (record == null)
                         {
-                            throw new RuntimeErrorException("function arity mismatch");
+                            throw new RuntimeErrorException(
+                                call.Position,
+                                "method call must be on a record instance");
                         }
 
+                        var function = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
+                        if (function.Parameters.Count != call.Arity + 1) // + 1 for "this" argument
+                        {
+                            throw new RuntimeErrorException(
+                                call.Position,
+                                "method call arity mismatch");
+                        }
                         var arguments = call.ArgumentExpressions.Evaluate(environment).ToList();
                         arguments.Add(record); // the "this" argument is at the end
-                        return fn.Call(arguments);
-                    }
 
-                case MemberCall call:
-                    throw new RuntimeErrorException("method call must be on a record instance");
+                        var localEnvironment = new Environment(function.Environment);
+                        for (int i = 0; i < function.Parameters.Count; i++)
+                        {
+                            localEnvironment.Create(function.Parameters[i], arguments[i]);
+                        }
+
+                        return function.Body.Evaluate(localEnvironment);
+                    }
 
                 case Member m:
                     {

@@ -377,7 +377,7 @@ namespace Crisp.Parsing
             {
                 if (token.Tag == TokenTag.LParen)
                 {
-                    expr = Call(expr);
+                    expr = Call(token.Position, expr);
                 }
                 else if (token.Tag == TokenTag.Period)
                 {
@@ -396,16 +396,16 @@ namespace Crisp.Parsing
             return expr;
         }
 
-        IExpression Call(IExpression left)
+        IExpression Call(Position position, IExpression left)
         {
             List<IExpression> arguments = Arguments();
             if (left is Member member)
             {
-                return new MemberCall(member, arguments);
+                return new MemberCall(position, member, arguments);
             }
             else
             {
-                return new Call(left, arguments);
+                return new Call(position, left, arguments);
             }
         }
 

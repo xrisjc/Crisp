@@ -5,29 +5,17 @@ namespace Crisp.Eval
 {
     class Function
     {
-        IExpression body;
-        List<string> parameters;
-        Environment environment;
+        public IExpression Body { get; }
 
-        public int Arity => parameters.Count;
+        public List<string> Parameters { get; }
+
+        public Environment Environment { get; }
 
         public Function(List<string> parameters, IExpression body, Environment environment)
         {
-            this.parameters = parameters;
-            this.body = body;
-            this.environment = environment;
-        }
-        
-        public dynamic Call(List<dynamic> arguments)
-        {
-            var localEnvironment = new Environment(environment);
-
-            for (int i = 0; i < parameters.Count; i++)
-            {
-                localEnvironment.Create(parameters[i], arguments[i]);
-            }
-
-            return body.Evaluate(localEnvironment);
+            Parameters = parameters;
+            Body = body;
+            Environment = environment;
         }
     }
 }
