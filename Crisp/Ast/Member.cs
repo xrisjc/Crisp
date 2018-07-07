@@ -4,12 +4,12 @@
     {
         public IExpression Expression { get; }
 
-        public Identifier MemberIdentifier { get; }
+        public string Name { get; }
 
-        public Member(IExpression expression, Identifier memberIdentifier)
+        public Member(IExpression expression, string name)
         {
             Expression = expression;
-            MemberIdentifier = memberIdentifier;
+            Name = name;
         }
     }
 }

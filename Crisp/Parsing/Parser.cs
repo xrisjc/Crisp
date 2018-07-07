@@ -429,7 +429,7 @@ namespace Crisp.Parsing
         {
             var identifierToken = Expect(TokenTag.Identifier);
             var name = new Identifier(identifierToken.Position, identifierToken.Lexeme);
-            return new Member(left, name);
+            return new Member(left, name.Name);
         }
 
         IExpression Constructor(Position position, IExpression left)

@@ -38,9 +38,8 @@ namespace Crisp.Eval
                 case AssignmentMember e:
                     {
                         var obj = e.Target.Expression.Evaluate(environment);
-                        var name = e.Target.MemberIdentifier.Name;
                         var value = e.Value.Evaluate(environment);
-                        MemberSet(obj, name, value);
+                        MemberSet(obj, e.Target.Name, value);
                         return value;
                     }
 
@@ -102,7 +101,7 @@ namespace Crisp.Eval
                                 "method call must be on a record instance");
                         }
 
-                        var function = record.GetMemberFunction(call.Member.MemberIdentifier.Name);
+                        var function = record.GetMemberFunction(call.Member.Name);
                         if (function.Parameters.Count != call.Arity + 1) // + 1 for "this" argument
                         {
                             throw new RuntimeErrorException(
@@ -124,7 +123,7 @@ namespace Crisp.Eval
                 case Member m:
                     {
                         var obj = m.Expression.Evaluate(environment);
-                        return MemberGet(obj, m.MemberIdentifier.Name);
+                        return MemberGet(obj, m.Name);
                     }
 
                 case Ast.Function fn:
