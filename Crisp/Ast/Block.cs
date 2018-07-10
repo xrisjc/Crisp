@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Crisp.Eval;
 
 namespace Crisp.Ast
 {
@@ -9,6 +11,12 @@ namespace Crisp.Ast
         public Block(IEnumerable<IExpression> body)
         {
             Body = body;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            var localEnvironment = new Environment(environment);
+            return Body.Evaluate(localEnvironment).LastOrDefault() ?? Null.Instance;
         }
     }
 }

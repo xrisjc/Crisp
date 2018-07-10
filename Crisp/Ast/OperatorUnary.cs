@@ -1,4 +1,6 @@
-﻿using Crisp.Parsing;
+﻿using Crisp.Eval;
+using Crisp.Parsing;
+using static Crisp.Eval.Utility;
 
 namespace Crisp.Ast
 {
@@ -15,6 +17,23 @@ namespace Crisp.Ast
             Position = position;
             Op = op;
             Expression = expression;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            dynamic obj = Expression.Evaluate(environment);
+
+            switch (Op)
+            {
+                case OperatorPrefix.Neg when obj is int || obj is double:
+                    return -obj;
+                case OperatorPrefix.Not:
+                    return !IsTrue(obj);
+                default:
+                    throw new RuntimeErrorException(
+                        Position,
+                        $"Operator {Op} cannot be applied to value <{obj}>");
+            }
         }
     }
 }

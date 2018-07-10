@@ -1,4 +1,6 @@
-﻿namespace Crisp.Ast
+﻿using Crisp.Eval;
+
+namespace Crisp.Ast
 {
     class For : IExpression
     {
@@ -16,6 +18,21 @@
             Start = start;
             End = end;
             Body = body;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            dynamic start = Start.Evaluate(environment);
+            Eval.Utility.CheckNumeric(start);
+            dynamic end = End.Evaluate(environment);
+            Eval.Utility.CheckNumeric(end);
+            for (var i = start; i <= end; i = i + 1)
+            {
+                var localEnvironment = new Environment(environment);
+                localEnvironment.Create(VariableName, i);
+                Body.Evaluate(localEnvironment);
+            }
+            return Null.Instance;
         }
     }
 }

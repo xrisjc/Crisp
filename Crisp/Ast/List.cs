@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Crisp.Eval;
 
 namespace Crisp.Ast
 {
@@ -15,6 +16,11 @@ namespace Crisp.Ast
         public List()
             : this(Enumerable.Empty<IExpression>())
         {
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            return Initializers.Evaluate(environment).ToList();
         }
     }
 }

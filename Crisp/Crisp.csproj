@@ -80,7 +80,7 @@
     <Compile Include="Ast\Record.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
-    <Compile Include="Eval\Evaluator.cs" />
+    <Compile Include="Eval\Utility.cs" />
     <Compile Include="Eval\Environment.cs" />
     <Compile Include="Eval\Null.cs" />
     <Compile Include="Eval\Function.cs" />

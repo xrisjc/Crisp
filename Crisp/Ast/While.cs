@@ -1,4 +1,6 @@
-﻿namespace Crisp.Ast
+﻿using Crisp.Eval;
+
+namespace Crisp.Ast
 {
     class While : IExpression
     {
@@ -10,6 +12,15 @@
         {
             Guard = guard;
             Body = body;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            while (Eval.Utility.IsTrue(Guard.Evaluate(environment)))
+            {
+                Body.Evaluate(environment);
+            }
+            return Null.Instance;
         }
     }
 }

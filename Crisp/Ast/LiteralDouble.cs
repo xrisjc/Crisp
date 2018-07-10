@@ -1,4 +1,6 @@
-﻿namespace Crisp.Ast
+﻿using Crisp.Eval;
+
+namespace Crisp.Ast
 {
     class LiteralDouble : IExpression
     {
@@ -7,6 +9,11 @@
         public LiteralDouble(double value)
         {
             Value = value;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            return Value;
         }
     }
 }

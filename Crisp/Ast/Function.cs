@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Crisp.Eval;
 
 namespace Crisp.Ast
 {
@@ -12,6 +13,11 @@ namespace Crisp.Ast
         {
             Parameters = parameters;
             Body = body;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            return new Eval.Function(Parameters, Body, environment);
         }
     }
 }

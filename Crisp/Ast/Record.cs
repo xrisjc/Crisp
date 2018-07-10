@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Crisp.Eval;
 
 namespace Crisp.Ast
 {
@@ -17,6 +18,14 @@ namespace Crisp.Ast
         public Record()
             : this(new List<string>(), new Dictionary<string, Function>())
         {
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            return new Eval.Record(
+                Variables,
+                Functions.MapDictionary(
+                    (name, fn) => new Eval.Function(fn.Parameters, fn.Body, environment)));
         }
     }
 }

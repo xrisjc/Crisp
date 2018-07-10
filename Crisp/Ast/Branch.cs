@@ -1,4 +1,6 @@
-﻿namespace Crisp.Ast
+﻿using Crisp.Eval;
+
+namespace Crisp.Ast
 {
     class Branch : IExpression
     {
@@ -13,6 +15,18 @@
             Condition = condition;
             Consequence = consequence;
             Alternative = alternative;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            if (Eval.Utility.IsTrue(Condition.Evaluate(environment)))
+            {
+                return Consequence.Evaluate(environment);
+            }
+            else
+            {
+                return Alternative.Evaluate(environment);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Crisp.Parsing;
+﻿using Crisp.Eval;
+using Crisp.Parsing;
 using System.Collections.Generic;
 
 namespace Crisp.Ast
@@ -16,6 +17,19 @@ namespace Crisp.Ast
             Position = position;
             Record = record;
             Initializers = initializers;
+        }
+
+        public object Evaluate(Environment environment)
+        {
+            var rec = Record.Evaluate(environment) as Eval.Record;
+            if (rec == null)
+            {
+                throw new RuntimeErrorException(
+                    Position,
+                    "Record construction requires a record object.");
+            }
+            var members = Initializers.MapDictionary((name, expr) => expr.Evaluate(environment));
+            return rec.Construct(members);
         }
     }
 }
