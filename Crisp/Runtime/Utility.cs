@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Crisp.Eval
+namespace Crisp.Runtime
 {
     static class Utility
     {

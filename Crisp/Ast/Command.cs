@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Crisp.Eval;
+using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -17,7 +17,7 @@ namespace Crisp.Ast
             ArgumentExpressions = argumentExpressions;
         }
 
-        public object Evaluate(Eval.Environment environment)
+        public object Evaluate(Runtime.Environment environment)
         {
             List<dynamic> args = ArgumentExpressions.Evaluate(environment).ToList();
 

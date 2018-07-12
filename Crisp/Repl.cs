@@ -1,4 +1,4 @@
-﻿using Crisp.Eval;
+﻿using Crisp.Runtime;
 using Crisp.Parsing;
 using System;
 using System.IO;
@@ -9,7 +9,7 @@ namespace Crisp
     {
         public static void Run(TextReader reader, TextWriter writer)
         {
-            var environment = new Eval.Environment();
+            var environment = new Runtime.Environment();
 
             Load("Sys.crisp", environment);
             Load("Test.crisp", environment);
@@ -39,7 +39,7 @@ namespace Crisp
 
         private static bool ExecuteCommand(
             string code,
-            Eval.Environment environment,
+            Runtime.Environment environment,
             TextWriter writer)
         {
             var args = code.Split(new[] { ' ' },
@@ -60,7 +60,7 @@ namespace Crisp
         }
 
         private static void EvalAndPrint(string code,
-            Eval.Environment environment, TextWriter writer)
+            Runtime.Environment environment, TextWriter writer)
         {
             var scanner = new Scanner(code);
             var parser = new Parser(scanner);
@@ -72,7 +72,7 @@ namespace Crisp
             }
         }
 
-        public static void Load(string filename, Eval.Environment environment)
+        public static void Load(string filename, Runtime.Environment environment)
         {
             try
             {

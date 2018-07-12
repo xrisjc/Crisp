@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Crisp.Eval;
+using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -17,7 +17,7 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            return new Eval.Function(Parameters, Body, environment);
+            return new Runtime.Function(Parameters, Body, environment);
         }
     }
 }

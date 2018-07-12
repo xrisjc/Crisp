@@ -1,4 +1,4 @@
-﻿using Crisp.Eval;
+﻿using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -16,7 +16,7 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            while (Eval.Utility.IsTrue(Guard.Evaluate(environment)))
+            while (Runtime.Utility.IsTrue(Guard.Evaluate(environment)))
             {
                 Body.Evaluate(environment);
             }

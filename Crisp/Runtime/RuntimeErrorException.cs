@@ -1,7 +1,7 @@
 ﻿using System;
 using Crisp.Parsing;
 
-namespace Crisp.Eval
+namespace Crisp.Runtime
 {
     [Serializable]
     class RuntimeErrorException : CrispException

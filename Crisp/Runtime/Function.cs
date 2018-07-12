@@ -1,7 +1,7 @@
 ﻿using Crisp.Ast;
 using System.Collections.Generic;
 
-namespace Crisp.Eval
+namespace Crisp.Runtime
 {
     class Function
     {

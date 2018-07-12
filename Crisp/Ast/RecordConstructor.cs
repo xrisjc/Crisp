@@ -1,4 +1,4 @@
-﻿using Crisp.Eval;
+﻿using Crisp.Runtime;
 using Crisp.Parsing;
 using System.Collections.Generic;
 
@@ -21,7 +21,7 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            var rec = Record.Evaluate(environment) as Eval.Record;
+            var rec = Record.Evaluate(environment) as Runtime.Record;
             if (rec == null)
             {
                 throw new RuntimeErrorException(

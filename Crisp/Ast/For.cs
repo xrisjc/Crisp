@@ -1,4 +1,4 @@
-﻿using Crisp.Eval;
+﻿using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -23,9 +23,9 @@ namespace Crisp.Ast
         public object Evaluate(Environment environment)
         {
             dynamic start = Start.Evaluate(environment);
-            Eval.Utility.CheckNumeric(start);
+            Runtime.Utility.CheckNumeric(start);
             dynamic end = End.Evaluate(environment);
-            Eval.Utility.CheckNumeric(end);
+            Runtime.Utility.CheckNumeric(end);
             for (var i = start; i <= end; i = i + 1)
             {
                 var localEnvironment = new Environment(environment);

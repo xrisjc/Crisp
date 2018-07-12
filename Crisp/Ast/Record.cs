@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Crisp.Eval;
+using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -22,10 +22,10 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            return new Eval.Record(
+            return new Runtime.Record(
                 Variables,
                 Functions.MapDictionary(
-                    (name, fn) => new Eval.Function(fn.Parameters, fn.Body, environment)));
+                    (name, fn) => new Runtime.Function(fn.Parameters, fn.Body, environment)));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Crisp.Eval;
+﻿using Crisp.Runtime;
 using Crisp.Parsing;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +31,7 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            var function = FunctionExpression.Evaluate(environment) as Eval.Function;
+            var function = FunctionExpression.Evaluate(environment) as Runtime.Function;
             if (function == null)
             {
                 throw new RuntimeErrorException(
