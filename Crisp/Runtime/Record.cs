@@ -13,16 +13,9 @@ namespace Crisp.Runtime
             this.functions = functions;
         }
 
-        public Function GetFunction(string name)
+        public bool GetInstanceMethod(string name, out Function method)
         {
-            if (functions.TryGetValue(name, out var function))
-            {
-                return function;
-            }
-            else
-            {
-                throw new RuntimeErrorException($"cannot find function {name}");
-            }
+            return functions.TryGetValue(name, out method);
         }
 
         public RecordInstance Construct(Dictionary<string, dynamic> initalizers)

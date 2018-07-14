@@ -264,9 +264,9 @@ namespace Crisp.Parsing
                     return new AssignmentIndexing(index, right);
                 }
 
-                if (left is Member member)
+                if (left is AttributeAccess aa)
                 {
-                    return new AssignmentMember(member, right);
+                    return new AttributeAssignment(aa.Entity, aa.Name, right);
                 }
 
                 throw new SyntaxErrorException(
@@ -399,7 +399,7 @@ namespace Crisp.Parsing
         IExpression Call(Position position, IExpression left)
         {
             List<IExpression> arguments = Arguments();
-            if (left is Member member)
+            if (left is AttributeAccess member)
             {
                 return new MemberCall(position, member, arguments);
             }
@@ -429,7 +429,7 @@ namespace Crisp.Parsing
         {
             var identifierToken = Expect(TokenTag.Identifier);
             var name = new Identifier(identifierToken.Position, identifierToken.Lexeme);
-            return new Member(left, name.Name);
+            return new AttributeAccess(left, name.Name);
         }
 
         IExpression Constructor(Position position, IExpression left)

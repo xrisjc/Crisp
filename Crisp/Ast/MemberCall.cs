@@ -11,13 +11,13 @@ namespace Crisp.Ast
 
         private List<IExpression> argumentExpressions;
 
-        public Member Member { get; }
+        public AttributeAccess Member { get; }
 
         public List<IExpression> ArgumentExpressions => argumentExpressions;
 
         public int Arity => argumentExpressions.Count;
 
-        public MemberCall(Position position, Member member, List<IExpression> argumentExpressions)
+        public MemberCall(Position position, AttributeAccess member, List<IExpression> argumentExpressions)
         {
             Position = position;
             Member = member;
@@ -26,31 +26,34 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            var record = Member.Expression.Evaluate(environment) as RecordInstance;
-            if (record == null)
+            var entity = Member.Entity.Evaluate(environment) as IEntity;
+            if (entity == null)
             {
                 throw new RuntimeErrorException(
                     Position,
                     "method call must be on a record instance");
             }
 
-            var function = record.GetMemberFunction(Member.Name);
-            if (function.Parameters.Count != Arity + 1) // + 1 for "this" argument
+            if (!entity.GetMethod(Member.Name, out var method))
+            {
+                throw new RuntimeErrorException($"no method named ${Member.Name}");
+            }
+            if (method.Parameters.Count != Arity + 1) // + 1 for "this" argument
             {
                 throw new RuntimeErrorException(
                     Position,
                     "method call arity mismatch");
             }
             var arguments = ArgumentExpressions.Evaluate(environment).ToList();
-            arguments.Add(record); // the "this" argument is at the end
+            arguments.Add(entity); // the "this" argument is at the end
 
-            var localEnvironment = new Environment(function.Environment);
-            for (int i = 0; i < function.Parameters.Count; i++)
+            var localEnvironment = new Environment(method.Environment);
+            for (int i = 0; i < method.Parameters.Count; i++)
             {
-                localEnvironment.Create(function.Parameters[i], arguments[i]);
+                localEnvironment.Create(method.Parameters[i], arguments[i]);
             }
 
-            return function.Body.Evaluate(localEnvironment);
+            return method.Body.Evaluate(localEnvironment);
         }
     }
 }

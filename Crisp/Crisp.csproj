@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="Ast\AssignmentIdentifier.cs" />
     <Compile Include="Ast\AssignmentIndexing.cs" />
-    <Compile Include="Ast\AssignmentMember.cs" />
+    <Compile Include="Ast\AttributeAssignment.cs" />
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="Ast\LiteralNull.cs" />
     <Compile Include="Ast\LiteralString.cs" />
     <Compile Include="Ast\Map.cs" />
-    <Compile Include="Ast\Member.cs" />
+    <Compile Include="Ast\AttributeAccess.cs" />
     <Compile Include="Ast\MemberCall.cs" />
     <Compile Include="Ast\OperatorInfix.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
@@ -80,6 +80,7 @@
     <Compile Include="Ast\Record.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
+    <Compile Include="Runtime\IEntity.cs" />
     <Compile Include="Runtime\Utility.cs" />
     <Compile Include="Runtime\Environment.cs" />
     <Compile Include="Runtime\Null.cs" />

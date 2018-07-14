@@ -2,7 +2,7 @@
 
 namespace Crisp.Runtime
 {
-    class RecordInstance
+    class RecordInstance : IEntity
     {
         Record record;
         Dictionary<string, dynamic> variables;
@@ -13,7 +13,7 @@ namespace Crisp.Runtime
             this.variables = variables;
         }
 
-        public bool MemberGet(string name, out dynamic value)
+        public bool GetAttribute(string name, out dynamic value)
         {
             if (variables.TryGetValue(name, out value))
             {
@@ -26,7 +26,7 @@ namespace Crisp.Runtime
             }
         }
 
-        public bool MemberSet(string name, dynamic value)
+        public bool SetAttribute(string name, dynamic value)
         {
             if (variables.ContainsKey(name))
             {
@@ -39,9 +39,9 @@ namespace Crisp.Runtime
             }
         }
 
-        public Function GetMemberFunction(string name)
+        public bool GetMethod(string name, out Function method)
         {
-            return record.GetFunction(name);
+            return record.GetInstanceMethod(name, out method);
         }
     }
 }
