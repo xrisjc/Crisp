@@ -13,11 +13,6 @@ namespace Crisp.Ast
             Initializers = initializers;
         }
 
-        public List()
-            : this(Enumerable.Empty<IExpression>())
-        {
-        }
-
         public object Evaluate(Environment environment)
         {
             return Initializers.Evaluate(environment).ToList();
