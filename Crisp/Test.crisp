@@ -590,12 +590,13 @@ begin
     t.assertEq(map[m], null, 'map get / set #16')
 end
 
-// Use the built in len() function to get the size of a map.
+// Use the length attribute to get the size of a map.  Size meaning how many
+// key-value pairs there are.
 begin
     let mOne := { }
     let mTwo := { 1:'one' 2:'two' 3:'three' }
-    t.assertEq(len(mOne), 0, 'Empty map length')
-    t.assertEq(len(mTwo), 3, 'Non-empty map length')
+    t.assertEq(mOne.length, 0, 'Empty map length')
+    t.assertEq(mTwo.length, 3, 'Non-empty map length')
 end
 
 ///////////////////////////////////////////////////////////////////////////////

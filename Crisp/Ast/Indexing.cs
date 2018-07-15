@@ -43,12 +43,12 @@ namespace Crisp.Ast
                 case Runtime.List l:
                     throw new RuntimeErrorException("Lists must be indexed by integers.");
 
-                case Dictionary<dynamic, dynamic> d:
-                    if (!d.ContainsKey(index))
+                case Runtime.Map map:
+                    if (map.TryGetValue(index, out var value))
                     {
-                        throw new RuntimeErrorException("Key not found in map.");
+                        return value;
                     }
-                    return d[index];
+                    throw new RuntimeErrorException("Key not found in map.");
 
                 default:
                     throw new RuntimeErrorException("Get index on non-indexable object indexed.");

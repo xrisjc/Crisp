@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Crisp.Runtime;
 
 namespace Crisp.Ast
@@ -15,7 +14,14 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            return Initializers.Evaluate(environment).CreateDictionary();
+            var map = new Dictionary<object, object>();
+            foreach (var (keyExpr, valueExpr) in Initializers)
+            {
+                var key = keyExpr.Evaluate(environment);
+                var value = valueExpr.Evaluate(environment);
+                map[key] = value;
+            }
+            return new Runtime.Map(map);
         }
     }
 }

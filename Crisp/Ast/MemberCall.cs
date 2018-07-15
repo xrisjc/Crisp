@@ -23,7 +23,7 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            var entity = Member.Entity.Evaluate(environment) as IEntity;
+            var entity = Member.Entity.Evaluate(environment) as Entity;
             if (entity == null)
             {
                 throw new RuntimeErrorException(

@@ -27,7 +27,6 @@
         Integer,
         LBrace,
         LBracket,
-        Len,
         LessThan,
         LessThanOrEqualTo,
         Let,

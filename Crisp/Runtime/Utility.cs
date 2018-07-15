@@ -15,14 +15,6 @@ namespace Crisp.Runtime
                    select expression.Evaluate(environment);
         }
 
-        public static IEnumerable<(dynamic, dynamic)> Evaluate(
-            this IEnumerable<(IExpression, IExpression)> expressions,
-            Environment environment)
-        {
-            return from e in expressions
-                   select (e.Item1.Evaluate(environment), e.Item2.Evaluate(environment));
-        }
-
         public static bool IsTrue(object x)
         {
             return !x.Equals(false) && !ReferenceEquals(x, Null.Instance);

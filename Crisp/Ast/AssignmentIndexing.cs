@@ -33,8 +33,8 @@ namespace Crisp.Ast
                 case Runtime.List l:
                     throw new RuntimeErrorException("Lists must be indexed by integers.");
 
-                case Dictionary<dynamic, dynamic> d:
-                    d[index] = value;
+                case Runtime.Map map:
+                    map.SetValue(index, value);
                     break;
 
                 default:

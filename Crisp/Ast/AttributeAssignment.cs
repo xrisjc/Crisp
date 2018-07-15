@@ -19,7 +19,7 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            var entity = Entity.Evaluate(environment) as IEntity;
+            var entity = Entity.Evaluate(environment) as Entity;
             if (entity == null)
             {
                 throw new RuntimeErrorException("attribute assignment on non entity object");

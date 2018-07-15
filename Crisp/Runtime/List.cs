@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Crisp.Runtime
 {
-    class List : IEntity, IEnumerable<object>
+    class List : Entity, IEnumerable<object>
     {
         List<object> list;
 
@@ -21,36 +21,28 @@ namespace Crisp.Runtime
             set { list[i] = value; }
         }
 
-        public bool GetAttribute(string name, out object value)
+        public override bool GetAttribute(string name, out object value)
         {
             switch (name)
             {
                 case "length":
                     value = Count;
                     return true;
-
-                default:
-                    value = Null.Instance;
-                    return false;
             }
+
+            return base.GetAttribute(name, out value);
         }
 
-        public bool SetAttribute(string name, object value)
+        public override bool SendMessage(string name, List<object> arguments, out object value)
         {
-            return false;
-        }
-
-        public bool SendMessage(string name, List<object> arguments, out object value)
-        {
-            value = this;
             switch (name)
             {
                 case "push":
+                    value = this;
                     return Push(arguments);
-
-                default:
-                    return false;
             }
+
+            return base.SendMessage(name, arguments, out value);
         }
 
         bool Push(List<object> arguments)

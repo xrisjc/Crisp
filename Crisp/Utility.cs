@@ -19,17 +19,6 @@ namespace Crisp
             }
         }
 
-        public static Dictionary<TKey, TValue> CreateDictionary<TKey, TValue>(
-            this IEnumerable<(TKey, TValue)> items)
-        {
-            var dict = new Dictionary<TKey, TValue>();
-            foreach (var (key, value) in items)
-            {
-                dict[key] = value;
-            }
-            return dict;
-        }
-
         public static Dictionary<TKey, TVal2> MapDictionary<TKey, TVal1, TVal2>(
             this Dictionary<TKey, TVal1> dictionary,
             Func<TKey, TVal1, TVal2> map)

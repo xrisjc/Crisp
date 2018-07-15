@@ -3,7 +3,7 @@ using static Crisp.Runtime.Utility;
 
 namespace Crisp.Runtime
 {
-    class RecordInstance : IEntity
+    class RecordInstance : Entity
     {
         Record record;
         Dictionary<string, dynamic> variables;
@@ -14,7 +14,7 @@ namespace Crisp.Runtime
             this.variables = variables;
         }
 
-        public bool GetAttribute(string name, out dynamic value)
+        public override bool GetAttribute(string name, out dynamic value)
         {
             if (variables.TryGetValue(name, out value))
             {
@@ -27,7 +27,7 @@ namespace Crisp.Runtime
             }
         }
 
-        public bool SetAttribute(string name, dynamic value)
+        public override bool SetAttribute(string name, dynamic value)
         {
             if (variables.ContainsKey(name))
             {
@@ -40,7 +40,7 @@ namespace Crisp.Runtime
             }
         }
 
-        public bool SendMessage(string name, List<object> arguments, out object value)
+        public override bool SendMessage(string name, List<object> arguments, out object value)
         {
             if (!record.GetInstanceMethod(name, out var method))
             {

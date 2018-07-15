@@ -25,7 +25,6 @@ namespace Crisp.Parsing
                 ["for"]     = TokenTag.For,
                 ["if"]      = TokenTag.If,
                 ["in"]      = TokenTag.In,
-                ["len"]     = TokenTag.Len,
                 ["let"]     = TokenTag.Let,
                 ["not"]     = TokenTag.Not,
                 ["null"]    = TokenTag.Null,

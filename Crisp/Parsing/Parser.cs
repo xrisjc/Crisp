@@ -528,11 +528,6 @@ namespace Crisp.Parsing
                 return Map();
             }
 
-            if (Match(TokenTag.Len))
-            {
-                return Len();
-            }
-
             if (Match(out token, TokenTag.ReadLn,
                 TokenTag.WriteLn))
             {
@@ -579,14 +574,6 @@ namespace Crisp.Parsing
                 while (!Match(TokenTag.RBrace));
             }
             return new Map(initializers);
-        }
-
-        IExpression Len()
-        {
-            Expect(TokenTag.LParen);
-            var expression = Expression();
-            Expect(TokenTag.RParen);
-            return new Len(expression);
         }
 
         IExpression Command(Token token)
