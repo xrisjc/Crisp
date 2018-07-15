@@ -70,7 +70,7 @@
     <Compile Include="Ast\LiteralString.cs" />
     <Compile Include="Ast\Map.cs" />
     <Compile Include="Ast\AttributeAccess.cs" />
-    <Compile Include="Ast\MemberCall.cs" />
+    <Compile Include="Ast\MessageSend.cs" />
     <Compile Include="Ast\OperatorInfix.cs" />
     <Compile Include="Ast\OperatorBinary.cs" />
     <Compile Include="Ast\OperatorPrefix.cs" />

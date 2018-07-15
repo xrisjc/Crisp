@@ -400,7 +400,7 @@ namespace Crisp.Parsing
             List<IExpression> arguments = Arguments();
             if (left is AttributeAccess member)
             {
-                return new MemberCall(position, member, arguments);
+                return new MessageSend(position, member.Entity, member.Name, arguments);
             }
             else
             {
