@@ -15,7 +15,7 @@ namespace Crisp.Ast
         public object Evaluate(Environment environment)
         {
             dynamic obj = Expression.Evaluate(environment);
-            if (obj is Dictionary<dynamic, dynamic> || obj is List<dynamic>)
+            if (obj is Dictionary<dynamic, dynamic>)
             {
                 return obj.Count;
             }

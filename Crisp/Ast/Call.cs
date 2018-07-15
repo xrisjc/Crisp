@@ -2,6 +2,7 @@
 using Crisp.Parsing;
 using System.Collections.Generic;
 using System.Linq;
+using static Crisp.Runtime.Utility;
 
 namespace Crisp.Ast
 {
@@ -48,10 +49,7 @@ namespace Crisp.Ast
             var arguments = ArgumentExpressions.Evaluate(environment).ToList();
 
             var localEnvironment = new Environment(function.Environment);
-            for (int i = 0; i < function.Parameters.Count; i++)
-            {
-                localEnvironment.Create(function.Parameters[i], arguments[i]);
-            }
+            Bind(function.Parameters, arguments, localEnvironment);
 
             return function.Body.Evaluate(localEnvironment);
         }

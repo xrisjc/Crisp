@@ -23,19 +23,6 @@ namespace Crisp.Ast
 
             switch (Type)
             {
-                case CommandType.Push:
-                    if (args[0] is List<dynamic> list)
-                    {
-                        var value = args[1];
-                        list.Add(value);
-                        return value;
-                    }
-                    else
-                    {
-                        throw new RuntimeErrorException(
-                            $"<{args[0]}> not supported by push()");
-                    }
-
                 case CommandType.ReadLn:
                     {
                         if (args.Count > 0)

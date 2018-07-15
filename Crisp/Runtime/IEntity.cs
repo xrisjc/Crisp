@@ -1,9 +1,11 @@
-﻿namespace Crisp.Runtime
+﻿using System.Collections.Generic;
+
+namespace Crisp.Runtime
 {
     interface IEntity
     {
-        bool GetAttribute(string name, out dynamic value);
-        bool SetAttribute(string name, dynamic value);
-        bool GetMethod(string name, out Function method);
+        bool GetAttribute(string name, out object value);
+        bool SetAttribute(string name, object value);
+        bool SendMessage(string name, List<object> arguments, out object value);
     }
 }

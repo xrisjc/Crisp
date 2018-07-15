@@ -499,11 +499,11 @@ t.assertEq(counter(), 3, 'or short circuits #4')
 // expressions that will be the list's initial contents.
 
 begin
-    // Empty list. len() is a special function that returns the size of lists.
+    // Empty list. length is a list attribute that returns the size of lists.
     let l := []
-    t.assertEq(len(l), 0, 'Empty list length is zero')
+    t.assertEq(l.length, 0, 'Empty list length is zero')
     l := ['one item']
-    t.assertEq(len(l), 1, 'One item list length.')
+    t.assertEq(l.length, 1, 'One item list length.')
     
     // Lists can hold any object of any kind.  You can index lists with
     // integers starting at zero.
@@ -518,10 +518,20 @@ begin
     
     // You can push new items on the end of a list.
     l := []
-    push(l, 100)
-    push(l, 'pushed')
+    l.push(100)
+    l.push('pushed')
     t.assertEq(l[0], 100, 'Push test 1')
     t.assertEq(l[1], 'pushed', 'Push test 2')
+
+    // Push can accept multiple items.
+    l := []
+    l.push(1, 2, 3)
+    t.assertEq(l[2], 3, 'Push multiple items')
+
+    // Push returns the list, so calls can be chained
+    l := []
+    l.push(1).push(2)
+    t.assertEq(l[1], 2, 'Push chain')
 end
 
 

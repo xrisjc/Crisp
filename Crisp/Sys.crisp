@@ -1,16 +1,4 @@
-﻿writeLn('Welcome to Crisp')
-
-fn printList(l)
-begin
-    let i := 0
-    while i < len(l) do
-    begin
-        writeLn('[', i, '] = ', l[i])
-        i := i + 1
-    end
-end
-
-let Test := record
+﻿let Test := record
     nTests
     nErrors
     showPassedTest
@@ -57,4 +45,3 @@ let Test := record
             if this.nErrors=0 then ':-)' else 'D-:')
       end
 end
-

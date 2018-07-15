@@ -33,14 +33,14 @@ namespace Crisp.Ast
                 case string s:
                     throw new RuntimeErrorException("Strings must be indexed by integers.");
 
-                case List<dynamic> l when index is int i:
+                case Runtime.List l when index is int i:
                     if (i < 0 || i >= l.Count)
                     {
                         throw new RuntimeErrorException("Index out of bounds of list.");
                     }
                     return l[i];
 
-                case List<dynamic> l:
+                case Runtime.List l:
                     throw new RuntimeErrorException("Lists must be indexed by integers.");
 
                 case Dictionary<dynamic, dynamic> d:

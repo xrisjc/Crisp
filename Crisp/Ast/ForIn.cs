@@ -22,7 +22,7 @@ namespace Crisp.Ast
         {
             switch (Sequence.Evaluate(environment))
             {
-                case List<object> list:
+                case Runtime.List list:
                     foreach (var x in list)
                     {
                         var localEnvironment = new Environment(environment);

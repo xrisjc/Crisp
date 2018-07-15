@@ -33,7 +33,6 @@
         Let,
         LParen,
         Period,
-        Push,
         Mod,
         Multiply,
         Not,

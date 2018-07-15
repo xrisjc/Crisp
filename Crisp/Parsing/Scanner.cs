@@ -31,7 +31,6 @@ namespace Crisp.Parsing
                 ["null"]    = TokenTag.Null,
                 ["mod"]     = TokenTag.Mod,
                 ["or"]      = TokenTag.Or,
-                ["push"]    = TokenTag.Push,
                 ["readLn"]  = TokenTag.ReadLn,
                 ["record"]  = TokenTag.Record,
                 ["then"]    = TokenTag.Then,

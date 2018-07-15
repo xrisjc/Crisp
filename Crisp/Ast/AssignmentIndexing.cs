@@ -22,7 +22,7 @@ namespace Crisp.Ast
             var value = Value.Evaluate(environment);
             switch (target)
             {
-                case List<dynamic> l when index is int i:
+                case Runtime.List l when index is int i:
                     if (i < 0 || i >= l.Count)
                     {
                         throw new RuntimeErrorException("Index out of bounds of list.");
@@ -30,7 +30,7 @@ namespace Crisp.Ast
                     l[i] = value;
                     break;
 
-                case List<dynamic> l:
+                case Runtime.List l:
                     throw new RuntimeErrorException("Lists must be indexed by integers.");
 
                 case Dictionary<dynamic, dynamic> d:

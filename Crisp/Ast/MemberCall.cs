@@ -7,19 +7,16 @@ namespace Crisp.Ast
 {
     class MemberCall : IExpression
     {
-        public Position Position { get; }
-
-        private List<IExpression> argumentExpressions;
+        Position position;
+        List<IExpression> argumentExpressions;
 
         public AttributeAccess Member { get; }
-
-        public List<IExpression> ArgumentExpressions => argumentExpressions;
 
         public int Arity => argumentExpressions.Count;
 
         public MemberCall(Position position, AttributeAccess member, List<IExpression> argumentExpressions)
         {
-            Position = position;
+            this.position = position;
             Member = member;
             this.argumentExpressions = argumentExpressions;
         }
@@ -30,30 +27,19 @@ namespace Crisp.Ast
             if (entity == null)
             {
                 throw new RuntimeErrorException(
-                    Position,
-                    "method call must be on a record instance");
+                    position,
+                    "message sent to non entity object");
             }
 
-            if (!entity.GetMethod(Member.Name, out var method))
-            {
-                throw new RuntimeErrorException($"no method named ${Member.Name}");
-            }
-            if (method.Parameters.Count != Arity + 1) // + 1 for "this" argument
+            var arguments = argumentExpressions.Select(e => e.Evaluate(environment)).ToList();
+            var messageHandled = entity.SendMessage(Member.Name, arguments, out var value);
+            if (!messageHandled)
             {
                 throw new RuntimeErrorException(
-                    Position,
-                    "method call arity mismatch");
+                    position,
+                    $"error sending message '{Member.Name}'");
             }
-            var arguments = ArgumentExpressions.Evaluate(environment).ToList();
-            arguments.Add(entity); // the "this" argument is at the end
-
-            var localEnvironment = new Environment(method.Environment);
-            for (int i = 0; i < method.Parameters.Count; i++)
-            {
-                localEnvironment.Create(method.Parameters[i], arguments[i]);
-            }
-
-            return method.Body.Evaluate(localEnvironment);
+            return value;
         }
     }
 }

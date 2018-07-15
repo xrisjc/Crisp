@@ -81,6 +81,7 @@
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
     <Compile Include="Runtime\IEntity.cs" />
+    <Compile Include="Runtime\List.cs" />
     <Compile Include="Runtime\Utility.cs" />
     <Compile Include="Runtime\Environment.cs" />
     <Compile Include="Runtime\Null.cs" />

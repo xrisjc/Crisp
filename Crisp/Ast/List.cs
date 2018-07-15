@@ -15,7 +15,9 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
-            return Initializers.Evaluate(environment).ToList();
+            var items = from initializer in Initializers
+                        select initializer.Evaluate(environment);
+            return new Runtime.List(items);
         }
     }
 }

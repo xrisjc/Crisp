@@ -7,7 +7,7 @@ namespace Crisp.Runtime
 {
     static class Utility
     {
-        public static IEnumerable<dynamic> Evaluate(
+        public static IEnumerable<object> Evaluate(
             this IEnumerable<IExpression> expressions,
             Environment environment)
         {
@@ -36,6 +36,14 @@ namespace Crisp.Runtime
         public static bool CheckNumeric(dynamic left, dynamic right)
         {
             return CheckNumeric(left) && CheckNumeric(right);
+        }
+
+        public static void Bind(List<string> names, List<object> values, Environment environment)
+        {
+            for (int i = 0; i < names.Count; i++)
+            {
+                environment.Create(names[i], values[i]);
+            }
         }
     }
 }
