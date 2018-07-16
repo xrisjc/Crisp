@@ -20,14 +20,26 @@ namespace Crisp.Ast
 
         public object Evaluate(Environment environment)
         {
+            void LoopBody(object value)
+            {
+                var localEnvironment = new Environment(environment);
+                localEnvironment.Create(VariableName, value);
+                Body.Evaluate(localEnvironment);
+            }
+
             switch (Sequence.Evaluate(environment))
             {
                 case Runtime.List list:
-                    foreach (var x in list)
+                    foreach (var item in list)
                     {
-                        var localEnvironment = new Environment(environment);
-                        localEnvironment.Create(VariableName, x);
-                        Body.Evaluate(localEnvironment);
+                        LoopBody(item);
+                    }
+                    break;
+
+                case Runtime.Map map:
+                    foreach (var key in map.Keys)
+                    {
+                        LoopBody(key);
                     }
                     break;
 

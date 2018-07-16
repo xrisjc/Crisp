@@ -599,6 +599,14 @@ begin
     t.assertEq(mTwo.length, 3, 'Non-empty map length')
 end
 
+// for .. in loops iterate over the keys of the map
+begin
+    let m := { 'test':'one' 'trying':'two' }
+    let s := ''
+    for key in m do s := s + m[key]
+    t.assertEq(s, 'onetwo', 'for .. in over a map')
+end
+
 ///////////////////////////////////////////////////////////////////////////////
 // Records
 ///////////////////////////////////////////////////////////////////////////////

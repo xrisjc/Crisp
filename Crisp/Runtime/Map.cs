@@ -12,6 +12,8 @@ namespace Crisp.Runtime
             this.map = map;
         }
 
+        public IEnumerable<object> Keys => map.Keys;
+
         public bool TryGetValue(object key, out object value)
         {
             return map.TryGetValue(key, out value);
