@@ -65,9 +65,11 @@ namespace Crisp
             var scanner = new Scanner(code);
             var parser = new Parser(scanner);
             var expressions = parser.Program();
+            var evaluator = new Evaluator(environment);
             foreach (var expression in expressions)
             {
-                var value = expression.Evaluate(environment);
+                evaluator.Evaluate(expression);
+                var value = evaluator.Pop();
                 writer.WriteLine(value);
             }
         }
@@ -80,9 +82,11 @@ namespace Crisp
                 var scanner = new Scanner(sys);
                 var parser = new Parser(scanner);
                 var program = parser.Program();
+                var evaluator = new Evaluator(environment);
                 foreach (var expr in program)
                 {
-                    expr.Evaluate(environment);
+                    evaluator.Evaluate(expr);
+                    evaluator.Pop();
                 }
             }
             catch (CrispException e)

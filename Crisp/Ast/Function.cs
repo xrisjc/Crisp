@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -15,9 +14,9 @@ namespace Crisp.Ast
             Body = body;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            return new Runtime.Function(Parameters, Body, environment);
+            visitor.Visit(this);
         }
     }
 }

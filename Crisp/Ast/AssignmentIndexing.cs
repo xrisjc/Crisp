@@ -1,7 +1,4 @@
-﻿using Crisp.Runtime;
-using System.Collections.Generic;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class AssignmentIndexing : IExpression
     {
@@ -15,32 +12,9 @@ namespace Crisp.Ast
             Value = value;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var target = Target.Indexable.Evaluate(environment);
-            var index = Target.Index.Evaluate(environment);
-            var value = Value.Evaluate(environment);
-            switch (target)
-            {
-                case Runtime.List l when index is int i:
-                    if (i < 0 || i >= l.Count)
-                    {
-                        throw new RuntimeErrorException("Index out of bounds of list.");
-                    }
-                    l[i] = value;
-                    break;
-
-                case Runtime.List l:
-                    throw new RuntimeErrorException("Lists must be indexed by integers.");
-
-                case Runtime.Map map:
-                    map.SetValue(index, value);
-                    break;
-
-                default:
-                    throw new RuntimeErrorException("Set index on non-indexable object indexed.");
-            }
-            return value;
+            visitor.Visit(this);
         }
     }
 }

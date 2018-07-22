@@ -1,22 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
     class Block : IExpression
     {
-        public IEnumerable<IExpression> Body { get; }
+        public List<IExpression> Body { get; }
 
-        public Block(IEnumerable<IExpression> body)
+        public Block(List<IExpression> body)
         {
             Body = body;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var localEnvironment = new Environment(environment);
-            return Body.Evaluate(localEnvironment).LastOrDefault() ?? Null.Instance;
+            visitor.Visit(this);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Crisp.Runtime;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class AssignmentIdentifier : IExpression
     {
@@ -14,19 +12,9 @@ namespace Crisp.Ast
             Value = value;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var value = Value.Evaluate(environment);
-            if (environment.Set(Target.Name, value))
-            {
-                return value;
-            }
-            else
-            {
-                throw new RuntimeErrorException(
-                    Target.Position,
-                    $"Cannot assign value to unbound name <{Target.Name}>");
-            }
+            visitor.Visit(this);
         }
     }
 }

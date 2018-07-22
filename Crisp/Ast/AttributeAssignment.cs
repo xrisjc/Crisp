@@ -1,6 +1,4 @@
-﻿using Crisp.Runtime;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class AttributeAssignment : IExpression
     {
@@ -17,22 +15,9 @@ namespace Crisp.Ast
             Value = value;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var entity = Entity.Evaluate(environment) as Entity;
-            if (entity == null)
-            {
-                throw new RuntimeErrorException("attribute assignment on non entity object");
-            }
-
-            var value = Value.Evaluate(environment);
-
-            if (entity.SetAttribute(Name, value) == false)
-            {
-                throw new RuntimeErrorException($"attritue {Name} not found.");
-            }
-
-            return value;
+            visitor.Visit(this);
         }
     }
 }

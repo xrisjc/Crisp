@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using static Crisp.Runtime.Utility;
 
 namespace Crisp.Runtime
 {
@@ -40,27 +39,17 @@ namespace Crisp.Runtime
             }
         }
 
-        public override bool SendMessage(string name, List<object> arguments, out object value)
+        public override bool SendMessage(string name, Evaluator evaluator)
         {
-            if (!record.GetInstanceMethod(name, out var method))
+            if (record.GetInstanceMethod(name, out var method))
             {
-                value = Null.Instance;
+                evaluator.Invoke(method);
+                return true;
+            }
+            else
+            {
                 return false;
             }
-
-            if (method.Parameters.Count != arguments.Count + 1) // + 1 for "this" argument
-            {
-                value = Null.Instance;
-                return false;
-            }
-
-            arguments.Add(this); // the "this" argument is at the end
-
-            var localEnvironment = new Environment(method.Environment);
-            Bind(method.Parameters, arguments, localEnvironment);
-
-            value = method.Body.Evaluate(localEnvironment);
-            return true;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Crisp.Runtime;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class While : IExpression
     {
@@ -14,13 +12,9 @@ namespace Crisp.Ast
             Body = body;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            while (Runtime.Utility.IsTrue(Guard.Evaluate(environment)))
-            {
-                Body.Evaluate(environment);
-            }
-            return Null.Instance;
+            visitor.Visit(this);
         }
     }
 }

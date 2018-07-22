@@ -1,6 +1,4 @@
-﻿using Crisp.Runtime;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class Let : IExpression
     {
@@ -14,19 +12,9 @@ namespace Crisp.Ast
             Value = value;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var value = Value.Evaluate(environment);
-            if (environment.Create(Identifier.Name, value))
-            {
-                return value;
-            }
-            else
-            {
-                throw new RuntimeErrorException(
-                    Identifier.Position,
-                    $"Name <{Identifier.Name}> was already bound previously.");
-            }
+            visitor.Visit(this);
         }
     }
 }

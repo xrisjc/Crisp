@@ -1,5 +1,4 @@
-﻿using Crisp.Runtime;
-using Crisp.Parsing;
+﻿using Crisp.Parsing;
 
 namespace Crisp.Ast
 {
@@ -15,18 +14,9 @@ namespace Crisp.Ast
             Name = name;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            if (environment.Get(Name, out var value))
-            {
-                return value;
-            }
-            else
-            {
-                throw new RuntimeErrorException(
-                    Position,
-                    $"<{Name}> not bound to a value.");
-            }
+            visitor.Visit(this);
         }
     }
 }

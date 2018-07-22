@@ -16,9 +16,8 @@ namespace Crisp.Runtime
             return false;
         }
 
-        public virtual bool SendMessage(string name, List<object> arguments, out object value)
+        public virtual bool SendMessage(string name, Evaluator evaluator)
         {
-            value = Null.Instance;
             return false;
         }
     }

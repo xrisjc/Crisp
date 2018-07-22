@@ -4,6 +4,6 @@ namespace Crisp.Ast
 {
     interface IExpression
     {
-        object Evaluate(Environment environment);
+        void Accept(IExpressionVisitor visitor);
     }
 }

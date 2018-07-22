@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -15,17 +14,9 @@ namespace Crisp.Ast
             Functions = functions;
         }
 
-        public Record()
-            : this(new List<string>(), new Dictionary<string, Function>())
+        public void Accept(IExpressionVisitor visitor)
         {
-        }
-
-        public object Evaluate(Environment environment)
-        {
-            return new Runtime.Record(
-                Variables,
-                Functions.MapDictionary(
-                    (name, fn) => new Runtime.Function(fn.Parameters, fn.Body, environment)));
+            visitor.Visit(this);
         }
     }
 }

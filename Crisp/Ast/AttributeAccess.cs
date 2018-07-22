@@ -1,6 +1,4 @@
-﻿using Crisp.Runtime;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class AttributeAccess : IExpression
     {
@@ -14,22 +12,9 @@ namespace Crisp.Ast
             Name = name;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var entity = Entity.Evaluate(environment) as Entity;
-            if (entity == null)
-            {
-                throw new RuntimeErrorException("attribute access on non entity object");
-            }
-
-            if (entity.GetAttribute(Name, out var value))
-            {
-                return value;
-            }
-            else
-            {
-                throw new RuntimeErrorException($"attribute {Name} not found");
-            }
+            visitor.Visit(this);
         }
     }
 }

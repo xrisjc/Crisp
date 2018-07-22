@@ -8,9 +8,9 @@ namespace Crisp.Runtime
     {
         List<object> list;
 
-        public List(IEnumerable<object> items)
+        public List(List<object> items)
         {
-            this.list = items.ToList();
+            this.list = items;
         }
 
         public int Count => list.Count;
@@ -33,27 +33,30 @@ namespace Crisp.Runtime
             return base.GetAttribute(name, out value);
         }
 
-        public override bool SendMessage(string name, List<object> arguments, out object value)
+        public override bool SendMessage(string name, Evaluator evaluator)
         {
+            dynamic arity = evaluator.Pop();
+
+            // Ignore "this" on the stack.
+            evaluator.Pop();
+            arity--;
+
+            var args = new object[arity];
+            for (var i = 0; i < args.Length; i++)
+            {
+                args[args.Length - i - 1] = evaluator.Pop();
+            }
+            
+
             switch (name)
             {
                 case "push":
-                    value = this;
-                    return Push(arguments);
+                    list.AddRange(args);
+                    evaluator.Push(this);
+                    return true;
             }
 
-            return base.SendMessage(name, arguments, out value);
-        }
-
-        bool Push(List<object> arguments)
-        {
-            if (arguments.Count == 0)
-            {
-                return false;
-            }
-
-            list.AddRange(arguments);
-            return true;
+            return base.SendMessage(name, evaluator);
         }
 
         public IEnumerator<object> GetEnumerator()

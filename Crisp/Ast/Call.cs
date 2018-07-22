@@ -1,8 +1,5 @@
-﻿using Crisp.Runtime;
-using Crisp.Parsing;
+﻿using Crisp.Parsing;
 using System.Collections.Generic;
-using System.Linq;
-using static Crisp.Runtime.Utility;
 
 namespace Crisp.Ast
 {
@@ -25,33 +22,9 @@ namespace Crisp.Ast
             this.argumentExpressions = argumentExpressions;
         }
 
-        public Call(Position position, IExpression functionExpression)
-            : this(position, functionExpression, new List<IExpression>())
+        public void Accept(IExpressionVisitor visitor)
         {
-        }
-
-        public object Evaluate(Environment environment)
-        {
-            var function = FunctionExpression.Evaluate(environment) as Runtime.Function;
-            if (function == null)
-            {
-                throw new RuntimeErrorException(
-                    Position,
-                    "function call attempted on non function value");
-            }
-
-            if (function.Parameters.Count != Arity)
-            {
-                throw new RuntimeErrorException(
-                    Position,
-                    "function arity mismatch");
-            }
-            var arguments = ArgumentExpressions.Evaluate(environment).ToList();
-
-            var localEnvironment = new Environment(function.Environment);
-            Bind(function.Parameters, arguments, localEnvironment);
-
-            return function.Body.Evaluate(localEnvironment);
+            visitor.Visit(this);
         }
     }
 }

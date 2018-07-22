@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Crisp.Runtime;
+﻿using System.Collections.Generic;
 
 namespace Crisp.Ast
 {
@@ -17,33 +14,9 @@ namespace Crisp.Ast
             ArgumentExpressions = argumentExpressions;
         }
 
-        public object Evaluate(Runtime.Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            List<dynamic> args = ArgumentExpressions.Evaluate(environment).ToList();
-
-            switch (Type)
-            {
-                case CommandType.ReadLn:
-                    {
-                        if (args.Count > 0)
-                        {
-                            var prompt = string.Join("", args);
-                            Console.Write(prompt);
-                        }
-                        var line = Console.ReadLine();
-                        return line;
-                    }
-
-                case CommandType.WriteLn:
-                    {
-                        var line = string.Join("", args);
-                        Console.WriteLine(line);
-                        return Null.Instance;
-                    }
-
-                default:
-                    throw new RuntimeErrorException($"unknown command {Type}");
-            }
+            visitor.Visit(this);
         }
     }
 }

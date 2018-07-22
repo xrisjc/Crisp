@@ -1,6 +1,4 @@
-﻿using Crisp.Runtime;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class Branch : IExpression
     {
@@ -17,16 +15,9 @@ namespace Crisp.Ast
             Alternative = alternative;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            if (Runtime.Utility.IsTrue(Condition.Evaluate(environment)))
-            {
-                return Consequence.Evaluate(environment);
-            }
-            else
-            {
-                return Alternative.Evaluate(environment);
-            }
+            visitor.Visit(this);
         }
     }
 }

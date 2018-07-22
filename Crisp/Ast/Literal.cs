@@ -1,10 +1,13 @@
 ﻿namespace Crisp.Ast
 {
-    class LiteralNull : IExpression
+    class Literal<T> : IExpression
     {
-        private LiteralNull() { }
+        public T Value { get; }
 
-        public static LiteralNull Instance { get; } = new LiteralNull();
+        public Literal(T value)
+        {
+            Value = value;
+        }
 
         public void Accept(IExpressionVisitor visitor)
         {

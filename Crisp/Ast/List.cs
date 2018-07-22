@@ -1,23 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
     class List : IExpression
     {
-        public IEnumerable<IExpression> Initializers { get; }
+        public List<IExpression> Initializers { get; }
 
-        public List(IEnumerable<IExpression> initializers)
+        public List(List<IExpression> initializers)
         {
             Initializers = initializers;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var items = from initializer in Initializers
-                        select initializer.Evaluate(environment);
-            return new Runtime.List(items);
+            visitor.Visit(this);
         }
     }
 }

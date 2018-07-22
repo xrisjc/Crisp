@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Crisp.Runtime;
 
 namespace Crisp.Ast
 {
@@ -12,16 +11,9 @@ namespace Crisp.Ast
             Initializers = initializers;
         }
 
-        public object Evaluate(Environment environment)
+        public void Accept(IExpressionVisitor visitor)
         {
-            var map = new Dictionary<object, object>();
-            foreach (var (keyExpr, valueExpr) in Initializers)
-            {
-                var key = keyExpr.Evaluate(environment);
-                var value = valueExpr.Evaluate(environment);
-                map[key] = value;
-            }
-            return new Runtime.Map(map);
+            visitor.Visit(this);
         }
     }
 }
