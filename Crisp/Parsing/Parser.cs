@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Crisp.Parsing
 {
-    class Parser
+    class Parser : ParserState
     {
         static Dictionary<TokenTag, OperatorInfix> tokenOp =
             new Dictionary<TokenTag, OperatorInfix>
@@ -30,75 +30,16 @@ namespace Crisp.Parsing
                 [TokenTag.WriteLn] = CommandType.WriteLn,
             };
 
-        readonly Scanner scanner;
-        Token current = null;
-        Token peek = null;
 
-        public Parser(Scanner scanner)
+        public Parser(Scanner scanner) : base(scanner)
         {
-            this.scanner = scanner;
-            NextToken();
-            NextToken();
         }
 
-        void NextToken()
-        {
-            current = peek;
-            peek = scanner.NextToken();
-        }
-
-        bool Match(out Token token, TokenTag tag)
-        {
-            if (current.Tag == tag)
-            {
-                token = current;
-                NextToken();
-                return true;
-            }
-            else
-            {
-                token = null;
-                return false;
-            }
-        }
-
-        bool Match(TokenTag tag)
-        {
-            return Match(out var token, tag);
-        }
-
-        bool Match(out Token token, params TokenTag[] tags)
-        {
-            foreach (var tag in tags)
-            {
-                if (Match(out token, tag))
-                {
-                    return true;
-                }
-            }
-            token = null;
-            return false;
-        }
-
-        Token Expect(TokenTag tag)
-        {
-            if (current.Tag == tag)
-            {
-                var token = current;
-                NextToken();
-                return token;
-            }
-            else
-            {
-                throw new SyntaxErrorException(
-                    $"exepected, but didn't match, token {tag}", current.Position);
-            }
-        }
 
         public List<IExpression> Program()
         {
             var expressions = new List<IExpression>();
-            while (current.Tag != TokenTag.EndOfInput)
+            while (Current.Tag != TokenTag.EndOfInput)
             {
                 var expression = Expression();
                 expressions.Add(expression);
@@ -539,7 +480,7 @@ namespace Crisp.Parsing
                 return Record();
             }
 
-            throw new SyntaxErrorException($"unexpected token '{current.Tag}'", current.Position);
+            throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
         }
 
         IExpression List()

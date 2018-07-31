@@ -86,6 +86,7 @@
     <Compile Include="IR\PushEnv.cs" />
     <Compile Include="IR\PushNull.cs" />
     <Compile Include="IR\SetEnv.cs" />
+    <Compile Include="Parsing\ParserState.cs" />
     <Compile Include="Runtime\Entity.cs" />
     <Compile Include="Runtime\Evaluator.cs" />
     <Compile Include="Runtime\List.cs" />
