@@ -86,12 +86,13 @@ namespace Crisp.Runtime
             }
         }
 
-        void Set(string name)
+        void Set(Identifier identifier)
         {
-            if (!environment.Set(name, stack.Pop()))
+            if (!environment.Set(identifier.Name, stack.Pop()))
             {
                 throw new RuntimeErrorException(
-                    $"Cannot assign value to unbound name <{name}>");
+                    identifier.Position,
+                    $"Cannot assign value to unbound name <{identifier.Name}>");
             }
         }
 
@@ -119,7 +120,7 @@ namespace Crisp.Runtime
         {
             Evaluate(assignmentIdentifier.Value);
             var value = stack.Peek();
-            Set(assignmentIdentifier.Target.Name);
+            Set(assignmentIdentifier.Target);
             stack.Push(value);
         }
 
