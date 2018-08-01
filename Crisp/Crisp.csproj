@@ -74,15 +74,6 @@
     <Compile Include="Ast\Record.cs" />
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
-    <Compile Include="IR\GetEnv.cs" />
-    <Compile Include="IR\Neg.cs" />
-    <Compile Include="IR\Not.cs" />
-    <Compile Include="IR\Pop.cs" />
-    <Compile Include="IR\PopEnv.cs" />
-    <Compile Include="IR\Push.cs" />
-    <Compile Include="IR\PushEnv.cs" />
-    <Compile Include="IR\PushNull.cs" />
-    <Compile Include="IR\SetEnv.cs" />
     <Compile Include="Parsing\ParserState.cs" />
     <Compile Include="Runtime\Entity.cs" />
     <Compile Include="Runtime\Evaluator.cs" />
@@ -102,7 +93,6 @@
     <Compile Include="Parsing\Scanner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IR\Translator.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>

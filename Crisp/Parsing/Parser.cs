@@ -198,9 +198,7 @@ namespace Crisp.Parsing
                     return new AttributeAssignment(aa.Entity, aa.Name, right);
                 }
 
-                throw new SyntaxErrorException(
-                    "Left hand side of assignment must be assignable,",
-                    token.Position);
+                throw new SyntaxErrorException("Left hand side of assignment must be assignable,", token.Position);
 
             }
 
@@ -246,8 +244,7 @@ namespace Crisp.Parsing
         IExpression Relation()
         {
             var left = Addition();
-            while (Match(out var token, TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo,
-                TokenTag.LessThan, TokenTag.LessThanOrEqualTo))
+            while (Match(out var token, TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo))
             {
                 var op = tokenOp[token.Tag];
                 var right = Addition();
@@ -301,8 +298,7 @@ namespace Crisp.Parsing
         {
             var expr = Primary();
 
-            while (Match(out var token, TokenTag.LParen, TokenTag.Period,
-                TokenTag.LBrace, TokenTag.LBracket))
+            while (Match(out var token, TokenTag.LParen, TokenTag.Period, TokenTag.LBrace, TokenTag.LBracket))
             {
                 if (token.Tag == TokenTag.LParen)
                 {
@@ -371,9 +367,7 @@ namespace Crisp.Parsing
                 var name = Expect(TokenTag.Identifier);
                 if (initalizers.ContainsKey(name.Lexeme))
                 {
-                    throw new SyntaxErrorException(
-                        $"Duplicate initializer <{name.Lexeme}>.",
-                        name.Position);
+                    throw new SyntaxErrorException($"Duplicate initializer <{name.Lexeme}>.", name.Position);
                 }
                 Expect(TokenTag.Colon);
                 var value = Expression();
@@ -400,9 +394,7 @@ namespace Crisp.Parsing
                 {
                     return new Literal<double>(value);
                 }
-                throw new SyntaxErrorException(
-                    $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
-                    token.Position);
+                throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 64 bit floating bit", token.Position);
             }
 
             if (Match(out token, TokenTag.Integer))
@@ -411,9 +403,7 @@ namespace Crisp.Parsing
                 {
                     return new Literal<int>(value);
                 }
-                throw new SyntaxErrorException(
-                    $"Unable to convert <{token.Lexeme}> into a 32 bit integer.",
-                    token.Position);
+                throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 32 bit integer.", token.Position);
             }
 
             if (Match(out token, TokenTag.String))
@@ -448,8 +438,7 @@ namespace Crisp.Parsing
                 return expression;
             }
 
-            if (Match(out token, TokenTag.ReadLn,
-                TokenTag.WriteLn))
+            if (Match(out token, TokenTag.ReadLn, TokenTag.WriteLn))
             {
                 return Command(token);
             }
