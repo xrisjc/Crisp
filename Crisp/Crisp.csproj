@@ -86,7 +86,6 @@
     <Compile Include="Parsing\Token.cs" />
     <Compile Include="Parsing\TokenTag.cs" />
     <Compile Include="Parsing\Position.cs" />
-    <Compile Include="Parsing\Precedence.cs" />
     <Compile Include="Repl.cs" />
     <Compile Include="Runtime\RuntimeErrorException.cs" />
     <Compile Include="Parsing\SyntaxErrorException.cs" />
