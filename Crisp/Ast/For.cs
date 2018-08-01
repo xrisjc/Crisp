@@ -1,4 +1,6 @@
-﻿namespace Crisp.Ast
+﻿using System.Collections.Generic;
+
+namespace Crisp.Ast
 {
     class For : IExpression
     {
@@ -8,9 +10,9 @@
 
         public IExpression End { get; }
 
-        public IExpression Body { get; }
+        public List<IExpression> Body { get; }
 
-        public For(string variableName, IExpression start, IExpression end, IExpression body)
+        public For(string variableName, IExpression start, IExpression end, List<IExpression> body)
         {
             VariableName = variableName;
             Start = start;

@@ -280,7 +280,7 @@ namespace Crisp.Runtime
             {
                 environment = new Environment(outerEnvironment);
                 environment.Create(@for.VariableName, i);
-                Evaluate(@for.Body);
+                EvaluateAsBlock(@for.Body);
                 stack.Pop();
             }
 
@@ -544,7 +544,7 @@ namespace Crisp.Runtime
         {
             for (Evaluate(@while.Guard); IsTrue(); Evaluate(@while.Guard))
             {
-                Evaluate(@while.Body);
+                EvaluateAsBlock(@while.Body);
                 stack.Pop();
             }
 

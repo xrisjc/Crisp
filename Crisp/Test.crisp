@@ -350,20 +350,19 @@ end
 ///////////////////////////////////////////////////////////////////////////////
 
 // The usual while loop is present.  The syntax is
-//     while <condition> do <body>
+//     while <condition> do <body> end
 // 
 // The <condition> expression *must* be a Boolean value or else there will be a
 // runtime exception.  Like if / else, condition and body can be any valid
-// kind of expression.
+// kind of expression.  <body> is zero, one, or more expressions.
 // 
 begin
     let sum := 0
     let n := 1
     while n <= 100 do
-      begin
         sum := sum + n
         n := n + 1
-      end
+    end
     t.assertEq(sum, 5050, 'While loop')
 end
 
@@ -373,24 +372,24 @@ begin
     let n := 100
     while false do
         n := n + 1
+    end
     t.assertEq(n, 100, 'Never executing while loop')
 end
 
 // A while always evaluates to null.
-t.assertEq(while false do 0, null, 'While evals to null')
+t.assertEq(while false do 0 end, null, 'While evals to null')
 
 // Crisp has Pascal style for loops. The syntax is
-//     for <identifier> := <low> to <high> do <body>
+//     for <identifier> := <low> to <high> do <body> end
 //
 // The loop will set the identifier to the low value.  Each time through the
 // loop the identifier is incremented by one.  The loop stops when identifier
-// is greater than high.
+// is greater than high.  <body> is zero, one, or more expressions.
 begin
     let sum := 0
     for n := 1 to 100 do
-      begin
         sum := sum + n
-      end
+    end
     t.assertEq(sum, 5050, 'For loop')
 end
 
@@ -399,6 +398,7 @@ begin
     let sum := 0
     for i := 1.5 to 100.1 do
         sum := sum + i
+    end
     t.assertEq(sum, 4999.5, 'For loop with floats.')
 end
 
@@ -407,11 +407,12 @@ begin
     let n := 100
     for i := 100 to 50 do
         n := n + 1
+    end
     t.assertEq(n, 100, 'Never executing for loop')
 end
 
 // A for always evaluates to null.
-t.assertEq(for i:=1 to 10 do 0, null, 'For evals to null')
+t.assertEq(for i := 1 to 10 do 0 end, null, 'For evals to null')
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions

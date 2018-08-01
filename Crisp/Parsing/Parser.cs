@@ -124,7 +124,12 @@ namespace Crisp.Parsing
         {
             var guard = Expression();
             Expect(TokenTag.Do);
-            var body = Expression();
+            var body = new List<IExpression>();
+            while (!Match(TokenTag.End))
+            {
+                var expr = Expression();
+                body.Add(expr);
+            }
             return new While(guard, body);
         }
 
@@ -136,7 +141,12 @@ namespace Crisp.Parsing
             Expect(TokenTag.To);
             var end = Expression();
             Expect(TokenTag.Do);
-            var body = Expression();
+            var body = new List<IExpression>();
+            while (!Match(TokenTag.End))
+            {
+                var expr = Expression();
+                body.Add(expr);
+            }
             return new For(varToken.Lexeme, start, end, body);
         }
 
