@@ -299,8 +299,11 @@ namespace Crisp.Runtime
 
         public void Visit(Ast.Function function)
         {
-            stack.Push(
-                new Runtime.Function(function.Parameters, function.Body, environment));
+            var fn = new Runtime.Function(function.Parameters, function.Body, environment);
+
+            environment.Create(function.Name, fn);
+
+            stack.Push(fn);
         }
 
         public void Visit(Indexing indexing)

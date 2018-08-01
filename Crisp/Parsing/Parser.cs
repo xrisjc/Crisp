@@ -98,26 +98,10 @@ namespace Crisp.Parsing
 
         IExpression Function()
         {
-            // Function name
-            Match(out var nameToken, TokenTag.Identifier);
-
-            // Function parameter list
+            var fnName = Expect(TokenTag.Identifier).Lexeme;
             List<string> parameters = Parameters();
-
-            // Function body
             var body = Expression();
-
-            // Create AST
-            var function = new Function(parameters, body);
-            if (nameToken != null)
-            {
-                var identifier = new Identifier(nameToken.Position, nameToken.Lexeme);
-                return new Let(identifier, function);
-            }
-            else
-            {
-                return function;
-            }
+            return new Function(fnName, parameters, body);
         }
 
         IExpression If()
@@ -182,7 +166,7 @@ namespace Crisp.Parsing
                 var parameters = Parameters();
                 parameters.Add("this");
                 var body = Expression();
-                var function = new Function(parameters, body);
+                var function = new Function(fnName, parameters, body);
                 functions.Add(fnName, function);
             }
 

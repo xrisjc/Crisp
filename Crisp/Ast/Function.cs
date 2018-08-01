@@ -4,12 +4,15 @@ namespace Crisp.Ast
 {
     class Function : IExpression
     {
+        public string Name { get; }
+
         public List<string> Parameters { get; }
 
         public IExpression Body { get; }
 
-        public Function(List<string> parameters, IExpression body)
+        public Function(string name, List<string> parameters, IExpression body)
         {
+            Name = name;
             Parameters = parameters;
             Body = body;
         }
