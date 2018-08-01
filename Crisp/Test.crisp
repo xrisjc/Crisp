@@ -419,19 +419,21 @@ t.assertEq(for i:=1 to 10 do 0, null, 'For evals to null')
 
 begin
     // The syntax for a function definition is
-    //   fn <name> (<comma separated parameters>) <body>
-    //
-    // () is the "invocation" operator. The returns values is the result of the
-    // body expression, which can be any valid expression including a block.
+    //   function <name> (<comma separated parameters>) <body> end
+    // where <body> can be zero, one, or multiple expressions.  The value of
+    // the function is the final expression, or in case of an empty function,
+    // null.  As is usual, () is the "invocation" operator. 
     
-    fn square(x) x * x
+    function nothing() end
 
-    fn divides(m, n)
-      begin
+    function square(x) x * x end
+
+    function divides(m, n)
         let remainder := n mod m
         remainder = 0
-      end
-
+    end
+    
+    t.assertEq(nothing(), null, 'Empty function')
     t.assertEq(square(3), 9, 'Function declaration')
     t.assertEq(divides(5, 35), true, 'Named functions')
 
@@ -441,15 +443,13 @@ begin
 
     // Functions are also closures.  Here's the standard counter function
     // example.
-    fn makeCounter()
-      begin
+    function makeCounter()
         let x := 0
-        fn resultFn()
-          begin
+        function resultfunction()
             x := x + 1
             x
-          end
-      end
+        end
+    end
     let counter := makeCounter()
     t.assertEq(begin counter() counter() counter() end, 3, 'Functions with closures')
 
@@ -509,7 +509,9 @@ begin
     type Vector record
         x
         y
-        fn add(v) Vector { x: this.x + v.x  y: this.y + v.y }
+        function add(v)
+            Vector { x: this.x + v.x  y: this.y + v.y }
+        end
     end
 
     let v := Vector { x: 10  y: 20 }

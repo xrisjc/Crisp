@@ -5,13 +5,13 @@ namespace Crisp.Runtime
 {
     class Function
     {
-        public IExpression Body { get; }
+        public List<IExpression> Body { get; }
 
         public List<string> Parameters { get; }
 
         public Environment Environment { get; }
 
-        public Function(List<string> parameters, IExpression body, Environment environment)
+        public Function(List<string> parameters, List<IExpression> body, Environment environment)
         {
             Parameters = parameters;
             Body = body;

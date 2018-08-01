@@ -8,9 +8,9 @@ namespace Crisp.Ast
 
         public List<string> Parameters { get; }
 
-        public IExpression Body { get; }
+        public List<IExpression> Body { get; }
 
-        public Function(string name, List<string> parameters, IExpression body)
+        public Function(string name, List<string> parameters, List<IExpression> body)
         {
             Name = name;
             Parameters = parameters;

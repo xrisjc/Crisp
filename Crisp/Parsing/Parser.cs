@@ -54,7 +54,7 @@ namespace Crisp.Parsing
                 return Let();
             }
 
-            if (Match(TokenTag.Fn))
+            if (Match(TokenTag.Function))
             {
                 return Function();
             }
@@ -96,11 +96,16 @@ namespace Crisp.Parsing
             return new Let(identifier, value);
         }
 
-        IExpression Function()
+        Function Function()
         {
             var fnName = Expect(TokenTag.Identifier).Lexeme;
             List<string> parameters = Parameters();
-            var body = Expression();
+            var body = new List<IExpression>();
+            while (!Match(TokenTag.End))
+            {
+                var expr = Expression();
+                body.Add(expr);
+            }
             return new Function(fnName, parameters, body);
         }
 
@@ -160,14 +165,11 @@ namespace Crisp.Parsing
             }
 
             var functions = new Dictionary<string, Ast.Function>();
-            while (Match(TokenTag.Fn))
+            while (Match(TokenTag.Function))
             {
-                var fnName = Expect(TokenTag.Identifier).Lexeme;
-                var parameters = Parameters();
-                parameters.Add("this");
-                var body = Expression();
-                var function = new Function(fnName, parameters, body);
-                functions.Add(fnName, function);
+                var function = Function();
+                function.Parameters.Add("this");
+                functions.Add(function.Name, function);
             }
 
             Expect(TokenTag.End);

@@ -35,13 +35,39 @@ namespace Crisp.Runtime
             var outerEnvironment = environment;
             environment = new Environment(function.Environment);
             Bind(function.Parameters);
-            Evaluate(function.Body);
+            EvaluateAsBlock(function.Body);
             environment = outerEnvironment;
         }
 
         public void Evaluate(IExpression expression)
         {
             expression.Accept(this);
+        }
+
+        public void EvaluateAsBlock(List<IExpression> exprs)
+        {
+            if (exprs.Count == 0)
+            {
+                stack.Push(Null.Instance);
+            }
+            else
+            {
+                var outerEnvironment = environment;
+                environment = new Environment(environment);
+
+                for (var i = 0; i < exprs.Count; i++)
+                {
+                    Evaluate(exprs[i]);
+
+                    // Ignore all but the last evaluation.
+                    if (i < exprs.Count - 1)
+                    {
+                        stack.Pop();
+                    }
+                }
+
+                environment = outerEnvironment;
+            }
         }
 
         void Bind(string name)
@@ -159,28 +185,7 @@ namespace Crisp.Runtime
 
         public void Visit(Block block)
         {
-            if (block.Body.Count == 0)
-            {
-                stack.Push(Null.Instance);
-            }
-            else
-            {
-                var outerEnvironment = environment;
-                environment = new Environment(environment);
-
-                for (var i = 0; i < block.Body.Count; i++)
-                {
-                    Evaluate(block.Body[i]);
-
-                    // Ignore all but the last evaluation.
-                    if (i < block.Body.Count - 1)
-                    {
-                        stack.Pop();
-                    }
-                }
-
-                environment = outerEnvironment;
-            }
+            EvaluateAsBlock(block.Body);
         }
 
         public void Visit(Branch branch)

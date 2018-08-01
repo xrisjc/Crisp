@@ -3,29 +3,25 @@
     nErrors
     showPassedTest
 
-    fn pass(message)
-      begin
+    function pass(message)
         this.nTests := this.nTests + 1
         writeLn('[OK] "', message, '"')
-      end
+    end
 
-    fn fail(message)
-      begin
+    function fail(message)
         this.nTests := this.nTests + 1
         this.nErrors := this.nErrors + 1
         writeLn('[FAILED] "', message, '"')
-      end
+    end
 
-    fn assert(condition, message)
-      begin
+    function assert(condition, message)
         if not condition then
             this.fail(message)
         else if this.showPassedTest then
             this.pass(message)
-      end
+    end
 
-    fn assertEq(test, expected, message)
-      begin
+    function assertEq(test, expected, message)
         this.nTests := this.nTests + 1
         if test <> expected then
           begin
@@ -35,13 +31,12 @@
           end
         else if this.showPassedTest then
             writeLn('[OK] "', message, '"')
-      end
+    end
 
-    fn displaySummary()
-      begin
+    function displaySummary()
         writeLn()
         writeLn(this.nTests - this.nErrors, ' out of ', this.nTests, ' tests passed.')
         writeLn('There are ', this.nErrors, ' errors. ',
             if this.nErrors=0 then ':-)' else 'D-:')
-      end
+    end
 end
