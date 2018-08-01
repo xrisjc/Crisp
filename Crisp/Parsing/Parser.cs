@@ -137,24 +137,13 @@ namespace Crisp.Parsing
         IExpression For()
         {
             var varToken = Expect(TokenTag.Identifier);
-            if (Match(TokenTag.Assignment))
-            {
-                // Regular for loop.
-                var start = Expression();
-                Expect(TokenTag.To);
-                var end = Expression();
-                Expect(TokenTag.Do);
-                var body = Expression();
-                return new For(varToken.Lexeme, start, end, body);
-            }
-            else
-            {
-                Expect(TokenTag.In);
-                var sequence = Expression();
-                Expect(TokenTag.Do);
-                var body = Expression();
-                return new ForIn(varToken.Lexeme, sequence, body);
-            }
+            Expect(TokenTag.Assignment);
+            var start = Expression();
+            Expect(TokenTag.To);
+            var end = Expression();
+            Expect(TokenTag.Do);
+            var body = Expression();
+            return new For(varToken.Lexeme, start, end, body);
         }
 
         IExpression Block()
@@ -459,16 +448,6 @@ namespace Crisp.Parsing
                 return expression;
             }
 
-            if (Match(TokenTag.LBracket))
-            {
-                return List();
-            }
-
-            if (Match(TokenTag.LBrace))
-            {
-                return Map();
-            }
-
             if (Match(out token, TokenTag.ReadLn,
                 TokenTag.WriteLn))
             {
@@ -481,40 +460,6 @@ namespace Crisp.Parsing
             }
 
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
-        }
-
-        IExpression List()
-        {
-            var initializers = new List<IExpression>();
-            if (!Match(TokenTag.RBracket))
-            {
-                do
-                {
-                    var initializer = Expression();
-                    initializers.Add(initializer);
-                }
-                while (Match(TokenTag.Comma));
-                Expect(TokenTag.RBracket);
-            }
-            return new List(initializers);
-        }
-
-        IExpression Map()
-        {
-            var initializers = new List<(IExpression, IExpression)>();
-            if (!Match(TokenTag.RBrace))
-            {
-                do
-                {
-                    var index = Expression();
-                    Expect(TokenTag.Colon);
-                    var value = Expression();
-                    var initializer = (index, value);
-                    initializers.Add(initializer);
-                }
-                while (!Match(TokenTag.RBrace));
-            }
-            return new Map(initializers);
         }
 
         IExpression Command(Token token)

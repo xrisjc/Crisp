@@ -110,21 +110,6 @@ namespace Crisp.Runtime
 
             switch (target)
             {
-                case Runtime.List l when index is int i:
-                    if (i < 0 || i >= l.Count)
-                    {
-                        throw new RuntimeErrorException("Index out of bounds of list.");
-                    }
-                    l[i] = value;
-                    break;
-
-                case Runtime.List l:
-                    throw new RuntimeErrorException("Lists must be indexed by integers.");
-
-                case Runtime.Map map:
-                    map.SetValue(index, value);
-                    break;
-
                 default:
                     throw new RuntimeErrorException("Set index on non-indexable object indexed.");
             }
@@ -298,44 +283,6 @@ namespace Crisp.Runtime
             stack.Push(Null.Instance);
         }
 
-        public void Visit(ForIn forIn)
-        {
-            var outerEnvironment = environment;
-
-            void LoopBody(object value)
-            {
-                environment = new Environment(outerEnvironment);
-                environment.Create(forIn.VariableName, value);
-                Evaluate(forIn.Body);
-                stack.Pop();
-            }
-
-            Evaluate(forIn.Sequence);
-            switch (stack.Pop())
-            {
-                case Runtime.List list:
-                    foreach (var item in list)
-                    {
-                        LoopBody(item);
-                    }
-                    break;
-
-                case Runtime.Map map:
-                    foreach (var key in map.Keys)
-                    {
-                        LoopBody(key);
-                    }
-                    break;
-
-                default:
-                    throw new RuntimeErrorException(
-                        $"For in loops must have an enumerable object.");
-            }
-
-            stack.Push(Null.Instance);
-            environment = outerEnvironment;
-        }
-
         public void Visit(Identifier identifier)
         {
             if (environment.Get(identifier.Name, out var value))
@@ -376,28 +323,6 @@ namespace Crisp.Runtime
                 case string s:
                     throw new RuntimeErrorException("Strings must be indexed by integers.");
 
-                case Runtime.List l when index is int i:
-                    if (i < 0 || i >= l.Count)
-                    {
-                        throw new RuntimeErrorException("Index out of bounds of list.");
-                    }
-                    stack.Push(l[i]);
-                    break;
-
-                case Runtime.List l:
-                    throw new RuntimeErrorException("Lists must be indexed by integers.");
-
-                case Runtime.Map map:
-                    if (map.TryGetValue(index, out var value))
-                    {
-                        stack.Push(value);
-                    }
-                    else
-                    {
-                        throw new RuntimeErrorException("Key not found in map.");
-                    }
-                    break;
-
                 default:
                     throw new RuntimeErrorException("Get index on non-indexable object indexed.");
             }
@@ -411,17 +336,6 @@ namespace Crisp.Runtime
             stack.Push(value);
         }
 
-        public void Visit(Ast.List list)
-        {
-            var items = new List<object>();
-            foreach (var expr in list.Initializers)
-            {
-                Evaluate(expr);
-                items.Add(stack.Pop());
-            }
-            stack.Push(new Runtime.List(items));
-        }
-
         public void Visit<T>(Literal<T> literal)
         {
             stack.Push(literal.Value);
@@ -430,21 +344,6 @@ namespace Crisp.Runtime
         public void Visit(LiteralNull literalNull)
         {
             stack.Push(Null.Instance);
-        }
-
-        public void Visit(Ast.Map map)
-        {
-            var dict = new Dictionary<object, object>();
-            foreach (var (keyExpr, valueExpr) in map.Initializers)
-            {
-                Evaluate(keyExpr);
-                var key = stack.Pop();
-                Evaluate(valueExpr);
-                var value = stack.Pop();
-
-                dict[key] = value;
-            }
-            stack.Push(new Runtime.Map(dict));
         }
 
         public void Visit(MessageSend messageSend)

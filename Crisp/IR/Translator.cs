@@ -73,11 +73,6 @@ namespace Crisp.IR
             throw new NotImplementedException();
         }
 
-        public void Visit(ForIn forIn)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Visit(Ast.Function function)
         {
             throw new NotImplementedException();
@@ -99,11 +94,6 @@ namespace Crisp.IR
             Emit(new SetEnv(let.Identifier.Name));
         }
 
-        public void Visit(Ast.List list)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Visit<T>(Literal<T> literal)
         {
             Emit(new Push(literal.Value));
@@ -112,11 +102,6 @@ namespace Crisp.IR
         public void Visit(LiteralNull literalNull)
         {
             Emit<PushNull>();
-        }
-
-        public void Visit(Ast.Map map)
-        {
-            throw new NotImplementedException();
         }
 
         public void Visit(MessageSend messageSend)

@@ -11,15 +11,12 @@
         void Visit(Call call);
         void Visit(Command command);
         void Visit(For @for);
-        void Visit(ForIn forIn);
         void Visit(Function function);
         void Visit(Identifier identifier);
         void Visit(Indexing indexing);
         void Visit(Let let);
-        void Visit(List list);
         void Visit<T>(Literal<T> literal);
         void Visit(LiteralNull literalNull);
-        void Visit(Map map);
         void Visit(MessageSend messageSend);
         void Visit(OperatorBinary operatorBinary);
         void Visit(OperatorUnary operatorUnary);
