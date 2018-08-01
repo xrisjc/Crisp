@@ -1,4 +1,4 @@
-﻿let Test := record
+﻿type Test record
     nTests
     nErrors
     showPassedTest

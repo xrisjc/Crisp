@@ -48,6 +48,7 @@
         Then,
         To,
         True,
+        Type,
         While,
         WriteLn,
     }

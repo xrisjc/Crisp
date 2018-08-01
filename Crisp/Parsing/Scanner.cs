@@ -35,6 +35,7 @@ namespace Crisp.Parsing
                 ["then"]    = TokenTag.Then,
                 ["true"]    = TokenTag.True,
                 ["to"]      = TokenTag.To,
+                ["type"]    = TokenTag.Type,
                 ["while"]   = TokenTag.While,
                 ["writeLn"] = TokenTag.WriteLn,
             };

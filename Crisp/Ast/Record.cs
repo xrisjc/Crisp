@@ -4,12 +4,15 @@ namespace Crisp.Ast
 {
     class Record : IExpression
     {
+        public string Name { get; }
+
         public List<string> Variables { get; }
 
         public Dictionary<string, Function> Functions { get; }
 
-        public Record(List<string> variables, Dictionary<string, Function> functions)
+        public Record(string name, List<string> variables, Dictionary<string, Function> functions)
         {
+            Name = name;
             Variables = variables;
             Functions = functions;
         }

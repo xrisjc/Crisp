@@ -79,6 +79,11 @@ namespace Crisp.Parsing
                 return Block();
             }
 
+            if (Match(TokenTag.Type))
+            {
+                return Type();
+            }
+
             return Assignment();
         }
 
@@ -155,6 +160,34 @@ namespace Crisp.Parsing
                 body.Add(expr);
             }
             return new Block(body);
+        }
+
+        IExpression Type()
+        {
+            var typeName = Expect(TokenTag.Identifier).Lexeme;
+
+            // Right now there are only record user defined types.
+            Expect(TokenTag.Record);
+
+            var variables = new List<string>();
+            while (Match(out var idToken, TokenTag.Identifier))
+            {
+                variables.Add(idToken.Lexeme);
+            }
+
+            var functions = new Dictionary<string, Ast.Function>();
+            while (Match(TokenTag.Fn))
+            {
+                var fnName = Expect(TokenTag.Identifier).Lexeme;
+                var parameters = Parameters();
+                parameters.Add("this");
+                var body = Expression();
+                var function = new Function(parameters, body);
+                functions.Add(fnName, function);
+            }
+
+            Expect(TokenTag.End);
+            return new Ast.Record(typeName, variables, functions);
         }
 
         List<string> Parameters()
@@ -443,11 +476,6 @@ namespace Crisp.Parsing
                 return Command(token);
             }
 
-            if (Match(TokenTag.Record))
-            {
-                return Record();
-            }
-
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
         }
 
@@ -457,29 +485,6 @@ namespace Crisp.Parsing
             Expect(TokenTag.LParen);
             var arguments = Arguments();
             return new Command(commandType, arguments);
-        }
-
-        IExpression Record()
-        {
-            var variables = new List<string>();
-            while (Match(out var idToken, TokenTag.Identifier))
-            {
-                variables.Add(idToken.Lexeme);
-            }
-
-            var functions = new Dictionary<string, Ast.Function>();
-            while (Match(TokenTag.Fn))
-            {
-                var name = Expect(TokenTag.Identifier);
-                var parameters = Parameters();
-                parameters.Add("this");
-                var body = Expression();
-                var function = new Function(parameters, body);
-                functions.Add(name.Lexeme, function);
-            }
-
-            Expect(TokenTag.End);
-            return new Ast.Record(variables, functions);
         }
     }
 }

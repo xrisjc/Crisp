@@ -505,6 +505,9 @@ namespace Crisp.Runtime
                 record.Variables,
                 record.Functions.MapDictionary(
                     (name, fn) => new Runtime.Function(fn.Parameters, fn.Body, environment)));
+
+            environment.Create(record.Name, instance);
+
             stack.Push(instance);
         }
 

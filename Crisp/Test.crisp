@@ -477,14 +477,14 @@ t.assertEq(counter(), 3, 'or short circuits #4')
 ///////////////////////////////////////////////////////////////////////////////
 
 begin
-  // Records (aka structs) are objects, and assigned to variables.
-  let Point := record
-                 x
-                 y
-                 z
-               end
+  // Records (aka structs) are object introduced with the type keyword.
+  type Point record
+               x
+               y
+               z
+              end
                
-   // Record constructors look like maps a bit, but with an expression before
+   // Record constructors look like "maps", but with the type name before
    // it that returns a record object.
    let p := Point { x: 20  y: 200 }
    
@@ -500,19 +500,13 @@ begin
    t.assertEq(p.z, 2000, 'Member set')
    
    // You can also make empty records.
-   let Empty := record end
+   type Empty record end
    let e := Empty { }
    t.assert(e <> null, 'Empty record')
 
-   // You can also use records anonymously.
-   t.assertEq(
-        (record x end { x: 'hello' }).x,
-        'hello',
-        'Anonymous records')
-
     // Records can also have methods. Use the "this" keyword to access members
     // or functions of the current record.
-    let Vector := record
+    type Vector record
         x
         y
         fn add(v) Vector { x: this.x + v.x  y: this.y + v.y }
