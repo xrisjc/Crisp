@@ -124,26 +124,6 @@ namespace Crisp.Runtime
             stack.Push(value);
         }
 
-        public void Visit(AssignmentIndexing assignmentIndexing)
-        {
-            Evaluate(assignmentIndexing.Target.Indexable);
-            var target = stack.Pop();
-
-            Evaluate(assignmentIndexing.Target.Index);
-            var index = stack.Pop();
-
-            Evaluate(assignmentIndexing.Value);
-            var value = stack.Pop();
-
-            switch (target)
-            {
-                default:
-                    throw new RuntimeErrorException("Set index on non-indexable object indexed.");
-            }
-
-            stack.Push(value);
-        }
-
         public void Visit(AttributeAccess attributeAccess)
         {
             Evaluate(attributeAccess.Entity);
@@ -310,31 +290,6 @@ namespace Crisp.Runtime
             environment.Create(function.Name, fn);
 
             stack.Push(fn);
-        }
-
-        public void Visit(Indexing indexing)
-        {
-            Evaluate(indexing.Indexable);
-            var target = stack.Pop();
-            Evaluate(indexing.Index);
-            var index = stack.Pop();
-
-            switch (target)
-            {
-                case string s when index is int i:
-                    if (i < 0 || i >= s.Length)
-                    {
-                        throw new RuntimeErrorException("Index out of bounds of string.");
-                    }
-                    stack.Push(s[i].ToString());
-                    break;
-
-                case string s:
-                    throw new RuntimeErrorException("Strings must be indexed by integers.");
-
-                default:
-                    throw new RuntimeErrorException("Get index on non-indexable object indexed.");
-            }
         }
 
         public void Visit(Let let)

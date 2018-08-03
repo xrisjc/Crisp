@@ -217,11 +217,6 @@ namespace Crisp.Parsing
                     return new AssignmentIdentifier(identifier, right);
                 }
 
-                if (left is Indexing index)
-                {
-                    return new AssignmentIndexing(index, right);
-                }
-
                 if (left is AttributeAccess aa)
                 {
                     return new AttributeAssignment(aa.Entity, aa.Name, right);
@@ -327,7 +322,7 @@ namespace Crisp.Parsing
         {
             var expr = Primary();
 
-            while (Match(out var token, TokenTag.LParen, TokenTag.Period, TokenTag.LBrace, TokenTag.LBracket))
+            while (Match(out var token, TokenTag.LParen, TokenTag.Period, TokenTag.LBrace))
             {
                 if (token.Tag == TokenTag.LParen)
                 {
@@ -340,10 +335,6 @@ namespace Crisp.Parsing
                 else if (token.Tag == TokenTag.LBrace)
                 {
                     expr = Constructor(token.Position, expr);
-                }
-                else if (token.Tag == TokenTag.LBracket)
-                {
-                    expr = Indexing(expr);
                 }
             }
 
@@ -404,13 +395,6 @@ namespace Crisp.Parsing
             }
 
             return new RecordConstructor(position, left, initalizers);
-        }
-
-        IExpression Indexing(IExpression left)
-        {
-            var index = Expression();
-            Expect(TokenTag.RBracket);
-            return new Indexing(left, index);
         }
 
         IExpression Primary()

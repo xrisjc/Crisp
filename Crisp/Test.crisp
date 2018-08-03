@@ -98,9 +98,6 @@ function testOperators(t)
     // + also concats strings
     t.assertEq('first ' + 'second', 'first second', 'string concat')
 
-    // string also can be indexed (zero-based).
-    t.assertEq('first'[1], 'i', 'string indexing')
-
     // All relation operators evaluate to a boolean value.
     // The equal operator is a single =.
     t.assertEq(1 = 1,          true, 'int equality true')
