@@ -6,16 +6,16 @@ namespace Crisp.Ast
     {
         public Position Position { get; }
 
-        public OperatorInfix Op { get; }
+        public OperatorBinaryTag Tag { get; }
 
         public IExpression Left { get; }
 
         public IExpression Right { get; }
 
-        public OperatorBinary(Position position, OperatorInfix op, IExpression left, IExpression right)
+        public OperatorBinary(Position position, OperatorBinaryTag tag, IExpression left, IExpression right)
         {
             Position = position;
-            Op = op;
+            Tag = tag;
             Left = left;
             Right = right;
         }

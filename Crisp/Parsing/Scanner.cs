@@ -25,7 +25,6 @@ namespace Crisp.Parsing
                 ["for"]      = TokenTag.For,
                 ["if"]       = TokenTag.If,
                 ["in"]       = TokenTag.In,
-                ["let"]      = TokenTag.Let,
                 ["not"]      = TokenTag.Not,
                 ["null"]     = TokenTag.Null,
                 ["mod"]      = TokenTag.Mod,
@@ -36,6 +35,7 @@ namespace Crisp.Parsing
                 ["true"]     = TokenTag.True,
                 ["to"]       = TokenTag.To,
                 ["type"]     = TokenTag.Type,
+                ["var"]     = TokenTag.Var,
                 ["while"]    = TokenTag.While,
                 ["writeLn"]  = TokenTag.WriteLn,
             };

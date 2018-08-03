@@ -5,29 +5,29 @@ namespace Crisp.Parsing
 {
     class Parser : ParserState
     {
-        static Dictionary<TokenTag, OperatorInfix> tokenOp =
-            new Dictionary<TokenTag, OperatorInfix>
+        static Dictionary<TokenTag, OperatorBinaryTag> tokenOp =
+            new Dictionary<TokenTag, OperatorBinaryTag>
             {
-                [TokenTag.Add] = OperatorInfix.Add,
-                [TokenTag.And] = OperatorInfix.And,
-                [TokenTag.Equals] = OperatorInfix.Eq,
-                [TokenTag.Divide] = OperatorInfix.Div,
-                [TokenTag.GreaterThan] = OperatorInfix.Gt,
-                [TokenTag.GreaterThanOrEqualTo] = OperatorInfix.GtEq,
-                [TokenTag.InequalTo] = OperatorInfix.Neq,
-                [TokenTag.LessThan] = OperatorInfix.Lt,
-                [TokenTag.LessThanOrEqualTo] = OperatorInfix.LtEq,
-                [TokenTag.Mod] = OperatorInfix.Mod,
-                [TokenTag.Multiply] = OperatorInfix.Mul,
-                [TokenTag.Or] = OperatorInfix.Or,
-                [TokenTag.Subtract] = OperatorInfix.Sub,
+                [TokenTag.Add] = OperatorBinaryTag.Add,
+                [TokenTag.And] = OperatorBinaryTag.And,
+                [TokenTag.Equals] = OperatorBinaryTag.Eq,
+                [TokenTag.Divide] = OperatorBinaryTag.Div,
+                [TokenTag.GreaterThan] = OperatorBinaryTag.Gt,
+                [TokenTag.GreaterThanOrEqualTo] = OperatorBinaryTag.GtEq,
+                [TokenTag.InequalTo] = OperatorBinaryTag.Neq,
+                [TokenTag.LessThan] = OperatorBinaryTag.Lt,
+                [TokenTag.LessThanOrEqualTo] = OperatorBinaryTag.LtEq,
+                [TokenTag.Mod] = OperatorBinaryTag.Mod,
+                [TokenTag.Multiply] = OperatorBinaryTag.Mul,
+                [TokenTag.Or] = OperatorBinaryTag.Or,
+                [TokenTag.Subtract] = OperatorBinaryTag.Sub,
             };
 
-        static Dictionary<TokenTag, CommandType> tokenCommand =
-            new Dictionary<TokenTag, CommandType>
+        static Dictionary<TokenTag, CommandTag> tokenCommand =
+            new Dictionary<TokenTag, CommandTag>
             {
-                [TokenTag.ReadLn] = CommandType.ReadLn,
-                [TokenTag.WriteLn] = CommandType.WriteLn,
+                [TokenTag.ReadLn] = CommandTag.ReadLn,
+                [TokenTag.WriteLn] = CommandTag.WriteLn,
             };
 
 
@@ -49,9 +49,9 @@ namespace Crisp.Parsing
 
         IExpression Expression()
         {
-            if (Match(TokenTag.Let))
+            if (Match(TokenTag.Var))
             {
-                return Let();
+                return Var();
             }
 
             if (Match(TokenTag.Function))
@@ -87,13 +87,12 @@ namespace Crisp.Parsing
             return Assignment();
         }
 
-        IExpression Let()
+        IExpression Var()
         {
-            var nameToken = Expect(TokenTag.Identifier);
-            var identifier = new Identifier(nameToken.Position, nameToken.Lexeme);
+            var name = Expect(TokenTag.Identifier).Lexeme;
             Expect(TokenTag.Assignment);
-            var value = Expression();
-            return new Let(identifier, value);
+            var initialValue = Expression();
+            return new Var(name, initialValue);
         }
 
         Function Function()
@@ -306,13 +305,13 @@ namespace Crisp.Parsing
             if (Match(out var token, TokenTag.Subtract))
             {
                 var expression = Expression();
-                return new OperatorUnary(token.Position, OperatorPrefix.Neg, expression);
+                return new OperatorUnary(token.Position, OperatorUnaryTag.Neg, expression);
             }
 
             if (Match(out token, TokenTag.Not))
             {
                 var expression = Expression();
-                return new OperatorUnary(token.Position, OperatorPrefix.Not, expression);
+                return new OperatorUnary(token.Position, OperatorUnaryTag.Not, expression);
             }
 
             return Invoke();

@@ -1,6 +1,6 @@
 ﻿namespace Crisp.Ast
 {
-    enum OperatorInfix
+    enum OperatorBinaryTag
     {
         Add,
         Sub,

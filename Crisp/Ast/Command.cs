@@ -4,13 +4,13 @@ namespace Crisp.Ast
 {
     class Command : IExpression
     {
-        public CommandType Type { get; }
+        public CommandTag Tag { get; }
 
         public IEnumerable<IExpression> ArgumentExpressions { get; }
 
-        public Command(CommandType type, IEnumerable<IExpression> argumentExpressions)
+        public Command(CommandTag tag, IEnumerable<IExpression> argumentExpressions)
         {
-            Type = type;
+            Tag = tag;
             ArgumentExpressions = argumentExpressions;
         }
 

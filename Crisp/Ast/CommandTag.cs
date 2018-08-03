@@ -1,6 +1,6 @@
 ﻿namespace Crisp.Ast
 {
-    enum CommandType
+    enum CommandTag
     {
         ReadLn,
         WriteLn,

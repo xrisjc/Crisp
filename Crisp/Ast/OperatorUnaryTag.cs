@@ -1,6 +1,6 @@
 ﻿namespace Crisp.Ast
 {
-    enum OperatorPrefix
+    enum OperatorUnaryTag
     {
         Neg,
         Not,

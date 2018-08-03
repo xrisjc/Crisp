@@ -28,7 +28,6 @@
         LBrace,
         LessThan,
         LessThanOrEqualTo,
-        Let,
         LParen,
         Period,
         Mod,
@@ -47,6 +46,7 @@
         To,
         True,
         Type,
+        Var,
         While,
         WriteLn,
     }

@@ -6,11 +6,11 @@ namespace Crisp.Ast
     {
         public Position Position { get; }
 
-        public OperatorPrefix Op { get; }
+        public OperatorUnaryTag Op { get; }
 
         public IExpression Expression { get; }
 
-        public OperatorUnary(Position position, OperatorPrefix op, IExpression expression)
+        public OperatorUnary(Position position, OperatorUnaryTag op, IExpression expression)
         {
             Position = position;
             Op = op;

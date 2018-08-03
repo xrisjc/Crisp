@@ -211,9 +211,9 @@ namespace Crisp.Runtime
                 args.Add(stack.Pop());
             }
 
-            switch (command.Type)
+            switch (command.Tag)
             {
-                case CommandType.ReadLn:
+                case CommandTag.ReadLn:
                     {
                         if (args.Count > 0)
                         {
@@ -225,7 +225,7 @@ namespace Crisp.Runtime
                     }
                     break;
 
-                case CommandType.WriteLn:
+                case CommandTag.WriteLn:
                     {
                         var line = string.Join("", args);
                         Console.WriteLine(line);
@@ -234,7 +234,7 @@ namespace Crisp.Runtime
                     break;
 
                 default:
-                    throw new RuntimeErrorException($"unknown command {command.Type}");
+                    throw new RuntimeErrorException($"unknown command {command.Tag}");
             }
         }
 
@@ -292,14 +292,6 @@ namespace Crisp.Runtime
             stack.Push(fn);
         }
 
-        public void Visit(Let let)
-        {
-            Evaluate(let.Value);
-            var value = stack.Peek();
-            Bind(let.Identifier.Name);
-            stack.Push(value);
-        }
-
         public void Visit<T>(Literal<T> literal)
         {
             stack.Push(literal.Value);
@@ -340,7 +332,7 @@ namespace Crisp.Runtime
 
         public void Visit(OperatorBinary operatorBinary)
         {
-            if (operatorBinary.Op == OperatorInfix.And)
+            if (operatorBinary.Tag == OperatorBinaryTag.And)
             {
                 Evaluate(operatorBinary.Left);
                 if (IsTrue())
@@ -355,7 +347,7 @@ namespace Crisp.Runtime
                 return;
             }
 
-            if (operatorBinary.Op == OperatorInfix.Or)
+            if (operatorBinary.Tag == OperatorBinaryTag.Or)
             {
                 Evaluate(operatorBinary.Left);
                 if (IsTrue())
@@ -375,67 +367,67 @@ namespace Crisp.Runtime
             Evaluate(operatorBinary.Right);
             dynamic right = stack.Pop();
 
-            switch (operatorBinary.Op)
+            switch (operatorBinary.Tag)
             {
-                case OperatorInfix.Add when left is string && right is string:
+                case OperatorBinaryTag.Add when left is string && right is string:
                     stack.Push(string.Concat(left, right));
                     break;
 
-                case OperatorInfix.Add when CheckNumeric(left, right):
+                case OperatorBinaryTag.Add when CheckNumeric(left, right):
                     stack.Push(left + right);
                     break;
 
-                case OperatorInfix.Sub when CheckNumeric(left, right):
+                case OperatorBinaryTag.Sub when CheckNumeric(left, right):
                     stack.Push(left - right);
                     break;
 
-                case OperatorInfix.Mul when CheckNumeric(left, right):
+                case OperatorBinaryTag.Mul when CheckNumeric(left, right):
                     stack.Push(left * right);
                     break;
 
-                case OperatorInfix.Div when CheckNumeric(left, right):
+                case OperatorBinaryTag.Div when CheckNumeric(left, right):
                     stack.Push(left / right);
                     break;
 
-                case OperatorInfix.Mod when CheckNumeric(left, right):
+                case OperatorBinaryTag.Mod when CheckNumeric(left, right):
                     stack.Push(left % right);
                     break;
 
-                case OperatorInfix.Lt when CheckNumeric(left, right):
+                case OperatorBinaryTag.Lt when CheckNumeric(left, right):
                     stack.Push(left < right);
                     break;
 
-                case OperatorInfix.LtEq when CheckNumeric(left, right):
+                case OperatorBinaryTag.LtEq when CheckNumeric(left, right):
                     stack.Push(left <= right);
                     break;
 
-                case OperatorInfix.Gt when CheckNumeric(left, right):
+                case OperatorBinaryTag.Gt when CheckNumeric(left, right):
                     stack.Push(left > right);
                     break;
 
-                case OperatorInfix.GtEq when CheckNumeric(left, right):
+                case OperatorBinaryTag.GtEq when CheckNumeric(left, right):
                     stack.Push(left >= right);
                     break;
 
-                case OperatorInfix.Eq when CheckNumeric(left, right):
+                case OperatorBinaryTag.Eq when CheckNumeric(left, right):
                     // If left is int and right is double then left.Equals(right) may not
                     // be the same as right.Equals(left).  I suppose it's something to do with
                     // calinging Int32's Equals.  == seems to work for numbers, though.
                     stack.Push(left == right);
                     break;
 
-                case OperatorInfix.Eq:
+                case OperatorBinaryTag.Eq:
                     stack.Push(left.Equals(right));
                     break;
 
-                case OperatorInfix.Neq:
+                case OperatorBinaryTag.Neq:
                     stack.Push(!left.Equals(right));
                     break;
 
                 default:
                     throw new RuntimeErrorException(
                         operatorBinary.Position,
-                        $"Operator {operatorBinary.Op} cannot be applied to values " +
+                        $"Operator {operatorBinary.Tag} cannot be applied to values " +
                         $"<{left}> and <{right}>");
             }
         }
@@ -447,11 +439,11 @@ namespace Crisp.Runtime
 
             switch (operatorUnary.Op)
             {
-                case OperatorPrefix.Neg when CheckNumeric(obj):
+                case OperatorUnaryTag.Neg when CheckNumeric(obj):
                     stack.Push(-obj);
                     break;
 
-                case OperatorPrefix.Not:
+                case OperatorUnaryTag.Not:
                     stack.Push(!IsTrue(obj));
                     break;
 
@@ -494,6 +486,14 @@ namespace Crisp.Runtime
             }
 
             stack.Push(rec.Construct(init));
+        }
+
+        public void Visit(Var var)
+        {
+            Evaluate(var.InitialValue);
+            var value = stack.Peek();
+            Bind(var.Name);
+            stack.Push(value);
         }
 
         public void Visit(While @while)

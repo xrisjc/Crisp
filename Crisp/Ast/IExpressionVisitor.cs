@@ -12,7 +12,6 @@
         void Visit(For @for);
         void Visit(Function function);
         void Visit(Identifier identifier);
-        void Visit(Let let);
         void Visit<T>(Literal<T> literal);
         void Visit(LiteralNull literalNull);
         void Visit(MessageSend messageSend);
@@ -20,6 +19,7 @@
         void Visit(OperatorUnary operatorUnary);
         void Visit(Record record);
         void Visit(RecordConstructor recordConstructor);
+        void Visit(Var var);
         void Visit(While @while);
     }
 }
