@@ -25,5 +25,17 @@ namespace Crisp.Parsing
                 return true;
             }
         }
+
+        public SymbolTag? Lookup(string symbol)
+        {
+            for (var st = this; st != null; st = st.Outer)
+            {
+                if (st.table.TryGetValue(symbol, out var tag))
+                {
+                    return tag;
+                }
+            }
+            return null;
+        }
     }
 }

@@ -518,15 +518,16 @@ function testRecords(t)
     // This is null outside of a record's function.
     t.assertEq(this, null, 'This outside record function')
 
-    // You can have multiple var declarations in a record
+    // You can have multiple var declarations in a record. You also can leave
+    // this off of record variables.
     type Vector3 record
         var x, y
         function project()
-            Vector { x: this.x  y: this.y }
+            Vector { x: x  y: y }
         end
         var z
         function add(v)
-            Vector3 { x: this.x+v.x  y: this.y+v.y  z:this.z+v.z }
+            Vector3 { x:x+v.x  y:y+v.y  z:z+v.z }
         end
     end
 

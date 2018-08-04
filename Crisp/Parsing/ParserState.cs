@@ -93,5 +93,10 @@
         {
             CreateSymbol(token.Lexeme, token.Position, tag);
         }
+
+        public SymbolTag? SymbolLookup(string symbol)
+        {
+            return symbolTable.Lookup(symbol);
+        }
     }
 }

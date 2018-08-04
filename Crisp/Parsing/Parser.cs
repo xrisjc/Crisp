@@ -473,7 +473,15 @@ namespace Crisp.Parsing
 
             if (Match(out token, TokenTag.Identifier))
             {
-                return new Identifier(token.Position, token.Lexeme);
+                var name = token.Lexeme;
+
+                switch (SymbolLookup(name))
+                {
+                    case SymbolTag.Attribute:
+                        return new AttributeAccess(This.Instance, name);
+                    default:
+                        return new Identifier(token.Position, name);
+                }
             }
 
             if (Match(TokenTag.Null))

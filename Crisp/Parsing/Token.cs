@@ -14,5 +14,10 @@
             Tag = tag;
             Position = position;
         }
+
+        public override string ToString()
+        {
+            return $"({Tag}, <{Lexeme}>, {Position})";
+        }
     }
 }
