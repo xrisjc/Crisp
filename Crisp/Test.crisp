@@ -497,6 +497,23 @@ function testRecords(t)
     var vPlusW := v.add(w)
     t.assertEq(v.x + w.x, vPlusW.x, 'Record method test #1')
     t.assertEq(v.y + w.y, vPlusW.y, 'Record method test #1')
+
+    // The attributes of a record can also be other records.
+    type A record
+        x
+        that
+        function getIt()
+            this.x + this.that.getIt()
+        end
+    end
+    type B record
+        x
+        function getIt()
+            this.x
+        end
+    end
+    var a := A { x:10 that:B{x:100} }
+    t.assertEq(a.getIt(), 110, 'Record composition')
 end
 
 function doAllTests()

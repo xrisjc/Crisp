@@ -31,31 +31,10 @@ namespace Crisp.Parsing
                 [TokenTag.WriteLn] = CommandTag.WriteLn,
             };
 
-        SymbolTable symbolTable;
 
-        public Parser(Scanner scanner, SymbolTable symbolTable) : base(scanner)
+        public Parser(Scanner scanner, SymbolTable symbolTable) : base(scanner, symbolTable)
         {
-            this.symbolTable = symbolTable;
         }
-
-        void BeginScope()
-        {
-            symbolTable = new SymbolTable(symbolTable);
-        }
-
-        void EndScope()
-        {
-            symbolTable = symbolTable.Outer;
-        }
-
-        void CreateSymbol(Token token, SymbolTag tag)
-        {
-            if (!symbolTable.Create(token.Lexeme, tag))
-            {
-                throw new SyntaxErrorException($"symbol <{token.Lexeme}> has already been declared", token.Position);
-            }
-        }
-
 
         public List<IExpression> Program()
         {
@@ -77,7 +56,7 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.Function))
             {
-                return Function();
+                return Function(SymbolTag.Function);
             }
 
             if (Match(TokenTag.If))
@@ -118,10 +97,10 @@ namespace Crisp.Parsing
             return new Var(name.Lexeme, initialValue);
         }
 
-        Function Function()
+        Function Function(SymbolTag nameSymbolTag)
         {
             var name = Expect(TokenTag.Identifier);
-            CreateSymbol(name, SymbolTag.Function);
+            CreateSymbol(name, nameSymbolTag);
             BeginScope();
             var parameters = Parameters();
             var body = new List<IExpression>();
@@ -212,8 +191,7 @@ namespace Crisp.Parsing
             var functions = new Dictionary<string, Function>();
             while (Match(TokenTag.Function))
             {
-                var function = Function();
-                function.Parameters.Add("this");
+                var function = Function(SymbolTag.MessageFunction);
                 functions.Add(function.Name, function);
             }
 
@@ -486,6 +464,11 @@ namespace Crisp.Parsing
             if (Match(TokenTag.Null))
             {
                 return LiteralNull.Instance;
+            }
+
+            if (Match(TokenTag.This))
+            {
+                return This.Instance;
             }
 
             if (Match(TokenTag.LParen))

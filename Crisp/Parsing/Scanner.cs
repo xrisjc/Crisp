@@ -32,10 +32,11 @@ namespace Crisp.Parsing
                 ["readLn"]   = TokenTag.ReadLn,
                 ["record"]   = TokenTag.Record,
                 ["then"]     = TokenTag.Then,
+                ["this"]     = TokenTag.This,
                 ["true"]     = TokenTag.True,
                 ["to"]       = TokenTag.To,
                 ["type"]     = TokenTag.Type,
-                ["var"]     = TokenTag.Var,
+                ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,
                 ["writeLn"]  = TokenTag.WriteLn,
             };

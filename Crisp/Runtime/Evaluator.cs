@@ -8,6 +8,7 @@ namespace Crisp.Runtime
     {
         Stack<object> stack = new Stack<object>();
         Environment environment;
+        object @this = null;
 
         public Evaluator(Environment environment)
         {
@@ -305,22 +306,20 @@ namespace Crisp.Runtime
         public void Visit(MessageSend messageSend)
         {
             Evaluate(messageSend.EntityExpr);
-            var entity = stack.Pop() as Entity;
-            if (entity == null)
-            {
-                throw new RuntimeErrorException(
-                    messageSend.Position,
-                    "message sent to non entity object");
-            }
+            var entity = stack.Pop() as Entity ?? throw new RuntimeErrorException(messageSend.Position, "message sent to non entity object");
 
             foreach (var expr in messageSend.ArgumentExprs)
             {
                 Evaluate(expr);
             }
-            stack.Push(entity);
-            stack.Push(messageSend.ArgumentExprs.Count + 1);
+            stack.Push(messageSend.ArgumentExprs.Count);
+
+            var outerThis = @this;
+            @this = entity;
 
             var messageHandled = entity.SendMessage(messageSend.Name, this);
+
+            @this = outerThis;
 
             if (!messageHandled)
             {
@@ -486,6 +485,11 @@ namespace Crisp.Runtime
             }
 
             stack.Push(rec.Construct(init));
+        }
+
+        public void Visit(This @this)
+        {
+            stack.Push(this.@this ?? Null.Instance);
         }
 
         public void Visit(Var var)

@@ -43,6 +43,7 @@
         String,
         Subtract,
         Then,
+        This,
         To,
         True,
         Type,

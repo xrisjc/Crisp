@@ -4,6 +4,7 @@
     {
         Attribute,
         Function,
+        MessageFunction,
         Parameter,
         Type,
         Variable,
