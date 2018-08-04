@@ -182,17 +182,31 @@ namespace Crisp.Parsing
             BeginScope();
 
             var variables = new List<string>();
-            while (Match(out var idToken, TokenTag.Identifier))
-            {
-                CreateSymbol(idToken, SymbolTag.Attribute);
-                variables.Add(idToken.Lexeme);
-            }
-
             var functions = new Dictionary<string, Function>();
-            while (Match(TokenTag.Function))
+
+            if (Current.Tag == TokenTag.Identifier)
             {
-                var function = Function(SymbolTag.MessageFunction);
-                functions.Add(function.Name, function);
+                // The short form of a variable field only record.
+                variables.AddRange(IdentifierList(SymbolTag.Attribute));
+            }
+            else
+            {
+                while (true)
+                {
+                    if (Match(TokenTag.Var))
+                    {
+                        variables.AddRange(IdentifierList(SymbolTag.Attribute));
+                    }
+                    else if (Match(TokenTag.Function))
+                    {
+                        var function = Function(SymbolTag.MessageFunction);
+                        functions.Add(function.Name, function);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
 
             Expect(TokenTag.End);
@@ -202,16 +216,6 @@ namespace Crisp.Parsing
 
         List<string> Parameters()
         {
-            IEnumerable<string> IdentifierList()
-            {
-                do
-                {
-                    var name = Expect(TokenTag.Identifier);
-                    CreateSymbol(name, SymbolTag.Parameter);
-                    yield return name.Lexeme;
-                }
-                while (Match(TokenTag.Comma));
-            }
 
             Expect(TokenTag.LParen);
             if (Match(TokenTag.RParen))
@@ -220,10 +224,21 @@ namespace Crisp.Parsing
             }
             else
             {
-                var parameters = IdentifierList().ToList();
+                var parameters = IdentifierList(SymbolTag.Parameter).ToList();
                 Expect(TokenTag.RParen);
                 return parameters;
             }
+        }
+
+        IEnumerable<string> IdentifierList(SymbolTag identifierSymbolTag)
+        {
+            do
+            {
+                var name = Expect(TokenTag.Identifier);
+                CreateSymbol(name, identifierSymbolTag);
+                yield return name.Lexeme;
+            }
+            while (Match(TokenTag.Comma));
         }
 
         IExpression Assignment()

@@ -1,7 +1,5 @@
 ﻿type Test record
-    nTests
-    nErrors
-    showPassedTest
+    var nTests, nErrors, showPassedTest
 
     function pass(message)
         this.nTests := this.nTests + 1

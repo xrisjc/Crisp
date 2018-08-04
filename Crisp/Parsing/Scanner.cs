@@ -180,7 +180,7 @@ namespace Crisp.Parsing
                 case char c when char.IsLetter(c):
                     {
                         Mark();
-                        while (current.HasValue && char.IsLetter(current.Value))
+                        while (current.HasValue && char.IsLetterOrDigit(current.Value))
                         {
                             Next();
                         }
