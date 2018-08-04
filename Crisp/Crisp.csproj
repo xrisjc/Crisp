@@ -73,6 +73,8 @@
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
     <Compile Include="Parsing\ParserState.cs" />
+    <Compile Include="Parsing\SymbolTable.cs" />
+    <Compile Include="Parsing\SymbolTag.cs" />
     <Compile Include="Runtime\Entity.cs" />
     <Compile Include="Runtime\Evaluator.cs" />
     <Compile Include="Runtime\Environment.cs" />

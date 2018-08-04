@@ -1,5 +1,6 @@
 ﻿using Crisp.Ast;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Crisp.Parsing
 {
@@ -30,9 +31,29 @@ namespace Crisp.Parsing
                 [TokenTag.WriteLn] = CommandTag.WriteLn,
             };
 
+        SymbolTable symbolTable;
 
-        public Parser(Scanner scanner) : base(scanner)
+        public Parser(Scanner scanner, SymbolTable symbolTable) : base(scanner)
         {
+            this.symbolTable = symbolTable;
+        }
+
+        void BeginScope()
+        {
+            symbolTable = new SymbolTable(symbolTable);
+        }
+
+        void EndScope()
+        {
+            symbolTable = symbolTable.Outer;
+        }
+
+        void CreateSymbol(Token token, SymbolTag tag)
+        {
+            if (!symbolTable.Create(token.Lexeme, tag))
+            {
+                throw new SyntaxErrorException($"symbol <{token.Lexeme}> has already been declared", token.Position);
+            }
         }
 
 
@@ -89,23 +110,28 @@ namespace Crisp.Parsing
 
         IExpression Var()
         {
-            var name = Expect(TokenTag.Identifier).Lexeme;
+            var name = Expect(TokenTag.Identifier);
+            CreateSymbol(name, SymbolTag.Variable);
+
             Expect(TokenTag.Assignment);
             var initialValue = Expression();
-            return new Var(name, initialValue);
+            return new Var(name.Lexeme, initialValue);
         }
 
         Function Function()
         {
-            var fnName = Expect(TokenTag.Identifier).Lexeme;
-            List<string> parameters = Parameters();
+            var name = Expect(TokenTag.Identifier);
+            CreateSymbol(name, SymbolTag.Function);
+            BeginScope();
+            var parameters = Parameters();
             var body = new List<IExpression>();
             while (!Match(TokenTag.End))
             {
                 var expr = Expression();
                 body.Add(expr);
             }
-            return new Function(fnName, parameters, body);
+            EndScope();
+            return new Function(name.Lexeme, parameters, body);
         }
 
         IExpression If()
@@ -123,57 +149,67 @@ namespace Crisp.Parsing
         {
             var guard = Expression();
             Expect(TokenTag.Do);
+            BeginScope();
             var body = new List<IExpression>();
             while (!Match(TokenTag.End))
             {
                 var expr = Expression();
                 body.Add(expr);
             }
+            EndScope();
             return new While(guard, body);
         }
 
         IExpression For()
         {
-            var varToken = Expect(TokenTag.Identifier);
+            var varName = Expect(TokenTag.Identifier);
             Expect(TokenTag.Assignment);
             var start = Expression();
             Expect(TokenTag.To);
             var end = Expression();
             Expect(TokenTag.Do);
+            BeginScope();
+            CreateSymbol(varName, SymbolTag.Variable);
             var body = new List<IExpression>();
             while (!Match(TokenTag.End))
             {
                 var expr = Expression();
                 body.Add(expr);
             }
-            return new For(varToken.Lexeme, start, end, body);
+            EndScope();
+            return new For(varName.Lexeme, start, end, body);
         }
 
         IExpression Block()
         {
+            BeginScope();
             var body = new List<IExpression>();
             while (!Match(TokenTag.End))
             {
                 var expr = Expression();
                 body.Add(expr);
             }
+            EndScope();
             return new Block(body);
         }
 
         IExpression Type()
         {
-            var typeName = Expect(TokenTag.Identifier).Lexeme;
+            var typeName = Expect(TokenTag.Identifier);
+            CreateSymbol(typeName, SymbolTag.Type);
 
             // Right now there are only record user defined types.
             Expect(TokenTag.Record);
+            BeginScope();
 
             var variables = new List<string>();
             while (Match(out var idToken, TokenTag.Identifier))
             {
+                CreateSymbol(idToken, SymbolTag.Attribute);
                 variables.Add(idToken.Lexeme);
             }
 
-            var functions = new Dictionary<string, Ast.Function>();
+            var functions = new Dictionary<string, Function>();
             while (Match(TokenTag.Function))
             {
                 var function = Function();
@@ -182,25 +218,34 @@ namespace Crisp.Parsing
             }
 
             Expect(TokenTag.End);
-            return new Ast.Record(typeName, variables, functions);
+            EndScope();
+            return new Record(typeName.Lexeme, variables, functions);
         }
 
         List<string> Parameters()
         {
-            var parameters = new List<string>();
-            Expect(TokenTag.LParen);
-            if (!Match(TokenTag.RParen))
+            IEnumerable<string> IdentifierList()
             {
                 do
                 {
-                    var parameterToken = Expect(TokenTag.Identifier);
-                    parameters.Add(parameterToken.Lexeme);
+                    var name = Expect(TokenTag.Identifier);
+                    CreateSymbol(name, SymbolTag.Parameter);
+                    yield return name.Lexeme;
                 }
                 while (Match(TokenTag.Comma));
-                Expect(TokenTag.RParen);
             }
 
-            return parameters;
+            Expect(TokenTag.LParen);
+            if (Match(TokenTag.RParen))
+            {
+                return new List<string>();
+            }
+            else
+            {
+                var parameters = IdentifierList().ToList();
+                Expect(TokenTag.RParen);
+                return parameters;
+            }
         }
 
         IExpression Assignment()

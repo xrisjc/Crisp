@@ -10,9 +10,10 @@ namespace Crisp
         public static void Run(TextReader reader, TextWriter writer)
         {
             var environment = new Runtime.Environment();
+            var symbolTable = new SymbolTable(outer: null);
 
-            Load("Sys.crisp", environment);
-            Load("Test.crisp", environment);
+            Load("Sys.crisp", environment, symbolTable);
+            Load("Test.crisp", environment, symbolTable);
 
             var quit = false;
             while (!quit)
@@ -23,11 +24,11 @@ namespace Crisp
                     var code = reader.ReadLine();
                     if (code.Length > 0 && code[0] == ':')
                     {
-                        quit = ExecuteCommand(code, environment, writer);
+                        quit = ExecuteCommand(code, environment, symbolTable, writer);
                     }
                     else
                     {
-                        EvalAndPrint(code, environment, writer);
+                        EvalAndPrint(code, environment, symbolTable, writer);
                     }
                 }
                 catch (CrispException e)
@@ -37,17 +38,14 @@ namespace Crisp
             }
         }
 
-        private static bool ExecuteCommand(
-            string code,
-            Runtime.Environment environment,
-            TextWriter writer)
+        private static bool ExecuteCommand(string code, Runtime.Environment environment, SymbolTable symbolTable, TextWriter writer)
         {
             var args = code.Split(new[] { ' ' },
                 StringSplitOptions.RemoveEmptyEntries);
             switch (args[0])
             {
                 case ":l" when args.Length >= 2:
-                    Load(filename: args[1], environment: environment);
+                    Load(args[1], environment, symbolTable);
                     break;
                 case ":q":
                     return true;
@@ -60,10 +58,10 @@ namespace Crisp
         }
 
         private static void EvalAndPrint(string code,
-            Runtime.Environment environment, TextWriter writer)
+            Runtime.Environment environment, SymbolTable symbolTable, TextWriter writer)
         {
             var scanner = new Scanner(code);
-            var parser = new Parser(scanner);
+            var parser = new Parser(scanner, symbolTable);
             var expressions = parser.Program();
             var evaluator = new Evaluator(environment);
             foreach (var expression in expressions)
@@ -74,13 +72,13 @@ namespace Crisp
             }
         }
 
-        public static void Load(string filename, Runtime.Environment environment)
+        public static void Load(string filename, Runtime.Environment environment, SymbolTable symbolTable)
         {
             try
             {
                 var sys = File.ReadAllText(filename);
                 var scanner = new Scanner(sys);
-                var parser = new Parser(scanner);
+                var parser = new Parser(scanner, symbolTable);
                 var program = parser.Program();
                 var evaluator = new Evaluator(environment);
                 foreach (var expr in program)

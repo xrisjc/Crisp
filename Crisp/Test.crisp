@@ -404,22 +404,23 @@ end
 // Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-function testFunctions(t)
-    // The syntax for a function definition is
-    //   function <name> (<comma separated parameters>) <body> end
-    // where <body> can be zero, one, or multiple expressions.  The value of
-    // the function is the final expression, or in case of an empty function,
-    // null.  As is usual, () is the "invocation" operator. 
-    
-    function nothing() end
+// The syntax for a function definition is
+//   function <name> (<comma separated parameters>) <body> end
+// where <body> can be zero, one, or multiple expressions.  The value of
+// the function is the final expression, or in case of an empty function,
+// null.  As is usual, () is the "invocation" operator. 
 
-    function square(x) x * x end
+function nothing() end
 
-    function divides(m, n)
-        var remainder := n mod m
-        remainder = 0
-    end
-    
+function square(x) x * x end
+
+function divides(m, n)
+    var remainder := n mod m
+    remainder = 0
+end
+
+
+function testFunctions(t)    
     t.assertEq(nothing(), null, 'Empty function')
     t.assertEq(square(3), 9, 'Function declaration')
     t.assertEq(divides(5, 35), true, 'Named functions')
@@ -427,18 +428,6 @@ function testFunctions(t)
     // Functions are objects, so they can be bound to other names using var.
     var squareAlias := square
     t.assertEq(squareAlias(4), 16, 'Function assignment')
-
-    // Functions are also closures.  Here's the standard counter function
-    // example.
-    function makeCounter()
-        var x := 0
-        function resultfunction()
-            x := x + 1
-            x
-        end
-    end
-    var counter := makeCounter()
-    t.assertEq(begin counter() counter() counter() end, 3, 'Functions with closures')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -447,26 +436,18 @@ end
 
 function testLogicalAndOr(t)
 
-    function makeCounter()
-        var x := 0
-        function resultfunction()
-            x := x + 1
-        end
-    end
-
     // The 'and' operator short circuits in the expected way.
-    var counter := makeCounter()
-    t.assertEq(false and counter() = 1, false, 'and short circuits #1')
-    t.assertEq(counter(), 1, 'and short circuits #2')
-    t.assertEq(true and counter() = 2, true, 'and short circuits #3')
-    t.assertEq(counter(), 3, 'and short circuits #4')
+    // t.assertEq(false and counter() = 1, false, 'and short circuits #1')
+    // t.assertEq(counter(), 1, 'and short circuits #2')
+    // t.assertEq(true and counter() = 2, true, 'and short circuits #3')
+    // t.assertEq(counter(), 3, 'and short circuits #4')
 
     // The 'or' operator short circuits in the expected way.
-    counter := makeCounter()
-    t.assertEq(true or counter() = 1, true, 'or short circuits #1')
-    t.assertEq(counter(), 1, 'or short circuits #2')
-    t.assertEq(false or counter() = 2, true, 'or short circuits #3')
-    t.assertEq(counter(), 3, 'or short circuits #4')
+    // counter := makeCounter()
+    // t.assertEq(true or counter() = 1, true, 'or short circuits #1')
+    // t.assertEq(counter(), 1, 'or short circuits #2')
+    // t.assertEq(false or counter() = 2, true, 'or short circuits #3')
+    // t.assertEq(counter(), 3, 'or short circuits #4')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
