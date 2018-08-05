@@ -437,18 +437,25 @@ end
 
 function testLogicalAndOr(t)
 
+    type Counter record
+      var n
+      function get() n := n + 1 end
+    end
+    
+    var counter := Counter{ n: 0 }
+
     // The 'and' operator short circuits in the expected way.
-    // t.assertEq(false and counter() = 1, false, 'and short circuits #1')
-    // t.assertEq(counter(), 1, 'and short circuits #2')
-    // t.assertEq(true and counter() = 2, true, 'and short circuits #3')
-    // t.assertEq(counter(), 3, 'and short circuits #4')
+    t.assertEq(false and counter.get() = 1, false, 'and short circuits #1')
+    t.assertEq(counter.get(), 1, 'and short circuits #2')
+    t.assertEq(true and counter.get() = 2, true, 'and short circuits #3')
+    t.assertEq(counter.get(), 3, 'and short circuits #4')
 
     // The 'or' operator short circuits in the expected way.
-    // counter := makeCounter()
-    // t.assertEq(true or counter() = 1, true, 'or short circuits #1')
-    // t.assertEq(counter(), 1, 'or short circuits #2')
-    // t.assertEq(false or counter() = 2, true, 'or short circuits #3')
-    // t.assertEq(counter(), 3, 'or short circuits #4')
+    counter := Counter{ n: 0 }
+    t.assertEq(true or counter.get() = 1, true, 'or short circuits #1')
+    t.assertEq(counter.get(), 1, 'or short circuits #2')
+    t.assertEq(false or counter.get() = 2, true, 'or short circuits #3')
+    t.assertEq(counter.get(), 3, 'or short circuits #4')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
