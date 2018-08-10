@@ -9,6 +9,7 @@
         Begin,
         Colon,
         Comma,
+        Const,
         Divide,
         Do,
         Else,

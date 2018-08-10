@@ -81,22 +81,27 @@
             symbolTable = symbolTable.Outer;
         }
 
-        public void CreateSymbol(string symbol, Position position, SymbolTag tag)
+        public void CreateSymbol(string symbol, Position position, SymbolInfo info)
         {
-            if (!symbolTable.Create(symbol, tag))
+            if (!symbolTable.Create(symbol, info))
             {
                 throw new SyntaxErrorException($"symbol <{symbol}> has already been declared", position);
             }
         }
 
-        public void CreateSymbol(Token token, SymbolTag tag)
+        public void CreateSymbol(Token token, SymbolInfo info)
         {
-            CreateSymbol(token.Lexeme, token.Position, tag);
+            CreateSymbol(token.Lexeme, token.Position, info);
         }
 
-        public SymbolTag? SymbolLookup(string symbol)
+        public SymbolInfo SymbolLookup(string symbol)
         {
             return symbolTable.Lookup(symbol);
+        }
+
+        public SymbolInfo SymbolLookup(Token token)
+        {
+            return SymbolLookup(token.Lexeme);
         }
     }
 }

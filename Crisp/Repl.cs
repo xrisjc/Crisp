@@ -12,9 +12,6 @@ namespace Crisp
             var environment = new Runtime.Environment();
             var symbolTable = new SymbolTable(outer: null);
 
-            Load("Sys.crisp", environment, symbolTable);
-            Load("Test.crisp", environment, symbolTable);
-
             var quit = false;
             while (!quit)
             {
@@ -44,9 +41,6 @@ namespace Crisp
                 StringSplitOptions.RemoveEmptyEntries);
             switch (args[0])
             {
-                case ":l" when args.Length >= 2:
-                    Load(args[1], environment, symbolTable);
-                    break;
                 case ":q":
                     return true;
                 default:
@@ -69,27 +63,6 @@ namespace Crisp
                 evaluator.Evaluate(expression);
                 var value = evaluator.Pop();
                 writer.WriteLine(value);
-            }
-        }
-
-        public static void Load(string filename, Runtime.Environment environment, SymbolTable symbolTable)
-        {
-            try
-            {
-                var sys = File.ReadAllText(filename);
-                var scanner = new Scanner(sys);
-                var parser = new Parser(scanner, symbolTable);
-                var program = parser.Program();
-                var evaluator = new Evaluator(environment);
-                foreach (var expr in program)
-                {
-                    evaluator.Evaluate(expr);
-                    evaluator.Pop();
-                }
-            }
-            catch (CrispException e)
-            {
-                Console.WriteLine(e.FormattedMessage());
             }
         }
     }

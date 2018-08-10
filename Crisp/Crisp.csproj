@@ -74,6 +74,7 @@
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
     <Compile Include="Parsing\ParserState.cs" />
+    <Compile Include="Parsing\SymbolInfo.cs" />
     <Compile Include="Parsing\SymbolTable.cs" />
     <Compile Include="Parsing\SymbolTag.cs" />
     <Compile Include="Runtime\Entity.cs" />
@@ -91,19 +92,13 @@
     <Compile Include="Runtime\RuntimeErrorException.cs" />
     <Compile Include="Parsing\SyntaxErrorException.cs" />
     <Compile Include="Parsing\Scanner.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Crisp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Sys.crisp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Test.crisp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

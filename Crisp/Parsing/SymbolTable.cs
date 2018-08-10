@@ -4,35 +4,35 @@ namespace Crisp.Parsing
 {
     class SymbolTable
     {
-        Dictionary<string, SymbolTag> table = new Dictionary<string, SymbolTag>();
+        Dictionary<string, SymbolInfo> table = new Dictionary<string, SymbolInfo>();
 
         public SymbolTable Outer { get; }
 
-        public SymbolTable(SymbolTable outer)
+        public SymbolTable(SymbolTable outer = null)
         {
             Outer = outer;
         }
 
-        public bool Create(string symbol, SymbolTag tag)
+        public bool Create(string symbol, SymbolInfo info)
         {
-            if (table.TryGetValue(symbol, out var existingTag))
+            if (table.TryGetValue(symbol, out var existingInfo))
             {
                 return false;
             }
             else
             {
-                table.Add(symbol, tag);
+                table.Add(symbol, info);
                 return true;
             }
         }
 
-        public SymbolTag? Lookup(string symbol)
+        public SymbolInfo Lookup(string symbol)
         {
             for (var st = this; st != null; st = st.Outer)
             {
-                if (st.table.TryGetValue(symbol, out var tag))
+                if (st.table.TryGetValue(symbol, out var info))
                 {
-                    return tag;
+                    return info;
                 }
             }
             return null;

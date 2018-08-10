@@ -17,6 +17,7 @@ namespace Crisp.Parsing
             {
                 ["and"]      = TokenTag.And,
                 ["begin"]    = TokenTag.Begin,
+                ["const"]    = TokenTag.Const,
                 ["do"]       = TokenTag.Do,
                 ["else"]     = TokenTag.Else,
                 ["end"]      = TokenTag.End,
