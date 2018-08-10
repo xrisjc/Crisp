@@ -3,6 +3,6 @@
     enum CommandTag
     {
         ReadLn,
-        WriteLn,
+        Write,
     }
 }

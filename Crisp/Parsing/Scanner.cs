@@ -39,7 +39,7 @@ namespace Crisp.Parsing
                 ["type"]     = TokenTag.Type,
                 ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,
-                ["writeLn"]  = TokenTag.WriteLn,
+                ["write"]    = TokenTag.Write,
             };
 
         public Scanner(string code)
@@ -139,8 +139,8 @@ namespace Crisp.Parsing
 
                 case '\'':
                     {
-                        Next();
                         Mark();
+                        Next();
                         while (current.HasValue && current != '\'')
                         {
                             Next();
@@ -149,9 +149,8 @@ namespace Crisp.Parsing
                         {
                             throw new SyntaxErrorException("unexpected end of input", position);
                         }
-                        var token = AcceptMark(TokenTag.String);
                         Next();
-                        return token;
+                        return AcceptMark(TokenTag.String);
                     }
 
                 case char c when char.IsDigit(c):

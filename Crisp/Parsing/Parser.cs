@@ -1,6 +1,7 @@
 ﻿using Crisp.Ast;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Crisp.Parsing
 {
@@ -28,7 +29,7 @@ namespace Crisp.Parsing
             new Dictionary<TokenTag, CommandTag>
             {
                 [TokenTag.ReadLn] = CommandTag.ReadLn,
-                [TokenTag.WriteLn] = CommandTag.WriteLn,
+                [TokenTag.Write] = CommandTag.Write,
             };
 
 
@@ -486,7 +487,8 @@ namespace Crisp.Parsing
 
             if (Match(out token, TokenTag.String))
             {
-                return new Literal<string>(token.Lexeme);
+                var str = ParseString(token.Lexeme, token.Position);
+                return new Literal<string>(str);
             }
 
             if (Match(TokenTag.True))
@@ -531,7 +533,7 @@ namespace Crisp.Parsing
                 return expression;
             }
 
-            if (Match(out token, TokenTag.ReadLn, TokenTag.WriteLn))
+            if (Match(out token, TokenTag.ReadLn, TokenTag.Write))
             {
                 return Command(token);
             }
@@ -545,6 +547,52 @@ namespace Crisp.Parsing
             Expect(TokenTag.LParen);
             var arguments = Arguments();
             return new Command(commandType, arguments);
+        }
+
+        static string ParseString(string lexeme, Position position)
+        {
+            // Assume the scanner provides us with a string that starts and
+            // ends with single quote.
+
+            var sb = new StringBuilder();
+            var state = 's';
+
+            for (var i = 1; i < lexeme.Length - 1; i++)
+            {
+                switch (lexeme[i])
+                {
+                    case '\\' when state == 's':
+                        state = 'e';
+                        break;
+
+                    case '\\' when state == 'e':
+                        sb.Append('\\');
+                        state = 's';
+                        break;
+
+                    case 'n' when state == 'e':
+                        sb.Append('\n');
+                        state = 's';
+                        break;
+
+                    case char c when state == 's':
+                        sb.Append(c);
+                        break;
+
+                    case char c when state == 'e':
+                        throw new SyntaxErrorException($"unexpected escape code '\\{c}' in string", position);
+
+                    default:
+                        throw new SyntaxErrorException($"error parsing string", position);
+                }
+            }
+
+            if (state == 'e')
+            {
+                throw new SyntaxErrorException($"string uses '\\' with no escape", position);
+            }
+
+            return sb.ToString();
         }
     }
 }

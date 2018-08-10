@@ -226,12 +226,12 @@ namespace Crisp.Runtime
                     }
                     break;
 
-                case CommandTag.WriteLn:
+                case CommandTag.Write:
+                    foreach (var a in args)
                     {
-                        var line = string.Join("", args);
-                        Console.WriteLine(line);
-                        stack.Push(Null.Instance);
+                        Console.Write(a);
                     }
+                    stack.Push(Null.Instance);
                     break;
 
                 default:

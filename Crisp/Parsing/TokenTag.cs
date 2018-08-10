@@ -50,6 +50,6 @@
         Type,
         Var,
         While,
-        WriteLn,
+        Write,
     }
 }

@@ -554,13 +554,13 @@ type Test record
 
     function pass(message)
         nTests := nTests + 1
-        writeLn('[OK] "', message, '"')
+        write('[OK] "', message, '"\n')
     end
 
     function fail(message)
         nTests := nTests + 1
         nErrors := nErrors + 1
-        writeLn('[FAILED] "', message, '"')
+        write('[FAILED] "', message, '"\n')
     end
 
     function assert(condition, message)
@@ -574,18 +574,17 @@ type Test record
         nTests := nTests + 1
         if test <> expected then
           begin
-            writeLn('[FAILED] "', message, '": expected <', expected, '> got <',
-                test, '>')
+            write('[FAILED] "', message, '": expected <', expected, '> got <',
+                test, '>\n')
             nErrors := nErrors + 1
           end
         else if showPassedTest then
-            writeLn('[OK] "', message, '"')
+            write('[OK] "', message, '"\n')
     end
 
     function displaySummary()
-        writeLn()
-        writeLn(nTests - nErrors, ' out of ', nTests, ' tests passed.')
-        writeLn('There are ', nErrors, ' errors. ', if nErrors=0 then ':-)' else 'D-:')
+        write('\n', nTests - nErrors, ' out of ', nTests, ' tests passed.\n')
+        write('There are ', nErrors, ' errors. ', if nErrors = 0 then ':-)' else 'D-:', '\n')
     end
 end
 

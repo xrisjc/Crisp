@@ -1,0 +1,5 @@
+// http://www.rosettacode.org/wiki/Loops/Infinite
+
+while true do
+  writeLn('SPAM')
+end
