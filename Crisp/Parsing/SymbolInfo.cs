@@ -29,9 +29,9 @@ namespace Crisp.Parsing
             return new SymbolInfo(SymbolTag.Constant, value);
         }
 
-        public static SymbolInfo Function()
+        public static SymbolInfo Function(Function function)
         {
-            return new SymbolInfo(SymbolTag.Function);
+            return new SymbolInfo(SymbolTag.Function, function);
         }
 
         public static SymbolInfo MessageFunction()

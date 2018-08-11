@@ -49,7 +49,7 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.Function))
             {
-                return Function(SymbolInfo.Function());
+                return Function(isMessageFunction: false);
             }
 
             if (Match(TokenTag.If))
@@ -90,10 +90,9 @@ namespace Crisp.Parsing
             return new Var(name.Lexeme, initialValue);
         }
 
-        Function Function(SymbolInfo nameSymbolInfo)
+        Function Function(bool isMessageFunction)
         {
             var name = Expect(TokenTag.Identifier);
-            CreateSymbol(name, nameSymbolInfo);
             BeginScope();
             var parameters = Parameters();
             var body = new List<IExpression>();
@@ -103,7 +102,19 @@ namespace Crisp.Parsing
                 body.Add(expr);
             }
             EndScope();
-            return new Function(name.Lexeme, parameters, body);
+
+            var fn = new Function { Name = name.Lexeme, Parameters = parameters, Body = body };
+
+            if (isMessageFunction)
+            {
+                CreateSymbol(name, SymbolInfo.MessageFunction());
+            }
+            else
+            {
+                CreateSymbol(name, SymbolInfo.Function(fn));
+            }
+
+            return fn;
         }
 
         IExpression If()
@@ -172,7 +183,7 @@ namespace Crisp.Parsing
                     }
                     else if (Match(TokenTag.Function))
                     {
-                        var function = Function(SymbolInfo.MessageFunction());
+                        var function = Function(isMessageFunction: true);
                         functions.Add(function.Name, function);
                     }
                     else
@@ -376,15 +387,24 @@ namespace Crisp.Parsing
 
         IExpression Call(Position position, IExpression left)
         {
-            List<IExpression> arguments = Arguments();
-            if (left is AttributeAccess member)
+            IExpression expr = null;
+
+            switch (left)
             {
-                return new MessageSend(position, member.Entity, member.Name, arguments);
+                case AttributeAccess member:
+                    expr = new MessageSend(position, member.Entity, member.Name, Arguments());
+                    break;
+
+                case Identifier identifier:
+                    var siFn = SymbolLookup(identifier.Name);
+                    if (siFn.Tag == SymbolTag.Function)
+                    {
+                        expr = new Call { Position = position, Function = (Function)siFn.Value, Arguments = Arguments() };
+                    }
+                    break;
             }
-            else
-            {
-                return new Call(position, left, arguments);
-            }
+
+            return expr ?? throw new SyntaxErrorException("Invalid call target", position);
         }
 
         List<IExpression> Arguments()

@@ -1,7 +1,7 @@
 ﻿///////////////////////////////////////////////////////////////////////////////
 // File: Test.crisp
 // Purpose: Integration testing of Crisp functionality that also serves as a
-// guide to Crips (for now).
+// guide to Crisp (for now).
 ///////////////////////////////////////////////////////////////////////////////
 
 //
@@ -10,10 +10,6 @@
 //
 // All other whitespace is ignored, so your free to format code as you see
 // fit.
-//
-// Oh, and one more thing before we begin, everything is an expression.
-// Everything.  But expressions can have side effects, so it's not "pure"
-// expressions.
 //
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -390,10 +386,6 @@ function testFunctions(t)
     t.assertEq(nothing(), null, 'Empty function')
     t.assertEq(square(3), 9, 'Function declaration')
     t.assertEq(divides(5, 35), true, 'Named functions')
-
-    // Functions are objects, so they can be bound to other names using var.
-    var squareAlias := square
-    t.assertEq(squareAlias(4), 16, 'Function assignment')
 end
 
 ///////////////////////////////////////////////////////////////////////////////

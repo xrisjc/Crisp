@@ -78,7 +78,6 @@
     <Compile Include="Runtime\Evaluator.cs" />
     <Compile Include="Runtime\Environment.cs" />
     <Compile Include="Runtime\Null.cs" />
-    <Compile Include="Runtime\Function.cs" />
     <Compile Include="Runtime\Record.cs" />
     <Compile Include="Runtime\RecordInstance.cs" />
     <Compile Include="Parsing\Parser.cs" />

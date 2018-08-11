@@ -34,7 +34,7 @@ namespace Crisp.Runtime
             }
 
             var outerEnvironment = environment;
-            environment = new Environment(function.Environment);
+            environment = new Environment(environment);
             Bind(function.Parameters);
             EvaluateAsBlock(function.Body);
             environment = outerEnvironment;
@@ -185,22 +185,13 @@ namespace Crisp.Runtime
 
         public void Visit(Call call)
         {
-            Evaluate(call.FunctionExpression);
-            var function = stack.Pop() as Runtime.Function;
-            if (function == null)
-            {
-                throw new RuntimeErrorException(
-                    call.Position,
-                    "function call attempted on non function value");
-            }
-
-            foreach (var expr in call.ArgumentExpressions)
+            foreach (var expr in call.Arguments)
             {
                 Evaluate(expr);
             }
             stack.Push(call.Arity);
 
-            Invoke(function);
+            Invoke(call.Function);
         }
 
         public void Visit(Identifier identifier)
@@ -217,13 +208,9 @@ namespace Crisp.Runtime
             }
         }
 
-        public void Visit(Ast.Function function)
+        public void Visit(Function function)
         {
-            var fn = new Function(function.Parameters, function.Body, environment);
-
-            environment.Create(function.Name, fn);
-
-            stack.Push(fn);
+            stack.Push(Null.Instance);
         }
 
         public void Visit(Literal literal)
@@ -384,10 +371,7 @@ namespace Crisp.Runtime
 
         public void Visit(Ast.Record record)
         {
-            var instance = new Runtime.Record(
-                record.Variables,
-                record.Functions.MapDictionary(
-                    (name, fn) => new Runtime.Function(fn.Parameters, fn.Body, environment)));
+            var instance = new Record(record.Variables, record.Functions);
 
             environment.Create(record.Name, instance);
 
