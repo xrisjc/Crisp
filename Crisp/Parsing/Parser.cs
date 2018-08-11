@@ -25,14 +25,6 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = OperatorBinaryTag.Sub,
             };
 
-        static Dictionary<TokenTag, CommandTag> tokenCommand =
-            new Dictionary<TokenTag, CommandTag>
-            {
-                [TokenTag.ReadLn] = CommandTag.ReadLn,
-                [TokenTag.Write] = CommandTag.Write,
-            };
-
-
         public Parser(Scanner scanner, SymbolTable symbolTable) : base(scanner, symbolTable)
         {
         }
@@ -508,20 +500,19 @@ namespace Crisp.Parsing
                 return expression;
             }
 
-            if (Match(out token, TokenTag.ReadLn, TokenTag.Write))
+            if (Match(TokenTag.Write))
             {
-                return Command(token);
+                return Write();
             }
 
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
         }
 
-        IExpression Command(Token token)
+        IExpression Write()
         {
-            var commandType = tokenCommand[token.Tag];
             Expect(TokenTag.LParen);
             var arguments = Arguments();
-            return new Command(commandType, arguments);
+            return new Write { Arguments = arguments };
         }
 
         static string ParseString(string lexeme, Position position)

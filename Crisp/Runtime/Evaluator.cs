@@ -203,42 +203,6 @@ namespace Crisp.Runtime
             Invoke(function);
         }
 
-        public void Visit(Command command)
-        {
-            var args = new List<object>();
-            foreach (var expr in command.ArgumentExpressions)
-            {
-                Evaluate(expr);
-                args.Add(stack.Pop());
-            }
-
-            switch (command.Tag)
-            {
-                case CommandTag.ReadLn:
-                    {
-                        if (args.Count > 0)
-                        {
-                            var prompt = string.Join("", args);
-                            Console.Write(prompt);
-                        }
-                        var line = Console.ReadLine();
-                        stack.Push(line);
-                    }
-                    break;
-
-                case CommandTag.Write:
-                    foreach (var a in args)
-                    {
-                        Console.Write(a);
-                    }
-                    stack.Push(Null.Instance);
-                    break;
-
-                default:
-                    throw new RuntimeErrorException($"unknown command {command.Tag}");
-            }
-        }
-
         public void Visit(Identifier identifier)
         {
             if (environment.Get(identifier.Name, out var value))
@@ -477,6 +441,16 @@ namespace Crisp.Runtime
                 stack.Pop();
             }
 
+            stack.Push(Null.Instance);
+        }
+
+        public void Visit(Write command)
+        {
+            foreach (var expr in command.Arguments)
+            {
+                Evaluate(expr);
+                Console.Write(stack.Pop());
+            }
             stack.Push(Null.Instance);
         }
     }

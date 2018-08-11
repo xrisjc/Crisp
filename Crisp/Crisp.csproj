@@ -52,8 +52,7 @@
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
-    <Compile Include="Ast\Command.cs" />
-    <Compile Include="Ast\CommandTag.cs" />
+    <Compile Include="Ast\Write.cs" />
     <Compile Include="Ast\Function.cs" />
     <Compile Include="Ast\Identifier.cs" />
     <Compile Include="Ast\IExpression.cs" />

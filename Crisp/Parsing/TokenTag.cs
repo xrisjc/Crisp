@@ -37,7 +37,6 @@
         Float,
         Or,
         RBrace,
-        ReadLn,
         Record,
         RParen,
         String,

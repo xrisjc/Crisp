@@ -8,7 +8,6 @@
         void Visit(Block block);
         void Visit(Branch branch);
         void Visit(Call call);
-        void Visit(Command command);
         void Visit(Function function);
         void Visit(Identifier identifier);
         void Visit<T>(Literal<T> literal);
@@ -21,5 +20,6 @@
         void Visit(This @this);
         void Visit(Var var);
         void Visit(While @while);
+        void Visit(Write command);
     }
 }
