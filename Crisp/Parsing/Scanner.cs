@@ -23,7 +23,6 @@ namespace Crisp.Parsing
                 ["end"]      = TokenTag.End,
                 ["false"]    = TokenTag.False,
                 ["function"] = TokenTag.Function,
-                ["for"]      = TokenTag.For,
                 ["if"]       = TokenTag.If,
                 ["in"]       = TokenTag.In,
                 ["not"]      = TokenTag.Not,

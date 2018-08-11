@@ -239,37 +239,6 @@ namespace Crisp.Runtime
             }
         }
 
-        public void Visit(For @for)
-        {
-            Evaluate(@for.Start);
-            dynamic start = stack.Pop();
-            if (!CheckNumeric(start))
-            {
-                throw new RuntimeErrorException(
-                    "for loop start expresion evaluate to a numeric value");
-            }
-
-            Evaluate(@for.End);
-            dynamic end = stack.Pop();
-            if (!CheckNumeric(end))
-            {
-                throw new RuntimeErrorException(
-                    "for loop start expresion evaluate to a numeric value");
-            }
-
-            var outerEnvironment = environment;
-            for (dynamic i = start; i <= end; i = i + 1)
-            {
-                environment = new Environment(outerEnvironment);
-                environment.Create(@for.VariableName, i);
-                EvaluateAsBlock(@for.Body);
-                stack.Pop();
-            }
-
-            environment = outerEnvironment;
-            stack.Push(Null.Instance);
-        }
-
         public void Visit(Identifier identifier)
         {
             if (environment.Get(identifier.Name, out var value))

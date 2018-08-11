@@ -70,11 +70,6 @@ namespace Crisp.Parsing
                 return While();
             }
 
-            if (Match(TokenTag.For))
-            {
-                return For();
-            }
-
             if (Match(TokenTag.Begin))
             {
                 return Block();
@@ -143,26 +138,6 @@ namespace Crisp.Parsing
             }
             EndScope();
             return new While(guard, body);
-        }
-
-        IExpression For()
-        {
-            var varName = Expect(TokenTag.Identifier);
-            Expect(TokenTag.Assignment);
-            var start = Expression();
-            Expect(TokenTag.To);
-            var end = Expression();
-            Expect(TokenTag.Do);
-            BeginScope();
-            CreateSymbol(varName, SymbolInfo.Variable());
-            var body = new List<IExpression>();
-            while (!Match(TokenTag.End))
-            {
-                var expr = Expression();
-                body.Add(expr);
-            }
-            EndScope();
-            return new For(varName.Lexeme, start, end, body);
         }
 
         IExpression Block()

@@ -9,7 +9,6 @@
         void Visit(Branch branch);
         void Visit(Call call);
         void Visit(Command command);
-        void Visit(For @for);
         void Visit(Function function);
         void Visit(Identifier identifier);
         void Visit<T>(Literal<T> literal);

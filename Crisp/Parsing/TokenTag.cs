@@ -17,7 +17,6 @@
         EndOfInput,
         Equals,
         False,
-        For,
         Function,
         GreaterThan,
         GreaterThanOrEqualTo,

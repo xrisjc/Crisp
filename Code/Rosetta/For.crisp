@@ -1,8 +1,0 @@
-// http://www.rosettacode.org/wiki/Loops/For
-
-for nStars := 1 to 5 do
-  for s := 1 to nStars do
-    write('*')
-  end
-  write('\n')
-end
