@@ -10,8 +10,7 @@
         void Visit(Call call);
         void Visit(Function function);
         void Visit(Identifier identifier);
-        void Visit<T>(Literal<T> literal);
-        void Visit(LiteralNull literalNull);
+        void Visit(Literal literal);
         void Visit(MessageSend messageSend);
         void Visit(OperatorBinary operatorBinary);
         void Visit(OperatorUnary operatorUnary);

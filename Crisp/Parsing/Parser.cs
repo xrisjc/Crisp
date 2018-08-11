@@ -113,7 +113,7 @@ namespace Crisp.Parsing
             var consequence = Expression();
             var alternative = Match(TokenTag.Else)
                 ? Expression()
-                : LiteralNull.Instance;
+                : new Literal { Value = Runtime.Null.Instance };
             return new Branch(condition, consequence, alternative);
         }
 
@@ -199,14 +199,14 @@ namespace Crisp.Parsing
             var valuePosition = Current.Position;
             var value = Expression();
 
-            if (value is Literal<int> || value is Literal<double> || value is Literal<bool> || value is Literal<string>)
+            if (value is Literal)
             {
                 CreateSymbol(name, SymbolInfo.Constant(value));
                 return value;
             }
             else
             {
-                throw new SyntaxErrorException($"a constant value must be a literal integer, float, Boolean or string", valuePosition);
+                throw new SyntaxErrorException($"a constant value must be null or a literal integer, float, Boolean or string", valuePosition);
             }
         }
 
@@ -438,7 +438,7 @@ namespace Crisp.Parsing
             {
                 if (double.TryParse(token.Lexeme, out var value))
                 {
-                    return new Literal<double>(value);
+                    return new Literal { Value = value };
                 }
                 throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 64 bit floating bit", token.Position);
             }
@@ -447,7 +447,7 @@ namespace Crisp.Parsing
             {
                 if (int.TryParse(token.Lexeme, out var value))
                 {
-                    return new Literal<int>(value);
+                    return new Literal { Value = value };
                 }
                 throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 32 bit integer.", token.Position);
             }
@@ -455,17 +455,17 @@ namespace Crisp.Parsing
             if (Match(out token, TokenTag.String))
             {
                 var str = ParseString(token.Lexeme, token.Position);
-                return new Literal<string>(str);
+                return new Literal { Value = str };
             }
 
             if (Match(TokenTag.True))
             {
-                return new Literal<bool>(true);
+                return new Literal { Value = true };
             }
 
             if (Match(TokenTag.False))
             {
-                return new Literal<bool>(false);
+                return new Literal { Value = false };
             }
 
             if (Match(out token, TokenTag.Identifier))
@@ -485,7 +485,7 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.Null))
             {
-                return LiteralNull.Instance;
+                return new Literal { Value = Runtime.Null.Instance };
             }
 
             if (Match(TokenTag.This))

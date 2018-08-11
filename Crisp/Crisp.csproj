@@ -60,7 +60,6 @@
     <Compile Include="Ast\This.cs" />
     <Compile Include="Ast\Var.cs" />
     <Compile Include="Ast\Literal.cs" />
-    <Compile Include="Ast\LiteralNull.cs" />
     <Compile Include="Ast\AttributeAccess.cs" />
     <Compile Include="Ast\MessageSend.cs" />
     <Compile Include="Ast\OperatorBinaryTag.cs" />

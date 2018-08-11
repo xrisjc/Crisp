@@ -1,13 +1,8 @@
 ﻿namespace Crisp.Ast
 {
-    class Literal<T> : IExpression
+    class Literal : IExpression
     {
-        public T Value { get; }
-
-        public Literal(T value)
-        {
-            Value = value;
-        }
+        public object Value { get; set; }
 
         public void Accept(IExpressionVisitor visitor)
         {

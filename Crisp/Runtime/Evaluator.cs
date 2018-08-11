@@ -219,21 +219,16 @@ namespace Crisp.Runtime
 
         public void Visit(Ast.Function function)
         {
-            var fn = new Runtime.Function(function.Parameters, function.Body, environment);
+            var fn = new Function(function.Parameters, function.Body, environment);
 
             environment.Create(function.Name, fn);
 
             stack.Push(fn);
         }
 
-        public void Visit<T>(Literal<T> literal)
+        public void Visit(Literal literal)
         {
             stack.Push(literal.Value);
-        }
-
-        public void Visit(LiteralNull literalNull)
-        {
-            stack.Push(Null.Instance);
         }
 
         public void Visit(MessageSend messageSend)
@@ -402,7 +397,7 @@ namespace Crisp.Runtime
         public void Visit(RecordConstructor recordConstructor)
         {
             Evaluate(recordConstructor.Record);
-            var rec = stack.Pop() as Runtime.Record;
+            var rec = stack.Pop() as Record;
             if (rec == null)
             {
                 throw new RuntimeErrorException(

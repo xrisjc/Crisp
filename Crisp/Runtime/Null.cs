@@ -5,5 +5,7 @@
         private Null() { }
 
         public static Null Instance { get; } = new Null();
+
+        public override string ToString() => "null";
     }
 }
