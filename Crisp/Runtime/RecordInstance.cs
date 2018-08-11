@@ -5,15 +5,15 @@ namespace Crisp.Runtime
     class RecordInstance : Entity
     {
         Record record;
-        Dictionary<string, dynamic> variables;
+        Dictionary<string, object> variables;
 
-        public RecordInstance(Record record, Dictionary<string, dynamic> variables)
+        public RecordInstance(Record record, Dictionary<string, object> variables)
         {
             this.record = record;
             this.variables = variables;
         }
 
-        public override bool GetAttribute(string name, out dynamic value)
+        public override bool GetAttribute(string name, out object value)
         {
             if (variables.TryGetValue(name, out value))
             {
@@ -26,7 +26,7 @@ namespace Crisp.Runtime
             }
         }
 
-        public override bool SetAttribute(string name, dynamic value)
+        public override bool SetAttribute(string name, object value)
         {
             if (variables.ContainsKey(name))
             {

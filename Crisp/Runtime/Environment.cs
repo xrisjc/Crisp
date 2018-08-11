@@ -5,14 +5,14 @@ namespace Crisp.Runtime
     class Environment
     {
         Environment outer;
-        Dictionary<string, dynamic> values = new Dictionary<string, dynamic>();
+        Dictionary<string, object> values = new Dictionary<string, object>();
 
         public Environment(Environment outer = null)
         {
             this.outer = outer;
         }
 
-        public bool Get(string name, out dynamic value)
+        public bool Get(string name, out object value)
         {
             for (var e = this; e != null; e = e.outer)
             {
@@ -26,7 +26,7 @@ namespace Crisp.Runtime
             return false;
         }
 
-        public bool Set(string name, dynamic value)
+        public bool Set(string name, object value)
         {
             for (var e = this; e != null; e = e.outer)
             {
@@ -39,7 +39,7 @@ namespace Crisp.Runtime
             return false;
         }
 
-        public bool Create(string name, dynamic value)
+        public bool Create(string name, object value)
         {
             if (values.ContainsKey(name))
             {

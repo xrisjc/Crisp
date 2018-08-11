@@ -4,29 +4,19 @@ namespace Crisp.Runtime
 {
     class Record
     {
-        List<string> variableNames;
-        Dictionary<string, Function> functions;
+        public List<string> VariableNames { get; }
+
+        public Dictionary<string, Function> Functions { get; }
 
         public Record(List<string> variableNames, Dictionary<string, Function> functions)
         {
-            this.variableNames = variableNames;
-            this.functions = functions;
+            VariableNames = variableNames;
+            Functions = functions;
         }
 
         public bool GetInstanceMethod(string name, out Function method)
         {
-            return functions.TryGetValue(name, out method);
-        }
-
-        public RecordInstance Construct(Dictionary<string, dynamic> initalizers)
-        {
-            var variables = new Dictionary<string, dynamic>();
-            foreach (var variableName in variableNames)
-            {
-                variables[variableName] = initalizers.GetValue(variableName, Null.Instance);
-            }
-
-            return new RecordInstance(this, variables);
+            return Functions.TryGetValue(name, out method);
         }
     }
 }

@@ -412,7 +412,15 @@ namespace Crisp.Runtime
                 init[name] = stack.Pop();
             }
 
-            stack.Push(rec.Construct(init));
+            var variables = new Dictionary<string, object>();
+            foreach (var variableName in rec.VariableNames)
+            {
+                variables[variableName] = init.GetValue(variableName, Null.Instance);
+            }
+
+            var recordInstance = new RecordInstance(rec, variables);
+
+            stack.Push(recordInstance);
         }
 
         public void Visit(This @this)
