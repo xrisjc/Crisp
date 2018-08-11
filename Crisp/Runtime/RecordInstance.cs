@@ -41,7 +41,7 @@ namespace Crisp.Runtime
 
         public override bool SendMessage(string name, Evaluator evaluator)
         {
-            if (record.GetInstanceMethod(name, out var method))
+            if (record.Functions.TryGetValue(name, out var method))
             {
                 evaluator.Invoke(method);
                 return true;

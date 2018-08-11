@@ -13,10 +13,5 @@ namespace Crisp.Runtime
             VariableNames = variableNames;
             Functions = functions;
         }
-
-        public bool GetInstanceMethod(string name, out Function method)
-        {
-            return Functions.TryGetValue(name, out method);
-        }
     }
 }
