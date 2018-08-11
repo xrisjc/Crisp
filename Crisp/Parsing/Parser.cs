@@ -387,24 +387,25 @@ namespace Crisp.Parsing
 
         IExpression Call(Position position, IExpression left)
         {
-            IExpression expr = null;
-
             switch (left)
             {
                 case AttributeAccess member:
-                    expr = new MessageSend(position, member.Entity, member.Name, Arguments());
-                    break;
+                    return new MessageSend(position, member.Entity, member.Name, Arguments());
 
                 case Identifier identifier:
                     var siFn = SymbolLookup(identifier.Name);
-                    if (siFn.Tag == SymbolTag.Function)
+                    if (siFn?.Tag == SymbolTag.Function)
                     {
-                        expr = new Call { Position = position, Function = (Function)siFn.Value, Arguments = Arguments() };
+                        return new Call { Position = position, Function = (Function)siFn.Value, Arguments = Arguments() };
                     }
-                    break;
-            }
+                    else
+                    {
+                        throw new SyntaxErrorException($"no function named <{identifier.Name}> has been defined", identifier.Position);
+                    }
 
-            return expr ?? throw new SyntaxErrorException("Invalid call target", position);
+                default:
+                    throw new SyntaxErrorException("Invalid call target", position);
+            }
         }
 
         List<IExpression> Arguments()
