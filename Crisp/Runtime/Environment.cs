@@ -51,5 +51,17 @@ namespace Crisp.Runtime
                 return true;
             }
         }
+
+        public void Write()
+        {
+            for (var e = this; e != null; e = e.outer)
+            {
+                System.Console.WriteLine("#");
+                foreach (var item in e.values)
+                {
+                    System.Console.WriteLine($"<{item.Key}> = {item.Value}");
+                }
+            }
+        }
     }
 }

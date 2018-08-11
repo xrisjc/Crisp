@@ -37,5 +37,17 @@ namespace Crisp.Parsing
             }
             return null;
         }
+
+        public void Write()
+        {
+            for (var st = this; st != null; st = st.Outer)
+            {
+                System.Console.WriteLine("#");
+                foreach (var item in st.table)
+                {
+                    System.Console.WriteLine($"<{item.Key}> = {item.Value}");
+                }
+            }
+        }
     }
 }

@@ -43,6 +43,12 @@ namespace Crisp
             {
                 case ":q":
                     return true;
+                case ":e":
+                    environment.Write();
+                    break;
+                case ":st":
+                    symbolTable.Write();
+                    break;
                 default:
                     writer.WriteLine($"Unknown command <{code}>");
                     break;
