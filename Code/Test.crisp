@@ -221,10 +221,23 @@ function testOperators(t)
 end
 
 ///////////////////////////////////////////////////////////////////////////////
-// Variables Blocks
+// Variables Blocks and Consts
 ///////////////////////////////////////////////////////////////////////////////
 
+// Constants can be declared in your top level scope. A const can only be set
+// to a literal value.
+const cNull = null
+const cInt = 10
+const cFloat = 2.5
+const cString = 'hello world'
+
 function testVariablesAndBlocks(t)
+    // Assert constants were set.
+    t.assertEq(cNull, null, 'Null constant')
+    t.assertEq(cInt, 10, 'Int constant')
+    t.assertEq(cFloat, 2.5, 'Float constant')
+    t.assertEq(cString, 'hello world', 'String constant')
+
     // Variables are declared with the keyword "var" and the assignment operator:
     // ":=".  A variable must be declared before it is used or else there will be
     // a runtime error.
@@ -392,13 +405,12 @@ end
 // More Logical
 ///////////////////////////////////////////////////////////////////////////////
 
-function testLogicalAndOr(t)
+type Counter record
+  var n
+  function get() n := n + 1 end
+end
 
-    type Counter record
-      var n
-      function get() n := n + 1 end
-    end
-    
+function testLogicalAndOr(t)
     var counter := Counter{ n: 0 }
 
     // The 'and' operator short circuits in the expected way.
@@ -419,13 +431,54 @@ end
 // Records
 ///////////////////////////////////////////////////////////////////////////////
 
+// Records (aka structs) are object introduced with the type keyword.  A
+// record with only variable attributes can be introduced in a short form
+// with just a list of variable names.
+type Point record
+             x, y, z
+           end
+
+// You can also make empty records.
+type Empty record end
+
+// Records can also have methods. Use the "this" keyword to access members
+// or functions of the current record.  When including functions, variable
+// attributes must be introduced by the var keyword.
+type Vector record
+    var x, y
+    function add(v)
+        Vector { x: this.x + v.x  y: this.y + v.y }
+    end
+end
+
+// The attributes of a record can also be other records.
+type A record
+    var x, that
+    function getIt()
+        this.x + this.that.getIt()
+    end
+end
+type B record
+    var x
+    function getIt()
+        this.x
+    end
+end
+
+// You can have multiple var declarations in a record. You also can leave
+// this off of record variables.
+type Vector3 record
+    var x, y
+    function project()
+        Vector { x: x  y: y }
+    end
+    var z
+    function add(v)
+        Vector3 { x:x+v.x  y:y+v.y  z:z+v.z }
+    end
+end
+
 function testRecords(t)
-    // Records (aka structs) are object introduced with the type keyword.  A
-    // record with only variable attributes can be introduced in a short form
-    // with just a list of variable names.
-    type Point record
-                 x, y, z
-               end
                
     // Record constructors look like "maps", but with the type name before
     // it that returns a record object.
@@ -442,20 +495,8 @@ function testRecords(t)
     p.z := 2000
     t.assertEq(p.z, 2000, 'Member set')
    
-    // You can also make empty records.
-    type Empty record end
     var e := Empty { }
     t.assert(e <> null, 'Empty record')
-
-    // Records can also have methods. Use the "this" keyword to access members
-    // or functions of the current record.  When including functions, variable
-    // attributes must be introduced by the var keyword.
-    type Vector record
-        var x, y
-        function add(v)
-            Vector { x: this.x + v.x  y: this.y + v.y }
-        end
-    end
 
     var v := Vector { x: 10  y: 20 }
     var w := Vector { x: 100 y: 200 }
@@ -463,37 +504,11 @@ function testRecords(t)
     t.assertEq(v.x + w.x, vPlusW.x, 'Record method test #1')
     t.assertEq(v.y + w.y, vPlusW.y, 'Record method test #1')
 
-    // The attributes of a record can also be other records.
-    type A record
-        var x, that
-        function getIt()
-            this.x + this.that.getIt()
-        end
-    end
-    type B record
-        var x
-        function getIt()
-            this.x
-        end
-    end
     var a := A { x:10 that:B{x:100} }
     t.assertEq(a.getIt(), 110, 'Record composition')
 
     // This is null outside of a record's function.
     t.assertEq(this, null, 'This outside record function')
-
-    // You can have multiple var declarations in a record. You also can leave
-    // this off of record variables.
-    type Vector3 record
-        var x, y
-        function project()
-            Vector { x: x  y: y }
-        end
-        var z
-        function add(v)
-            Vector3 { x:x+v.x  y:y+v.y  z:z+v.z }
-        end
-    end
 
     var v3 := Vector3{ x:1 y:2 z:3 }
     var u3 := Vector3{ x:10 y:20 z:30 }

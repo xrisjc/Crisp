@@ -52,6 +52,8 @@
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
+    <Compile Include="Ast\Const.cs" />
+    <Compile Include="Ast\Program.cs" />
     <Compile Include="Ast\Write.cs" />
     <Compile Include="Ast\Function.cs" />
     <Compile Include="Ast\Identifier.cs" />
@@ -71,7 +73,6 @@
     <Compile Include="Ast\While.cs" />
     <Compile Include="CrispException.cs" />
     <Compile Include="Parsing\ParserState.cs" />
-    <Compile Include="Parsing\SymbolInfo.cs" />
     <Compile Include="Parsing\SymbolTable.cs" />
     <Compile Include="Parsing\SymbolTag.cs" />
     <Compile Include="Runtime\Entity.cs" />

@@ -8,6 +8,6 @@
         MessageFunction,
         Parameter,
         Type,
-        Variable,
+        Var,
     }
 }

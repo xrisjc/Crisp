@@ -7,22 +7,31 @@ namespace Crisp.Runtime
     class Evaluator : IExpressionVisitor
     {
         Stack<object> stack = new Stack<object>();
+        Program program;
         Environment environment;
-        object @this = null;
+        object @this;
 
-        public Evaluator(Environment environment)
+        private Evaluator(Program program, Environment environment)
         {
+            this.program = program;
             this.environment = environment;
         }
 
-        public void Push(object o)
+        public static object Run(Program program, Environment environment)
         {
-            stack.Push(o);
+            object result = Null.Instance;
+            var evaluator = new Evaluator(program, environment);
+            foreach (var expr in program.Expressions)
+            {
+                evaluator.Evaluate(expr);
+                result = evaluator.stack.Pop();
+            }
+            return result;
         }
 
-        public object Pop()
+        public static object Run(Program program)
         {
-            return stack.Pop();
+            return Run(program, new Environment());
         }
 
         public void Invoke(Function function)
@@ -45,7 +54,7 @@ namespace Crisp.Runtime
             expression.Accept(this);
         }
 
-        public void EvaluateAsBlock(List<IExpression> exprs)
+        void EvaluateAsBlock(List<IExpression> exprs)
         {
             if (exprs.Count == 0)
             {
@@ -191,7 +200,12 @@ namespace Crisp.Runtime
             }
             stack.Push(call.Arity);
 
-            Invoke(call.Function);
+            Invoke(program.Fns[call.Name]);
+        }
+
+        public void Visit(Const @const)
+        {
+            stack.Push(program.Consts[@const.Name].Value);
         }
 
         public void Visit(Identifier identifier)
@@ -206,11 +220,6 @@ namespace Crisp.Runtime
                     identifier.Position,
                     $"<{identifier.Name}> not bound to a value.");
             }
-        }
-
-        public void Visit(Function function)
-        {
-            stack.Push(Null.Instance);
         }
 
         public void Visit(Literal literal)

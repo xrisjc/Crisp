@@ -29,16 +29,10 @@ namespace Crisp
             {
                 var codeText = File.ReadAllText(filename);
                 var scanner = new Scanner(codeText);
-                var environment = new Runtime.Environment();
                 var symbolTable = new SymbolTable();
                 var parser = new Parser(scanner, symbolTable);
                 var program = parser.Program();
-                var evaluator = new Evaluator(environment);
-                foreach (var expr in program)
-                {
-                    evaluator.Evaluate(expr);
-                    evaluator.Pop();
-                }
+                Evaluator.Run(program);
             }
             catch (CrispException e)
             {

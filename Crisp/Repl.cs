@@ -62,14 +62,9 @@ namespace Crisp
         {
             var scanner = new Scanner(code);
             var parser = new Parser(scanner, symbolTable);
-            var expressions = parser.Program();
-            var evaluator = new Evaluator(environment);
-            foreach (var expression in expressions)
-            {
-                evaluator.Evaluate(expression);
-                var value = evaluator.Pop();
-                writer.WriteLine(value);
-            }
+            var program = parser.Program();
+            var result = Evaluator.Run(program, environment);
+            writer.WriteLine(result);
         }
     }
 }

@@ -8,7 +8,7 @@
         void Visit(Block block);
         void Visit(Branch branch);
         void Visit(Call call);
-        void Visit(Function function);
+        void Visit(Const @const);
         void Visit(Identifier identifier);
         void Visit(Literal literal);
         void Visit(MessageSend messageSend);

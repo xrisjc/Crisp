@@ -1,4 +1,6 @@
-﻿namespace Crisp.Parsing
+﻿using System.Collections.Generic;
+
+namespace Crisp.Parsing
 {
     class ParserState
     {
@@ -81,25 +83,20 @@
             symbolTable = symbolTable.Outer;
         }
 
-        public void CreateSymbol(string symbol, Position position, SymbolInfo info)
+        public void CreateSymbol(string name, Position position, SymbolTag tag)
         {
-            if (!symbolTable.Create(symbol, info))
+            if (!symbolTable.Create(name, tag))
             {
-                throw new SyntaxErrorException($"symbol <{symbol}> has already been declared", position);
+                throw new SyntaxErrorException($"symbol <{name}> has already been declared", position);
             }
         }
 
-        public void CreateSymbol(Token token, SymbolInfo info)
+        public SymbolTag? SymbolLookup(string name)
         {
-            CreateSymbol(token.Lexeme, token.Position, info);
+            return symbolTable.Lookup(name);
         }
 
-        public SymbolInfo SymbolLookup(string symbol)
-        {
-            return symbolTable.Lookup(symbol);
-        }
-
-        public SymbolInfo SymbolLookup(Token token)
+        public SymbolTag? SymbolLookup(Token token)
         {
             return SymbolLookup(token.Lexeme);
         }

@@ -29,27 +29,85 @@ namespace Crisp.Parsing
         {
         }
 
-        public List<IExpression> Program()
+        public Program Program()
         {
-            var expressions = new List<IExpression>();
-            while (Current.Tag != TokenTag.EndOfInput)
+            var program = new Program
             {
-                var expression = Expression();
-                expressions.Add(expression);
+                Consts = new Dictionary<string, Literal>(),
+                Fns = new Dictionary<string, Function>(),
+                Expressions = new List<IExpression>(),
+            };
+
+            while (true)
+            {
+                if (Match(TokenTag.EndOfInput))
+                {
+                    break;
+                }
+                else if (Match(TokenTag.Const))
+                {
+                    Const(program.Consts);
+                }
+                else if (Match(TokenTag.Function))
+                {
+                    Function(program.Fns, SymbolTag.Function);
+                }
+                else
+                {
+                    program.Expressions.Add(Expression());
+                }
             }
-            return expressions;
+
+            return program;
+        }
+
+        void Const(Dictionary<string, Literal> consts)
+        {
+            var name = Expect(TokenTag.Identifier);
+            Expect(TokenTag.Equals);
+            var valuePosition = Current.Position;
+            var value = Expression();
+
+            if (value is Literal literal)
+            {
+                CreateSymbol(name.Lexeme, name.Position, SymbolTag.Constant);
+                consts.Add(name.Lexeme, literal);
+            }
+            else
+            {
+                throw new SyntaxErrorException($"a constant value must be null or a literal integer, float, Boolean or string", valuePosition);
+            }
+        }
+
+        void Function(Dictionary<string, Function> fns, SymbolTag symbolTag)
+        {
+            var name = Expect(TokenTag.Identifier);
+            BeginScope();
+            var parameters = Parameters();
+            var body = new List<IExpression>();
+            while (!Match(TokenTag.End))
+            {
+                var expr = Expression();
+                body.Add(expr);
+            }
+            EndScope();
+
+            CreateSymbol(name.Lexeme, name.Position, symbolTag);
+            var fn = new Function
+            {
+                Name = new Identifier(name.Position, name.Lexeme),
+                Parameters = parameters,
+                Body = body
+            };
+            fns.Add(name.Lexeme, fn);
         }
 
         IExpression Expression()
         {
+
             if (Match(TokenTag.Var))
             {
                 return Var();
-            }
-
-            if (Match(TokenTag.Function))
-            {
-                return Function(isMessageFunction: false);
             }
 
             if (Match(TokenTag.If))
@@ -72,49 +130,18 @@ namespace Crisp.Parsing
                 return Type();
             }
 
-            if (Match(TokenTag.Const))
-            {
-                return Const();
-            }
-
             return Assignment();
         }
 
         IExpression Var()
         {
             var name = Expect(TokenTag.Identifier);
-            CreateSymbol(name, SymbolInfo.Variable());
 
             Expect(TokenTag.Assignment);
             var initialValue = Expression();
+
+            CreateSymbol(name.Lexeme, name.Position, SymbolTag.Var);
             return new Var(name.Lexeme, initialValue);
-        }
-
-        Function Function(bool isMessageFunction)
-        {
-            var name = Expect(TokenTag.Identifier);
-            BeginScope();
-            var parameters = Parameters();
-            var body = new List<IExpression>();
-            while (!Match(TokenTag.End))
-            {
-                var expr = Expression();
-                body.Add(expr);
-            }
-            EndScope();
-
-            var fn = new Function { Name = name.Lexeme, Parameters = parameters, Body = body };
-
-            if (isMessageFunction)
-            {
-                CreateSymbol(name, SymbolInfo.MessageFunction());
-            }
-            else
-            {
-                CreateSymbol(name, SymbolInfo.Function(fn));
-            }
-
-            return fn;
         }
 
         IExpression If()
@@ -159,7 +186,6 @@ namespace Crisp.Parsing
         IExpression Type()
         {
             var typeName = Expect(TokenTag.Identifier);
-            CreateSymbol(typeName, SymbolInfo.Type());
 
             // Right now there are only record user defined types.
             Expect(TokenTag.Record);
@@ -171,7 +197,7 @@ namespace Crisp.Parsing
             if (Current.Tag == TokenTag.Identifier)
             {
                 // The short form of a variable field only record.
-                variables.AddRange(IdentifierList(SymbolInfo.Attribute()));
+                variables.AddRange(IdentifierList(SymbolTag.Attribute));
             }
             else
             {
@@ -179,12 +205,11 @@ namespace Crisp.Parsing
                 {
                     if (Match(TokenTag.Var))
                     {
-                        variables.AddRange(IdentifierList(SymbolInfo.Attribute()));
+                        variables.AddRange(IdentifierList(SymbolTag.Attribute));
                     }
                     else if (Match(TokenTag.Function))
                     {
-                        var function = Function(isMessageFunction: true);
-                        functions.Add(function.Name, function);
+                        Function(functions, SymbolTag.MessageFunction);
                     }
                     else
                     {
@@ -195,30 +220,9 @@ namespace Crisp.Parsing
 
             Expect(TokenTag.End);
             EndScope();
+
+            CreateSymbol(typeName.Lexeme, typeName.Position, SymbolTag.Type);
             return new Record(typeName.Lexeme, variables, functions);
-        }
-
-        IExpression Const()
-        {
-            var name = Expect(TokenTag.Identifier);
-            if (SymbolLookup(name) != null)
-            {
-                throw new SyntaxErrorException($"symbol <{name.Lexeme} is already defined", name.Position);
-            }
-
-            Expect(TokenTag.Equals);
-            var valuePosition = Current.Position;
-            var value = Expression();
-
-            if (value is Literal)
-            {
-                CreateSymbol(name, SymbolInfo.Constant(value));
-                return value;
-            }
-            else
-            {
-                throw new SyntaxErrorException($"a constant value must be null or a literal integer, float, Boolean or string", valuePosition);
-            }
         }
 
         List<string> Parameters()
@@ -231,18 +235,18 @@ namespace Crisp.Parsing
             }
             else
             {
-                var parameters = IdentifierList(SymbolInfo.Parameter()).ToList();
+                var parameters = IdentifierList(SymbolTag.Parameter).ToList();
                 Expect(TokenTag.RParen);
                 return parameters;
             }
         }
 
-        IEnumerable<string> IdentifierList(SymbolInfo identifierSymbolInfo)
+        IEnumerable<string> IdentifierList(SymbolTag tag)
         {
             do
             {
                 var name = Expect(TokenTag.Identifier);
-                CreateSymbol(name, identifierSymbolInfo);
+                CreateSymbol(name.Lexeme, name.Position, tag);
                 yield return name.Lexeme;
             }
             while (Match(TokenTag.Comma));
@@ -393,10 +397,10 @@ namespace Crisp.Parsing
                     return new MessageSend(position, member.Entity, member.Name, Arguments());
 
                 case Identifier identifier:
-                    var siFn = SymbolLookup(identifier.Name);
-                    if (siFn?.Tag == SymbolTag.Function)
+                    var tag = SymbolLookup(identifier.Name);
+                    if (tag == SymbolTag.Function)
                     {
-                        return new Call { Position = position, Function = (Function)siFn.Value, Arguments = Arguments() };
+                        return new Call { Position = position, Name = identifier.Name, Arguments = Arguments() };
                     }
                     else
                     {
@@ -492,13 +496,12 @@ namespace Crisp.Parsing
             if (Match(out token, TokenTag.Identifier))
             {
                 var name = token.Lexeme;
-                var symbolInfo = SymbolLookup(name);
-                switch (symbolInfo?.Tag)
+                switch (SymbolLookup(name))
                 {
                     case SymbolTag.Attribute:
                         return new AttributeAccess(This.Instance, name);
                     case SymbolTag.Constant:
-                        return symbolInfo.Value;
+                        return new Const { Name = name };
                     default:
                         return new Identifier(token.Position, name);
                 }

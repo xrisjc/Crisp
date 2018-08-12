@@ -7,7 +7,7 @@ namespace Crisp.Ast
     {
         public Position Position { get; set; }
 
-        public Function Function { get; set; }
+        public string Name { get; set; }
 
         public List<IExpression> Arguments { get; set; }
 

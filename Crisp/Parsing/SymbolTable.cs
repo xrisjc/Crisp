@@ -4,7 +4,7 @@ namespace Crisp.Parsing
 {
     class SymbolTable
     {
-        Dictionary<string, SymbolInfo> table = new Dictionary<string, SymbolInfo>();
+        Dictionary<string, SymbolTag> table = new Dictionary<string, SymbolTag>();
 
         public SymbolTable Outer { get; }
 
@@ -13,7 +13,7 @@ namespace Crisp.Parsing
             Outer = outer;
         }
 
-        public bool Create(string symbol, SymbolInfo info)
+        public bool Create(string symbol, SymbolTag info)
         {
             if (table.TryGetValue(symbol, out var existingInfo))
             {
@@ -26,7 +26,7 @@ namespace Crisp.Parsing
             }
         }
 
-        public SymbolInfo Lookup(string symbol)
+        public SymbolTag? Lookup(string symbol)
         {
             for (var st = this; st != null; st = st.Outer)
             {
