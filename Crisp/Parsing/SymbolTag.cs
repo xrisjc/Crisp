@@ -7,7 +7,7 @@
         Function,
         MessageFunction,
         Parameter,
-        Type,
         Var,
+        Record,
     }
 }

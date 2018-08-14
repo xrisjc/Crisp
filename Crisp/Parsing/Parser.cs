@@ -87,7 +87,7 @@ namespace Crisp.Parsing
         void Type(Dictionary<string, Record> types)
         {
             var typeName = Expect(TokenTag.Identifier);
-            CreateSymbol(typeName.Lexeme, typeName.Position, SymbolTag.Type);
+            CreateSymbol(typeName.Lexeme, typeName.Position, SymbolTag.Record);
 
             var record = new Record { Name = typeName.Lexeme };
 
@@ -394,7 +394,7 @@ namespace Crisp.Parsing
                 case Identifier identifier:
                     switch (SymbolLookup(identifier.Name))
                     {
-                        case SymbolTag.Type:
+                        case SymbolTag.Record:
                             Expect(TokenTag.RParen);
                             return new RecordConstructor { RecordName = identifier };
                         case SymbolTag.Function:
