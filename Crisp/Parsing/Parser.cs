@@ -25,11 +25,13 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = OperatorBinaryTag.Sub,
             };
 
-        public Parser(Scanner scanner, SymbolTable symbolTable) : base(scanner, symbolTable)
+        public Program Parse(string code)
         {
+            NewCode(code);
+            return Program();
         }
 
-        public Program Program()
+        Program Program()
         {
             var program = new Program
             {

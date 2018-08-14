@@ -1,23 +1,25 @@
-﻿using System.Collections.Generic;
-
-namespace Crisp.Parsing
+﻿namespace Crisp.Parsing
 {
     class ParserState
     {
         Scanner scanner;
-        SymbolTable symbolTable;
+
+        public SymbolTable SymbolTable { get; private set; }
 
         public Token Current { get; private set; }
 
         public Token Peek { get; private set; }
 
-        public ParserState(Scanner scanner, SymbolTable symbolTable)
+        public ParserState()
         {
-            this.scanner = scanner;
-            NextToken();
-            NextToken();
+            SymbolTable = new SymbolTable();
+        }
 
-            this.symbolTable = symbolTable;
+        public void NewCode(string code)
+        {
+            scanner = new Scanner(code);
+            NextToken();
+            NextToken();
         }
 
         public void NextToken()
@@ -75,17 +77,17 @@ namespace Crisp.Parsing
 
         public void BeginScope()
         {
-            symbolTable = new SymbolTable(symbolTable);
+            SymbolTable = new SymbolTable(SymbolTable);
         }
 
         public void EndScope()
         {
-            symbolTable = symbolTable.Outer;
+            SymbolTable = SymbolTable.Outer;
         }
 
         public void CreateSymbol(string name, Position position, SymbolTag tag)
         {
-            if (!symbolTable.Create(name, tag))
+            if (!SymbolTable.Create(name, tag))
             {
                 throw new SyntaxErrorException($"symbol <{name}> has already been declared", position);
             }
@@ -93,7 +95,7 @@ namespace Crisp.Parsing
 
         public SymbolTag? SymbolLookup(string name)
         {
-            return symbolTable.Lookup(name);
+            return SymbolTable.Lookup(name);
         }
 
         public SymbolTag? SymbolLookup(Token token)

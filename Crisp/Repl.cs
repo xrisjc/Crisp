@@ -10,7 +10,7 @@ namespace Crisp
         public static void Run(TextReader reader, TextWriter writer)
         {
             var environment = new Runtime.Environment();
-            var symbolTable = new SymbolTable(outer: null);
+            var parser = new Parser();
 
             var quit = false;
             while (!quit)
@@ -21,11 +21,11 @@ namespace Crisp
                     var code = reader.ReadLine();
                     if (code.Length > 0 && code[0] == ':')
                     {
-                        quit = ExecuteCommand(code, environment, symbolTable, writer);
+                        quit = ExecuteCommand(code, parser, environment, writer);
                     }
                     else
                     {
-                        EvalAndPrint(code, environment, symbolTable, writer);
+                        EvalAndPrint(code, parser, environment, writer);
                     }
                 }
                 catch (CrispException e)
@@ -35,7 +35,7 @@ namespace Crisp
             }
         }
 
-        private static bool ExecuteCommand(string code, Runtime.Environment environment, SymbolTable symbolTable, TextWriter writer)
+        private static bool ExecuteCommand(string code, Parser parser, Runtime.Environment environment, TextWriter writer)
         {
             var args = code.Split(new[] { ' ' },
                 StringSplitOptions.RemoveEmptyEntries);
@@ -47,7 +47,7 @@ namespace Crisp
                     environment.Write();
                     break;
                 case ":st":
-                    symbolTable.Write();
+                    parser.SymbolTable.Write();
                     break;
                 default:
                     writer.WriteLine($"Unknown command <{code}>");
@@ -57,12 +57,10 @@ namespace Crisp
             return false;
         }
 
-        private static void EvalAndPrint(string code,
-            Runtime.Environment environment, SymbolTable symbolTable, TextWriter writer)
+        private static void EvalAndPrint(string code, Parser parser,
+            Runtime.Environment environment, TextWriter writer)
         {
-            var scanner = new Scanner(code);
-            var parser = new Parser(scanner, symbolTable);
-            var program = parser.Program();
+            var program = parser.Parse(code);
             var result = Evaluator.Run(program, environment);
             writer.WriteLine(result);
         }

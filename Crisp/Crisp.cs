@@ -27,11 +27,9 @@ namespace Crisp
         {
             try
             {
-                var codeText = File.ReadAllText(filename);
-                var scanner = new Scanner(codeText);
-                var symbolTable = new SymbolTable();
-                var parser = new Parser(scanner, symbolTable);
-                var program = parser.Program();
+                var code = File.ReadAllText(filename);
+                var parser = new Parser();
+                var program = parser.Parse(code);
                 Evaluator.Run(program);
             }
             catch (CrispException e)
