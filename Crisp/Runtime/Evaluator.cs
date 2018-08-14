@@ -137,7 +137,7 @@ namespace Crisp.Runtime
         public void Visit(AttributeAccess attributeAccess)
         {
             Evaluate(attributeAccess.Entity);
-            var entity = stack.Pop() as Entity;
+            var entity = stack.Pop() as RecordInstance;
             if (entity == null)
             {
                 throw new RuntimeErrorException("attribute access on non entity object");
@@ -156,7 +156,7 @@ namespace Crisp.Runtime
         public void Visit(AttributeAssignment attributeAssignment)
         {
             Evaluate(attributeAssignment.Entity);
-            var entity = stack.Pop() as Entity;
+            var entity = stack.Pop() as RecordInstance;
             if (entity == null)
             {
                 throw new RuntimeErrorException("attribute assignment on non entity object");
@@ -230,7 +230,10 @@ namespace Crisp.Runtime
         public void Visit(MessageSend messageSend)
         {
             Evaluate(messageSend.EntityExpr);
-            var entity = stack.Pop() as Entity ?? throw new RuntimeErrorException(messageSend.Position, "message sent to non entity object");
+            if (!(stack.Pop() is RecordInstance entity))
+            {
+                throw new RuntimeErrorException(messageSend.Position, "message sent to non entity object");
+            }
 
             foreach (var expr in messageSend.ArgumentExprs)
             {
@@ -241,16 +244,11 @@ namespace Crisp.Runtime
             var outerThis = @this;
             @this = entity;
 
-            var messageHandled = entity.SendMessage(messageSend.Name, this);
+            var record = program.Types[entity.RecordName];
+            var fn = record.Functions[messageSend.Name];
+            Invoke(fn);
 
             @this = outerThis;
-
-            if (!messageHandled)
-            {
-                throw new RuntimeErrorException(
-                    messageSend.Position,
-                    $"error sending message '{messageSend.Name}'");
-            }
         }
 
         public void Visit(OperatorBinary operatorBinary)
@@ -378,41 +376,17 @@ namespace Crisp.Runtime
 
         }
 
-        public void Visit(Ast.Record record)
-        {
-            var instance = new Record(record.Variables, record.Functions);
-
-            environment.Create(record.Name, instance);
-
-            stack.Push(instance);
-        }
-
         public void Visit(RecordConstructor recordConstructor)
         {
-            Evaluate(recordConstructor.Record);
-            var rec = stack.Pop() as Record;
-            if (rec == null)
-            {
-                throw new RuntimeErrorException(
-                    recordConstructor.Position,
-                    "Record construction requires a record object.");
-            }
-
-            var init = new Dictionary<string, object>();
-            foreach (var name in recordConstructor.Initializers.Keys)
-            {
-                Evaluate(recordConstructor.Initializers[name]);
-                init[name] = stack.Pop();
-            }
+            var record = program.Types[recordConstructor.RecordName.Name];
 
             var variables = new Dictionary<string, object>();
-            foreach (var variableName in rec.VariableNames)
+            foreach (var name in record.Variables)
             {
-                variables[variableName] = init.GetValue(variableName, Null.Instance);
+                variables[name] = Null.Instance;
             }
 
-            var recordInstance = new RecordInstance(rec, variables);
-
+            var recordInstance = new RecordInstance(recordConstructor.RecordName.Name, variables);
             stack.Push(recordInstance);
         }
 

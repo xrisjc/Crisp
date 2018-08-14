@@ -2,24 +2,12 @@
 
 namespace Crisp.Ast
 {
-    class Record : IExpression
+    class Record
     {
-        public string Name { get; }
+        public string Name { get; set; }
 
-        public List<string> Variables { get; }
+        public List<string> Variables { get; } = new List<string>();
 
-        public Dictionary<string, Function> Functions { get; }
-
-        public Record(string name, List<string> variables, Dictionary<string, Function> functions)
-        {
-            Name = name;
-            Variables = variables;
-            Functions = functions;
-        }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
+        public Dictionary<string, Function> Functions { get; } = new Dictionary<string, Function>();
     }
 }

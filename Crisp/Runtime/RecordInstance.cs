@@ -2,18 +2,19 @@
 
 namespace Crisp.Runtime
 {
-    class RecordInstance : Entity
+    class RecordInstance
     {
-        Record record;
+        public string RecordName { get; }
+
         Dictionary<string, object> variables;
 
-        public RecordInstance(Record record, Dictionary<string, object> variables)
+        public RecordInstance(string recordName, Dictionary<string, object> variables)
         {
-            this.record = record;
+            RecordName = recordName;
             this.variables = variables;
         }
 
-        public override bool GetAttribute(string name, out object value)
+        public bool GetAttribute(string name, out object value)
         {
             if (variables.TryGetValue(name, out value))
             {
@@ -26,24 +27,11 @@ namespace Crisp.Runtime
             }
         }
 
-        public override bool SetAttribute(string name, object value)
+        public bool SetAttribute(string name, object value)
         {
             if (variables.ContainsKey(name))
             {
                 variables[name] = value;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public override bool SendMessage(string name, Evaluator evaluator)
-        {
-            if (record.Functions.TryGetValue(name, out var method))
-            {
-                evaluator.Invoke(method);
                 return true;
             }
             else

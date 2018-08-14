@@ -411,7 +411,8 @@ type Counter record
 end
 
 function testLogicalAndOr(t)
-    var counter := Counter{ n: 0 }
+    var counter := Counter()
+    counter.n := 0
 
     // The 'and' operator short circuits in the expected way.
     t.assertEq(false and counter.get() = 1, false, 'and short circuits #1')
@@ -420,7 +421,7 @@ function testLogicalAndOr(t)
     t.assertEq(counter.get(), 3, 'and short circuits #4')
 
     // The 'or' operator short circuits in the expected way.
-    counter := Counter{ n: 0 }
+    counter.n := 0
     t.assertEq(true or counter.get() = 1, true, 'or short circuits #1')
     t.assertEq(counter.get(), 1, 'or short circuits #2')
     t.assertEq(false or counter.get() = 2, true, 'or short circuits #3')
@@ -447,7 +448,10 @@ type Empty record end
 type Vector record
     var x, y
     function add(v)
-        Vector { x: this.x + v.x  y: this.y + v.y }
+        var vSum := Vector()
+        vSum.x := this.x + v.x
+        vSum.y := this.y + v.y
+        vSum
     end
 end
 
@@ -470,21 +474,33 @@ end
 type Vector3 record
     var x, y
     function project()
-        Vector { x: x  y: y }
+        var p := Vector()
+        p.x := x
+        p.y := y
+        p
     end
     var z
     function add(v)
-        Vector3 { x:x+v.x  y:y+v.y  z:z+v.z }
+        var vSum := Vector3()
+        vSum.x := x + v.x
+        vSum.y := y + v.y
+        vSum.z := z + v.z
+        vSum
     end
 end
 
 function testRecords(t)
                
-    // Record constructors look like "maps", but with the type name before
-    // it that returns a record object.
-    var p := Point { x: 20  y: 200 }
+    // Record constructors look like an zero argument function call.
+    var p := Point()
+    
+    // All record fields are initialized to null.
+    t.assertEq(p.x, null, 'Record field initialization.')
+    t.assertEq(p.y, null, 'Record field initialization.')
    
-    // Get to members using the usual dot.
+    // Set and get to members using the usual dot.
+    p.x := 20
+    p.y := 200
     t.assertEq(p.x, 20, 'Member access')
     t.assertEq(p.y, 200, 'Member access')
    
@@ -495,23 +511,23 @@ function testRecords(t)
     p.z := 2000
     t.assertEq(p.z, 2000, 'Member set')
    
-    var e := Empty { }
+    var e := Empty()
     t.assert(e <> null, 'Empty record')
 
-    var v := Vector { x: 10  y: 20 }
-    var w := Vector { x: 100 y: 200 }
+    var v := Vector()  v.x := 10   v.y := 20
+    var w := Vector()  w.x := 100  w.y := 200
     var vPlusW := v.add(w)
     t.assertEq(v.x + w.x, vPlusW.x, 'Record method test #1')
-    t.assertEq(v.y + w.y, vPlusW.y, 'Record method test #1')
+    t.assertEq(v.y + w.y, vPlusW.y, 'Record method test #2')
 
-    var a := A { x:10 that:B{x:100} }
+    var a := A()  a.x := 10  a.that := B()  a.that.x := 100
     t.assertEq(a.getIt(), 110, 'Record composition')
 
     // This is null outside of a record's function.
     t.assertEq(this, null, 'This outside record function')
 
-    var v3 := Vector3{ x:1 y:2 z:3 }
-    var u3 := Vector3{ x:10 y:20 z:30 }
+    var v3 := Vector3() v3.x := 1   v3.y := 2   v3.z := 3
+    var u3 := Vector3() u3.x := 10  u3.y := 20  u3.z := 30
     var pv3 := v3.project()
     t.assert(v3.x = pv3.x and v3.y = pv3.y, 'Multiple var declarations #1')
     
@@ -563,11 +579,10 @@ end
 
 function doAllTests()
 
-    var t := Test {
-        nTests: 0
-        nErrors: 0
-        showPassedTest: true
-    }
+    var t := Test()
+    t.nTests := 0
+    t.nErrors := 0
+    t.showPassedTest := true
 
     testLiterals(t)
     testOperators(t)

@@ -14,7 +14,6 @@
         void Visit(MessageSend messageSend);
         void Visit(OperatorBinary operatorBinary);
         void Visit(OperatorUnary operatorUnary);
-        void Visit(Record record);
         void Visit(RecordConstructor recordConstructor);
         void Visit(This @this);
         void Visit(Var var);

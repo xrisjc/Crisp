@@ -34,6 +34,7 @@ namespace Crisp.Parsing
             var program = new Program
             {
                 Consts = new Dictionary<string, Literal>(),
+                Types = new Dictionary<string, Record>(),
                 Fns = new Dictionary<string, Function>(),
                 Expressions = new List<IExpression>(),
             };
@@ -47,6 +48,10 @@ namespace Crisp.Parsing
                 else if (Match(TokenTag.Const))
                 {
                     Const(program.Consts);
+                }
+                else if (Match(TokenTag.Type))
+                {
+                    Type(program.Types);
                 }
                 else if (Match(TokenTag.Function))
                 {
@@ -77,6 +82,47 @@ namespace Crisp.Parsing
             {
                 throw new SyntaxErrorException($"a constant value must be null or a literal integer, float, Boolean or string", valuePosition);
             }
+        }
+
+        void Type(Dictionary<string, Record> types)
+        {
+            var typeName = Expect(TokenTag.Identifier);
+            CreateSymbol(typeName.Lexeme, typeName.Position, SymbolTag.Type);
+
+            var record = new Record { Name = typeName.Lexeme };
+
+            // Right now there are only record user defined types.
+            Expect(TokenTag.Record);
+            BeginScope();
+
+            if (Current.Tag == TokenTag.Identifier)
+            {
+                // The short form of a variable field only record.
+                record.Variables.AddRange(IdentifierList(SymbolTag.Attribute));
+            }
+            else
+            {
+                while (true)
+                {
+                    if (Match(TokenTag.Var))
+                    {
+                        record.Variables.AddRange(IdentifierList(SymbolTag.Attribute));
+                    }
+                    else if (Match(TokenTag.Function))
+                    {
+                        Function(record.Functions, SymbolTag.MessageFunction);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Expect(TokenTag.End);
+            EndScope();
+
+            types.Add(typeName.Lexeme, record);
         }
 
         void Function(Dictionary<string, Function> fns, SymbolTag symbolTag)
@@ -123,11 +169,6 @@ namespace Crisp.Parsing
             if (Match(TokenTag.Begin))
             {
                 return Block();
-            }
-
-            if (Match(TokenTag.Type))
-            {
-                return Type();
             }
 
             return Assignment();
@@ -181,48 +222,6 @@ namespace Crisp.Parsing
             }
             EndScope();
             return new Block(body);
-        }
-
-        IExpression Type()
-        {
-            var typeName = Expect(TokenTag.Identifier);
-
-            // Right now there are only record user defined types.
-            Expect(TokenTag.Record);
-            BeginScope();
-
-            var variables = new List<string>();
-            var functions = new Dictionary<string, Function>();
-
-            if (Current.Tag == TokenTag.Identifier)
-            {
-                // The short form of a variable field only record.
-                variables.AddRange(IdentifierList(SymbolTag.Attribute));
-            }
-            else
-            {
-                while (true)
-                {
-                    if (Match(TokenTag.Var))
-                    {
-                        variables.AddRange(IdentifierList(SymbolTag.Attribute));
-                    }
-                    else if (Match(TokenTag.Function))
-                    {
-                        Function(functions, SymbolTag.MessageFunction);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            Expect(TokenTag.End);
-            EndScope();
-
-            CreateSymbol(typeName.Lexeme, typeName.Position, SymbolTag.Type);
-            return new Record(typeName.Lexeme, variables, functions);
         }
 
         List<string> Parameters()
@@ -370,7 +369,7 @@ namespace Crisp.Parsing
         {
             var expr = Primary();
 
-            while (Match(out var token, TokenTag.LParen, TokenTag.Period, TokenTag.LBrace))
+            while (Match(out var token, TokenTag.LParen, TokenTag.Period))
             {
                 if (token.Tag == TokenTag.LParen)
                 {
@@ -379,10 +378,6 @@ namespace Crisp.Parsing
                 else if (token.Tag == TokenTag.Period)
                 {
                     expr = Member(expr);
-                }
-                else if (token.Tag == TokenTag.LBrace)
-                {
-                    expr = Constructor(token.Position, expr);
                 }
             }
 
@@ -397,14 +392,22 @@ namespace Crisp.Parsing
                     return new MessageSend(position, member.Entity, member.Name, Arguments());
 
                 case Identifier identifier:
-                    var tag = SymbolLookup(identifier.Name);
-                    if (tag == SymbolTag.Function)
+                    switch (SymbolLookup(identifier.Name))
                     {
-                        return new Call { Position = position, Name = identifier.Name, Arguments = Arguments() };
-                    }
-                    else
-                    {
-                        throw new SyntaxErrorException($"no function named <{identifier.Name}> has been defined", identifier.Position);
+                        case SymbolTag.Type:
+                            Expect(TokenTag.RParen);
+                            return new RecordConstructor { RecordName = identifier };
+                        case SymbolTag.Function:
+                            return new Call
+                            {
+                                Position = position,
+                                Name = identifier.Name,
+                                Arguments = Arguments(),
+                            };
+                        default:
+                            throw new SyntaxErrorException(
+                                $"no function named <{identifier.Name}> has been defined",
+                                identifier.Position);
                     }
 
                 default:
@@ -433,26 +436,6 @@ namespace Crisp.Parsing
             var identifierToken = Expect(TokenTag.Identifier);
             var name = new Identifier(identifierToken.Position, identifierToken.Lexeme);
             return new AttributeAccess(left, name.Name);
-        }
-
-        IExpression Constructor(Position position, IExpression left)
-        {
-            // TODO: This should really be a list to enforce an order.
-            var initalizers = new Dictionary<string, IExpression>();
-
-            while (!Match(TokenTag.RBrace))
-            {
-                var name = Expect(TokenTag.Identifier);
-                if (initalizers.ContainsKey(name.Lexeme))
-                {
-                    throw new SyntaxErrorException($"Duplicate initializer <{name.Lexeme}>.", name.Position);
-                }
-                Expect(TokenTag.Colon);
-                var value = Expression();
-                initalizers.Add(name.Lexeme, value);
-            }
-
-            return new RecordConstructor(position, left, initalizers);
         }
 
         IExpression Primary()

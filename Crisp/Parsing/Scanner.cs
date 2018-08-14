@@ -122,10 +122,7 @@ namespace Crisp.Parsing
                 case '>' when peek == '=':  return Accept(TokenTag.GreaterThanOrEqualTo, 2);
                 case '(': return Accept(TokenTag.LParen);
                 case ')': return Accept(TokenTag.RParen);
-                case '{': return Accept(TokenTag.LBrace);
-                case '}': return Accept(TokenTag.RBrace);
                 case ',': return Accept(TokenTag.Comma);
-                case ':': return Accept(TokenTag.Colon);
                 case '.': return Accept(TokenTag.Period);
                 case '=': return Accept(TokenTag.Equals);
                 case '+': return Accept(TokenTag.Add);
