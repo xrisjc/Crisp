@@ -2,6 +2,7 @@
 using Crisp.Parsing;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Crisp
 {
@@ -15,6 +16,14 @@ namespace Crisp
             WriteEnvironment,
             WriteSymbolTable,
         }
+
+        static Dictionary<string, Commands> commands =
+            new Dictionary<string, Commands>
+            {
+                [":q"] = Commands.Quit,
+                [":e"] = Commands.WriteEnvironment,
+                [":st"] = Commands.WriteSymbolTable,
+            };
 
         public static void Run(TextReader reader, TextWriter writer)
         {
@@ -65,17 +74,7 @@ namespace Crisp
             }
 
             var args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            switch (args[0])
-            {
-                case ":q":
-                    return Commands.Quit;
-                case ":e":
-                    return Commands.WriteEnvironment;
-                case ":st":
-                    return Commands.WriteSymbolTable;
-                default:
-                    return Commands.Unknown;
-            }
+            return commands.GetValue(args[0], Commands.Unknown);
         }
 
         static void Evaluate(string code, Parser parser, Runtime.Environment environment, TextWriter writer)
