@@ -194,7 +194,7 @@ namespace Crisp.Parsing
             var consequence = Expression();
             var alternative = Match(TokenTag.Else)
                 ? Expression()
-                : new Literal { Value = Runtime.Null.Instance };
+                : new Literal(Runtime.Null.Instance);
             return new Branch(condition, consequence, alternative);
         }
 
@@ -448,7 +448,7 @@ namespace Crisp.Parsing
             {
                 if (double.TryParse(token.Lexeme, out var value))
                 {
-                    return new Literal { Value = value };
+                    return new Literal(value);
                 }
                 throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 64 bit floating bit", token.Position);
             }
@@ -457,7 +457,7 @@ namespace Crisp.Parsing
             {
                 if (int.TryParse(token.Lexeme, out var value))
                 {
-                    return new Literal { Value = value };
+                    return new Literal(value);
                 }
                 throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 32 bit integer.", token.Position);
             }
@@ -465,17 +465,17 @@ namespace Crisp.Parsing
             if (Match(out token, TokenTag.String))
             {
                 var str = ParseString(token.Lexeme, token.Position);
-                return new Literal { Value = str };
+                return new Literal(str);
             }
 
             if (Match(TokenTag.True))
             {
-                return new Literal { Value = true };
+                return Literal.True;
             }
 
             if (Match(TokenTag.False))
             {
-                return new Literal { Value = false };
+                return Literal.False;
             }
 
             if (Match(out token, TokenTag.Identifier))
@@ -486,7 +486,7 @@ namespace Crisp.Parsing
                     case SymbolTag.Attribute:
                         return new AttributeAccess(This.Instance, name);
                     case SymbolTag.Constant:
-                        return new Const { Name = name };
+                        return new Const(name);
                     default:
                         return new Identifier(token.Position, name);
                 }
@@ -494,7 +494,7 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.Null))
             {
-                return new Literal { Value = Runtime.Null.Instance };
+                return Literal.Null;
             }
 
             if (Match(TokenTag.This))

@@ -2,7 +2,12 @@
 {
     class Const : IExpression
     {
-        public string Name { get; set; }
+        public string Name { get; }
+
+        public Const(string name)
+        {
+            Name = name;
+        }
 
         public void Accept(IExpressionVisitor visitor)
         {

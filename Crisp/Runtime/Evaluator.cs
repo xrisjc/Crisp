@@ -205,7 +205,7 @@ namespace Crisp.Runtime
 
         public void Visit(Const @const)
         {
-            stack.Push(program.Consts[@const.Name].Value);
+            stack.Push(program.Consts[@const.Name].Value ?? Null.Instance);
         }
 
         public void Visit(Identifier identifier)
@@ -224,7 +224,7 @@ namespace Crisp.Runtime
 
         public void Visit(Literal literal)
         {
-            stack.Push(literal.Value);
+            stack.Push(literal.Value ?? Null.Instance);
         }
 
         public void Visit(MessageSend messageSend)
