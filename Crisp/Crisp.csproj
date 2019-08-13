@@ -8,9 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Crisp</RootNamespace>
     <AssemblyName>Crisp</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,6 +53,7 @@
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\Branch.cs" />
     <Compile Include="Ast\Call.cs" />
+    <Compile Include="Ast\Condition.cs" />
     <Compile Include="Ast\Const.cs" />
     <Compile Include="Ast\Program.cs" />
     <Compile Include="Ast\Write.cs" />

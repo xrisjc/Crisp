@@ -6,8 +6,8 @@
         void Visit(AttributeAccess attributeAccess);
         void Visit(AttributeAssignment attributeAssignment);
         void Visit(Block block);
-        void Visit(Branch branch);
         void Visit(Call call);
+        void Visit(Condition condition);
         void Visit(Const @const);
         void Visit(Identifier identifier);
         void Visit(Literal literal);

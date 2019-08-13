@@ -95,6 +95,7 @@ namespace Crisp.Parsing
 
             // Right now there are only record user defined types.
             Expect(TokenTag.Record);
+            Expect(TokenTag.LBrace);
             BeginScope();
 
             if (Current.Tag == TokenTag.Identifier)
@@ -121,7 +122,7 @@ namespace Crisp.Parsing
                 }
             }
 
-            Expect(TokenTag.End);
+            Expect(TokenTag.RBrace);
             EndScope();
 
             types.Add(typeName.Lexeme, record);
@@ -132,8 +133,9 @@ namespace Crisp.Parsing
             var name = Expect(TokenTag.Identifier);
             BeginScope();
             var parameters = Parameters();
+            Expect(TokenTag.LBrace);
             var body = new List<IExpression>();
-            while (!Match(TokenTag.End))
+            while (!Match(TokenTag.RBrace))
             {
                 var expr = Expression();
                 body.Add(expr);
@@ -168,7 +170,7 @@ namespace Crisp.Parsing
                 return While();
             }
 
-            if (Match(TokenTag.Begin))
+            if (Match(TokenTag.LBrace))
             {
                 return Block();
             }
@@ -189,22 +191,43 @@ namespace Crisp.Parsing
 
         IExpression If()
         {
-            var condition = Expression();
-            Expect(TokenTag.Then);
-            var consequence = Expression();
-            var alternative = Match(TokenTag.Else)
-                ? Expression()
-                : new Literal(Runtime.Null.Instance);
-            return new Branch(condition, consequence, alternative);
+            IEnumerable<Branch> Branches()
+            {
+                IExpression Consequence()
+                {
+                    Expect(TokenTag.LBrace);
+                    return Block();
+                }
+
+                yield return new Branch(Expression(), Consequence());
+
+                bool sawIfElse;
+                do
+                {
+                    if (Match(TokenTag.Else))
+                    {
+                        sawIfElse = Match(TokenTag.If);
+                        yield return new Branch(sawIfElse ? Expression() : Literal.True,
+                                                Consequence());
+                    }
+                    else
+                    {
+                        sawIfElse = false;
+                    }
+                }
+                while (sawIfElse);
+            }
+
+            return new Condition(Branches().ToList());
         }
 
         IExpression While()
         {
             var guard = Expression();
-            Expect(TokenTag.Do);
+            Expect(TokenTag.LBrace);
             BeginScope();
             var body = new List<IExpression>();
-            while (!Match(TokenTag.End))
+            while (!Match(TokenTag.RBrace))
             {
                 var expr = Expression();
                 body.Add(expr);
@@ -217,7 +240,7 @@ namespace Crisp.Parsing
         {
             BeginScope();
             var body = new List<IExpression>();
-            while (!Match(TokenTag.End))
+            while (!Match(TokenTag.RBrace))
             {
                 var expr = Expression();
                 body.Add(expr);

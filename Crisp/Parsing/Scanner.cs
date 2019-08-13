@@ -16,11 +16,8 @@ namespace Crisp.Parsing
             new Dictionary<string, TokenTag>
             {
                 ["and"]      = TokenTag.And,
-                ["begin"]    = TokenTag.Begin,
                 ["const"]    = TokenTag.Const,
-                ["do"]       = TokenTag.Do,
                 ["else"]     = TokenTag.Else,
-                ["end"]      = TokenTag.End,
                 ["false"]    = TokenTag.False,
                 ["function"] = TokenTag.Function,
                 ["if"]       = TokenTag.If,
@@ -30,7 +27,6 @@ namespace Crisp.Parsing
                 ["mod"]      = TokenTag.Mod,
                 ["or"]       = TokenTag.Or,
                 ["record"]   = TokenTag.Record,
-                ["then"]     = TokenTag.Then,
                 ["this"]     = TokenTag.This,
                 ["true"]     = TokenTag.True,
                 ["to"]       = TokenTag.To,
@@ -120,6 +116,8 @@ namespace Crisp.Parsing
                 case '<' when peek == '>':  return Accept(TokenTag.InequalTo, 2);
                 case '<' when peek == '=':  return Accept(TokenTag.LessThanOrEqualTo, 2);
                 case '>' when peek == '=':  return Accept(TokenTag.GreaterThanOrEqualTo, 2);
+                case '{': return Accept(TokenTag.LBrace);
+                case '}': return Accept(TokenTag.RBrace);
                 case '(': return Accept(TokenTag.LParen);
                 case ')': return Accept(TokenTag.RParen);
                 case ',': return Accept(TokenTag.Comma);

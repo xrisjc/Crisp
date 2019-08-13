@@ -179,19 +179,6 @@ namespace Crisp.Runtime
             EvaluateAsBlock(block.Body);
         }
 
-        public void Visit(Branch branch)
-        {
-            Evaluate(branch.Condition);
-            if (IsTrue())
-            {
-                Evaluate(branch.Consequence);
-            }
-            else
-            {
-                Evaluate(branch.Alternative);
-            }
-        }
-
         public void Visit(Call call)
         {
             foreach (var expr in call.Arguments)
@@ -201,6 +188,22 @@ namespace Crisp.Runtime
             stack.Push(call.Arity);
 
             Invoke(program.Fns[call.Name]);
+        }
+
+        public void Visit(Condition condition)
+        {
+            // Invariant: No branch condition evaluated to true.
+            foreach (var branch in condition.Branches)
+            {
+                Evaluate(branch.Condition);
+                if (IsTrue())
+                {
+                    Evaluate(branch.Consequence);
+                    return;
+                }
+            }
+
+            stack.Push(Null.Instance);
         }
 
         public void Visit(Const @const)
