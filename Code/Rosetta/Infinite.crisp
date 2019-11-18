@@ -1,5 +1,0 @@
-// http://www.rosettacode.org/wiki/Loops/Infinite
-
-while true do
-  write('SPAM\n')
-end
