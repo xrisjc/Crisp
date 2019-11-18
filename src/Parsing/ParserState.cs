@@ -97,10 +97,5 @@
         {
             return SymbolTable.Lookup(name);
         }
-
-        public SymbolTag? SymbolLookup(Token token)
-        {
-            return SymbolLookup(token.Lexeme);
-        }
     }
 }

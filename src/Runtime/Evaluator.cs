@@ -206,11 +206,6 @@ namespace Crisp.Runtime
             stack.Push(Null.Instance);
         }
 
-        public void Visit(Const @const)
-        {
-            stack.Push(program.Consts[@const.Name].Value ?? Null.Instance);
-        }
-
         public void Visit(Identifier identifier)
         {
             if (environment.Get(identifier.Name, out var value))

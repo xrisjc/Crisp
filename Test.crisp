@@ -221,22 +221,10 @@ function testOperators(t) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Variables Blocks and Consts
+// Variables Blocks
 ///////////////////////////////////////////////////////////////////////////////
 
-// Constants can be declared in your top level scope. A const can only be set
-// to a literal value.
-const cNull = null
-const cInt = 10
-const cFloat = 2.5
-const cString = 'hello world'
-
 function testVariablesAndBlocks(t) {
-    // Assert constants were set.
-    t.assertEq(cNull, null, 'Null constant')
-    t.assertEq(cInt, 10, 'Int constant')
-    t.assertEq(cFloat, 2.5, 'Float constant')
-    t.assertEq(cString, 'hello world', 'String constant')
 
     // Variables are declared with the keyword "var" and the assignment operator:
     // ":=".  A variable must be declared before it is used or else there will be
@@ -420,7 +408,7 @@ function testFunctions(t) {
 
 type Counter record {
     var n
-    function get() { n := n + 1 }
+    function get() { this.n := this.n + 1 }
 }
 
 function testLogicalAndOr(t) {
@@ -482,22 +470,21 @@ type B record {
     }
 }
 
-// You can have multiple var declarations in a record. You also can leave
-// this off of record variables.
+// You can have multiple var declarations in a record.
 type Vector3 record {
     var x, y
     function project() {
         var p := Vector()
-        p.x := x
-        p.y := y
+        p.x := this.x
+        p.y := this.y
         p
     }
     var z
     function add(v) {
         var vSum := Vector3()
-        vSum.x := x + v.x
-        vSum.y := y + v.y
-        vSum.z := z + v.z
+        vSum.x := this.x + v.x
+        vSum.y := this.y + v.y
+        vSum.z := this.z + v.z
         vSum
     }
 }
@@ -554,42 +541,42 @@ type Test record {
     var showPassedTest
 
     function pass(message) {
-        nTests := nTests + 1
+        this.nTests := this.nTests + 1
         write('[OK] "', message, '"\n')
     }
 
     function fail(message) {
-        nTests := nTests + 1
-        nErrors := nErrors + 1
+        this.nTests := this.nTests + 1
+        this.nErrors := this.nErrors + 1
         write('[FAILED] "', message, '"\n')
     }
 
     function assert(condition, message) {
         if not condition {
             this.fail(message)
-        } else if showPassedTest {
+        } else if this.showPassedTest {
             this.pass(message)
         }
     }
 
     function assertEq(test, expected, message) {
-        nTests := nTests + 1
+        this.nTests := this.nTests + 1
         if test <> expected {
             write('[FAILED] "', message, '": expected <', expected, '> got <',
                 test, '>\n')
-            nErrors := nErrors + 1
+            this.nErrors := this.nErrors + 1
         }
-        else if showPassedTest {
+        else if this.showPassedTest {
             write('[OK] "', message, '"\n')
         }
     }
 
     function displaySummary() {
-        write('\n', nTests - nErrors, ' out of ', nTests, ' tests passed.\n')
+        write('\n', this.nTests - this.nErrors, ' out of ', this.nTests, ' tests passed.\n')
         write('There are ',
-              nErrors,
+              this.nErrors,
               ' errors. ',
-              if nErrors = 0 { ':-)' } else { 'D-:' },
+              if this.nErrors = 0 { ':-)' } else { 'D-:' },
               '\n')
     }
 }

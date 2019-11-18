@@ -503,16 +503,7 @@ namespace Crisp.Parsing
 
             if (Match(out token, TokenTag.Identifier))
             {
-                var name = token.Lexeme;
-                switch (SymbolLookup(name))
-                {
-                    case SymbolTag.Attribute:
-                        return new AttributeAccess(This.Instance, name);
-                    case SymbolTag.Constant:
-                        return new Const(name);
-                    default:
-                        return new Identifier(token.Position, name);
-                }
+                return new Identifier(token.Position, token.Lexeme);
             }
 
             if (Match(TokenTag.Null))

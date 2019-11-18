@@ -8,7 +8,6 @@
         void Visit(Block block);
         void Visit(Call call);
         void Visit(Condition condition);
-        void Visit(Const @const);
         void Visit(Identifier identifier);
         void Visit(Literal literal);
         void Visit(MessageSend messageSend);
