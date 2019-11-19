@@ -14,7 +14,6 @@ namespace Crisp
             Unknown,
             Quit,
             WriteEnvironment,
-            WriteSymbolTable,
         }
 
         static Dictionary<string, Commands> commands =
@@ -22,7 +21,6 @@ namespace Crisp
             {
                 [":q"] = Commands.Quit,
                 [":e"] = Commands.WriteEnvironment,
-                [":st"] = Commands.WriteSymbolTable,
             };
 
         public static void Run(TextReader reader, TextWriter writer)
@@ -49,10 +47,6 @@ namespace Crisp
 
                     case Commands.WriteEnvironment:
                         environment.Write();
-                        break;
-
-                    case Commands.WriteSymbolTable:
-                        parser.SymbolTable.Write();
                         break;
                 }
             }

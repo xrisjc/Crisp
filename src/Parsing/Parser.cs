@@ -57,7 +57,7 @@ namespace Crisp.Parsing
                 }
                 else if (Match(TokenTag.Function))
                 {
-                    Function(program.Fns, SymbolTag.Function);
+                    Function(program.Fns);
                 }
                 else
                 {
@@ -77,7 +77,6 @@ namespace Crisp.Parsing
 
             if (value is Literal literal)
             {
-                CreateSymbol(name.Lexeme, name.Position, SymbolTag.Constant);
                 consts.Add(name.Lexeme, literal);
             }
             else
@@ -89,19 +88,17 @@ namespace Crisp.Parsing
         void Type(Dictionary<string, Record> types)
         {
             var typeName = Expect(TokenTag.Identifier);
-            CreateSymbol(typeName.Lexeme, typeName.Position, SymbolTag.Record);
 
             var record = new Record { Name = typeName.Lexeme };
 
             // Right now there are only record user defined types.
             Expect(TokenTag.Record);
             Expect(TokenTag.LBrace);
-            BeginScope();
 
             if (Current.Tag == TokenTag.Identifier)
             {
                 // The short form of a variable field only record.
-                record.Variables.AddRange(IdentifierList(SymbolTag.Attribute));
+                record.Variables.AddRange(IdentifierList());
             }
             else
             {
@@ -109,11 +106,11 @@ namespace Crisp.Parsing
                 {
                     if (Match(TokenTag.Var))
                     {
-                        record.Variables.AddRange(IdentifierList(SymbolTag.Attribute));
+                        record.Variables.AddRange(IdentifierList());
                     }
                     else if (Match(TokenTag.Function))
                     {
-                        Function(record.Functions, SymbolTag.MessageFunction);
+                        Function(record.Functions);
                     }
                     else
                     {
@@ -123,15 +120,13 @@ namespace Crisp.Parsing
             }
 
             Expect(TokenTag.RBrace);
-            EndScope();
 
             types.Add(typeName.Lexeme, record);
         }
 
-        void Function(Dictionary<string, Function> fns, SymbolTag symbolTag)
+        void Function(Dictionary<string, Function> fns)
         {
             var name = Expect(TokenTag.Identifier);
-            BeginScope();
             var parameters = Parameters();
             Expect(TokenTag.LBrace);
             var body = new List<IExpression>();
@@ -140,9 +135,7 @@ namespace Crisp.Parsing
                 var expr = Expression();
                 body.Add(expr);
             }
-            EndScope();
 
-            CreateSymbol(name.Lexeme, name.Position, symbolTag);
             var fn = new Function
             {
                 Name = new Identifier(name.Position, name.Lexeme),
@@ -185,7 +178,6 @@ namespace Crisp.Parsing
             Expect(TokenTag.Assignment);
             var initialValue = Expression();
 
-            CreateSymbol(name.Lexeme, name.Position, SymbolTag.Var);
             return new Var(name.Lexeme, initialValue);
         }
 
@@ -225,27 +217,23 @@ namespace Crisp.Parsing
         {
             var guard = Expression();
             Expect(TokenTag.LBrace);
-            BeginScope();
             var body = new List<IExpression>();
             while (!Match(TokenTag.RBrace))
             {
                 var expr = Expression();
                 body.Add(expr);
             }
-            EndScope();
             return new While(guard, body);
         }
 
         IExpression Block()
         {
-            BeginScope();
             var body = new List<IExpression>();
             while (!Match(TokenTag.RBrace))
             {
                 var expr = Expression();
                 body.Add(expr);
             }
-            EndScope();
             return new Block(body);
         }
 
@@ -259,18 +247,17 @@ namespace Crisp.Parsing
             }
             else
             {
-                var parameters = IdentifierList(SymbolTag.Parameter).ToList();
+                var parameters = IdentifierList().ToList();
                 Expect(TokenTag.RParen);
                 return parameters;
             }
         }
 
-        IEnumerable<string> IdentifierList(SymbolTag tag)
+        IEnumerable<string> IdentifierList()
         {
             do
             {
                 var name = Expect(TokenTag.Identifier);
-                CreateSymbol(name.Lexeme, name.Position, tag);
                 yield return name.Lexeme;
             }
             while (Match(TokenTag.Comma));
@@ -411,33 +398,20 @@ namespace Crisp.Parsing
 
         IExpression Call(Position position, IExpression left)
         {
-            switch (left)
+            return left switch
             {
-                case AttributeAccess member:
-                    return new MessageSend(position, member.Entity, member.Name, Arguments());
+                AttributeAccess member => new MessageSend(position, member.Entity, member.Name, Arguments()),
 
-                case Identifier identifier:
-                    switch (SymbolLookup(identifier.Name))
+                Identifier identifier =>
+                    new Call
                     {
-                        case SymbolTag.Record:
-                            Expect(TokenTag.RParen);
-                            return new RecordConstructor { RecordName = identifier };
-                        case SymbolTag.Function:
-                            return new Call
-                            {
-                                Position = position,
-                                Name = identifier.Name,
-                                Arguments = Arguments(),
-                            };
-                        default:
-                            throw new SyntaxErrorException(
-                                $"no function named <{identifier.Name}> has been defined",
-                                identifier.Position);
-                    }
+                        Position = position,
+                        Name = identifier.Name,
+                        Arguments = Arguments(),
+                    },
 
-                default:
-                    throw new SyntaxErrorException("Invalid call target", position);
-            }
+                _ => throw new SyntaxErrorException("Invalid call target", position),
+            };
         }
 
         List<IExpression> Arguments()

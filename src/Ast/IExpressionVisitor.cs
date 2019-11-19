@@ -13,7 +13,6 @@
         void Visit(MessageSend messageSend);
         void Visit(OperatorBinary operatorBinary);
         void Visit(OperatorUnary operatorUnary);
-        void Visit(RecordConstructor recordConstructor);
         void Visit(This @this);
         void Visit(Var var);
         void Visit(While @while);

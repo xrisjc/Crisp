@@ -181,13 +181,31 @@ namespace Crisp.Runtime
 
         public void Visit(Call call)
         {
-            foreach (var expr in call.Arguments)
+            if (program.Fns.TryGetValue(call.Name, out var fn))
             {
-                Evaluate(expr);
-            }
-            stack.Push(call.Arity);
+                foreach (var expr in call.Arguments)
+                {
+                    Evaluate(expr);
+                }
+                stack.Push(call.Arity);
 
-            Invoke(program.Fns[call.Name]);
+                Invoke(program.Fns[call.Name]);
+            }
+            else if (program.Types.TryGetValue(call.Name, out var type))
+            {
+                if (call.Arguments.Count > 0)
+                {
+                    throw new RuntimeErrorException($"Record constructor {call.Name} must have no arguments");
+                }
+
+                var variables = new Dictionary<string, object>();
+                foreach (var name in type.Variables)
+                {
+                    variables[name] = Null.Instance;
+                }
+
+                stack.Push(new RecordInstance(type.Name, variables));
+            }
         }
 
         public void Visit(Condition condition)
@@ -372,20 +390,6 @@ namespace Crisp.Runtime
                         $"Operator {operatorUnary.Op} cannot be applied to value <{obj}>");
             }
 
-        }
-
-        public void Visit(RecordConstructor recordConstructor)
-        {
-            var record = program.Types[recordConstructor.RecordName.Name];
-
-            var variables = new Dictionary<string, object>();
-            foreach (var name in record.Variables)
-            {
-                variables[name] = Null.Instance;
-            }
-
-            var recordInstance = new RecordInstance(recordConstructor.RecordName.Name, variables);
-            stack.Push(recordInstance);
         }
 
         public void Visit(This @this)
