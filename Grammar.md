@@ -1,11 +1,9 @@
 
     program -> program_item* ;
-    program_item -> const
-                  | type
+    program_item -> type
                   | function
                   | expr ;
 
-    const -> "const" id "=" expr ;
     type -> "type" id "record" "{" type_body "}" ;
 
     type_body -> id_list
