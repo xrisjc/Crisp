@@ -166,7 +166,6 @@ namespace Crisp.Runtime
                             var param = fn.Parameters[i];
                             var value = Evaluate(arg);
                             if (!env.Create(param, value))
-                                // TODO: No position for the parameter!
                                 throw new RuntimeErrorException(
                                     ms.Position,
                                     $"{param} already bound");
