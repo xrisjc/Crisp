@@ -8,53 +8,20 @@
 
         public Token Peek { get; private set; }
 
-        public void NewCode(string code)
+        public ParserState(Scanner scanner)
         {
-            scanner = new Scanner(code);
-            NextToken();
-            NextToken();
+            this.scanner = scanner;
+            Current = scanner.NextToken();
+            Peek = scanner.NextToken();
         }
 
-        public void NextToken()
+        private void NextToken()
         {
             Current = Peek;
             Peek = scanner.NextToken();
         }
 
-        public bool Match(out Token token, TokenTag tag)
-        {
-            if (Current.Tag == tag)
-            {
-                token = Current;
-                NextToken();
-                return true;
-            }
-            else
-            {
-                token = null;
-                return false;
-            }
-        }
-
-        public bool Match(TokenTag tag)
-        {
-            return Match(out var token, tag);
-        }
-
-        public bool Match(out Token token, params TokenTag[] tags)
-        {
-            foreach (var tag in tags)
-            {
-                if (Match(out token, tag))
-                {
-                    return true;
-                }
-            }
-            token = null;
-            return false;
-        }
-
-        public Token Expect(TokenTag tag)
+        public Token? Match2(TokenTag tag)
         {
             if (Current.Tag == tag)
             {
@@ -63,9 +30,31 @@
                 return token;
             }
             else
-            {
-                throw new SyntaxErrorException($"exepected, but didn't match, token {tag}", Current.Position);
-            }
+                return null;
+        }
+
+        public Token? Match2(params TokenTag[] tags)
+        {
+            foreach (var tag in tags)
+                if (Match2(tag) is Token token)
+                    return token;
+
+            return null;
+        }
+
+        public bool Match(TokenTag tag)
+        {
+            return Match2(tag) != null;
+        }
+
+        public Token Expect(TokenTag tag)
+        {
+            if (Match2(tag) is Token token)
+                return token;
+            else
+                throw new SyntaxErrorException(
+                    $"exepected, but didn't match, token {tag}",
+                    Current.Position);
         }
     }
 }

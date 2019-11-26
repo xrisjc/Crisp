@@ -5,10 +5,17 @@ namespace Crisp.Ast
 {
     class Call : IExpression
     {
-        public Position Position { get; set; }
+        public Position Position { get; }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public List<IExpression> Arguments { get; set; }
+        public List<IExpression> Arguments { get; }
+
+        public Call(Position position, string name, List<IExpression> arguments)
+        {
+            Position = position;
+            Name = name;
+            Arguments = arguments;
+        }
     }
 }

@@ -4,6 +4,11 @@ namespace Crisp.Ast
 {
     class Write : IExpression
     {
-        public List<IExpression> Arguments { get; set; }
+        public List<IExpression> Arguments { get; }
+
+        public Write(List<IExpression> arguments)
+        {
+            Arguments = arguments;
+        }
     }
 }

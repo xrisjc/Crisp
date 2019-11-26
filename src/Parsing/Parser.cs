@@ -25,31 +25,27 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = OperatorBinaryTag.Sub,
             };
 
-        public Program Parse(string code)
+        public static Program Parse(string code)
         {
-            NewCode(code);
-            return Program();
+            var scanner = new Scanner(code);
+            var parser = new Parser(scanner);
+            return parser.Program();
+        }
+
+        public Parser(Scanner scanner)
+            : base(scanner)
+        {
         }
 
         Program Program()
         {
-            var program = new Program
-            {
-                Consts = new Dictionary<string, Literal>(),
-                Types = new Dictionary<string, Record>(),
-                Fns = new Dictionary<string, Function>(),
-                Expressions = new List<IExpression>(),
-            };
+            var program = new Program();
 
             while (true)
             {
                 if (Match(TokenTag.EndOfInput))
                 {
                     break;
-                }
-                else if (Match(TokenTag.Const))
-                {
-                    Const(program.Consts);
                 }
                 else if (Match(TokenTag.Type))
                 {
@@ -89,7 +85,7 @@ namespace Crisp.Parsing
         {
             var typeName = Expect(TokenTag.Identifier);
 
-            var record = new Record { Name = typeName.Lexeme };
+            var record = new Record(typeName.Lexeme);
 
             // Right now there are only record user defined types.
             Expect(TokenTag.Record);
@@ -136,12 +132,10 @@ namespace Crisp.Parsing
                 body.Add(expr);
             }
 
-            var fn = new Function
-            {
-                Name = new Identifier(name.Position, name.Lexeme),
-                Parameters = parameters,
-                Body = body
-            };
+            var fn = new Function(
+                new Identifier(name.Position, name.Lexeme),
+                parameters,
+                body);
             fns.Add(name.Lexeme, fn);
         }
 
@@ -267,7 +261,7 @@ namespace Crisp.Parsing
         {
             var left = LogicalOr();
 
-            if (Match(out var token, TokenTag.Assignment))
+            if (Match2(TokenTag.Assignment) is Token token)
             {
                 var right = Expression();
 
@@ -291,7 +285,7 @@ namespace Crisp.Parsing
         IExpression LogicalOr()
         {
             var left = LogicalAnd();
-            while (Match(out var token, TokenTag.Or))
+            while (Match2(TokenTag.Or) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = LogicalAnd();
@@ -303,7 +297,7 @@ namespace Crisp.Parsing
         IExpression LogicalAnd()
         {
             var left = Equality();
-            while (Match(out var token, TokenTag.And))
+            while (Match2(TokenTag.And) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Equality();
@@ -315,7 +309,7 @@ namespace Crisp.Parsing
         IExpression Equality()
         {
             var left = Relation();
-            while (Match(out var token, TokenTag.Equals, TokenTag.InequalTo))
+            while (Match2(TokenTag.Equals, TokenTag.InequalTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Relation();
@@ -327,7 +321,7 @@ namespace Crisp.Parsing
         IExpression Relation()
         {
             var left = Addition();
-            while (Match(out var token, TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo))
+            while (Match2(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Addition();
@@ -339,7 +333,7 @@ namespace Crisp.Parsing
         IExpression Addition()
         {
             var left = Multiplication();
-            while (Match(out var token, TokenTag.Add, TokenTag.Subtract))
+            while (Match2(TokenTag.Add, TokenTag.Subtract) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Multiplication();
@@ -351,7 +345,7 @@ namespace Crisp.Parsing
         IExpression Multiplication()
         {
             var left = Unary();
-            while (Match(out var token, TokenTag.Multiply, TokenTag.Divide, TokenTag.Mod))
+            while (Match2(TokenTag.Multiply, TokenTag.Divide, TokenTag.Mod) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Unary();
@@ -362,16 +356,16 @@ namespace Crisp.Parsing
 
         IExpression Unary()
         {
-            if (Match(out var token, TokenTag.Subtract))
+            if (Match2(TokenTag.Subtract) is Token tokenSubtract)
             {
                 var expression = Expression();
-                return new OperatorUnary(token.Position, OperatorUnaryTag.Neg, expression);
+                return new OperatorUnary(tokenSubtract.Position, OperatorUnaryTag.Neg, expression);
             }
 
-            if (Match(out token, TokenTag.Not))
+            if (Match2(TokenTag.Not) is Token tokenNot)
             {
                 var expression = Expression();
-                return new OperatorUnary(token.Position, OperatorUnaryTag.Not, expression);
+                return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);
             }
 
             return Invoke();
@@ -381,7 +375,7 @@ namespace Crisp.Parsing
         {
             var expr = Primary();
 
-            while (Match(out var token, TokenTag.LParen, TokenTag.Period))
+            while (Match2(TokenTag.LParen, TokenTag.Period) is Token token)
             {
                 if (token.Tag == TokenTag.LParen)
                 {
@@ -402,13 +396,7 @@ namespace Crisp.Parsing
             {
                 AttributeAccess member => new MessageSend(position, member.Entity, member.Name, Arguments()),
 
-                Identifier identifier =>
-                    new Call
-                    {
-                        Position = position,
-                        Name = identifier.Name,
-                        Arguments = Arguments(),
-                    },
+                Identifier identifier => new Call(position, identifier.Name, Arguments()),
 
                 _ => throw new SyntaxErrorException("Invalid call target", position),
             };
@@ -439,29 +427,31 @@ namespace Crisp.Parsing
 
         IExpression Primary()
         {
-            Token token;
-
-            if (Match(out token, TokenTag.Float))
+            if (Match2(TokenTag.Float) is Token token)
             {
                 if (double.TryParse(token.Lexeme, out var value))
                 {
                     return new Literal(value);
                 }
-                throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 64 bit floating bit", token.Position);
+                throw new SyntaxErrorException(
+                    $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
+                    token.Position);
             }
 
-            if (Match(out token, TokenTag.Integer))
+            if (Match2(TokenTag.Integer) is Token tokenInteger)
             {
-                if (int.TryParse(token.Lexeme, out var value))
+                if (int.TryParse(tokenInteger.Lexeme, out var value))
                 {
                     return new Literal(value);
                 }
-                throw new SyntaxErrorException($"Unable to convert <{token.Lexeme}> into a 32 bit integer.", token.Position);
+                throw new SyntaxErrorException(
+                    $"Unable to convert <{tokenInteger.Lexeme}> into a 32 bit integer.",
+                    tokenInteger.Position);
             }
 
-            if (Match(out token, TokenTag.String))
+            if (Match2(TokenTag.String) is Token tokenString)
             {
-                var str = ParseString(token.Lexeme, token.Position);
+                var str = ParseString(tokenString.Lexeme, tokenString.Position);
                 return new Literal(str);
             }
 
@@ -475,14 +465,14 @@ namespace Crisp.Parsing
                 return Literal.False;
             }
 
-            if (Match(out token, TokenTag.Identifier))
+            if (Match2(TokenTag.Identifier) is Token tokenIdentifier)
             {
-                return new Identifier(token.Position, token.Lexeme);
+                return new Identifier(tokenIdentifier.Position, tokenIdentifier.Lexeme);
             }
 
             if (Match(TokenTag.Null))
             {
-                return Literal.Null;
+                return LiteralNull.Instance;
             }
 
             if (Match(TokenTag.This))
@@ -509,7 +499,7 @@ namespace Crisp.Parsing
         {
             Expect(TokenTag.LParen);
             var arguments = Arguments();
-            return new Write { Arguments = arguments };
+            return new Write(arguments);
         }
 
         static string ParseString(string lexeme, Position position)

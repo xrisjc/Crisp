@@ -6,9 +6,9 @@ namespace Crisp.Runtime
     [Serializable]
     class RuntimeErrorException : CrispException
     {
-        public Position Position { get; }
+        public Position? Position { get; }
 
-        public RuntimeErrorException(Position position, string message)
+        public RuntimeErrorException(Position? position, string message)
             : base(message)
         {
             Position = position;

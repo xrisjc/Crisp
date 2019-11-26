@@ -8,12 +8,12 @@ namespace Crisp.Runtime
     {
         public Environment Environment { get; }
         public Program Program { get; }
-        public RecordInstance This { get; }
+        public RecordInstance? This { get; }
 
         public Interpreter(
             Environment environment,
             Program program,
-            RecordInstance @this)
+            RecordInstance? @this)
         {
             Environment = environment;
             Program = program;
@@ -22,9 +22,6 @@ namespace Crisp.Runtime
 
         public Interpreter PushEnvironment() =>
             new Interpreter(new Environment(Environment), Program, This);
-
-        public Interpreter PushThis(RecordInstance @this) =>
-            new Interpreter(Environment, Program, @this);
 
         public dynamic Evaluate(IExpression expression)
         {
@@ -41,10 +38,13 @@ namespace Crisp.Runtime
 
                 case AttributeAccess aa
                 when Evaluate(aa.Entity) is RecordInstance entity1:
-                    // TODO: Need positions for all the runtime errors.
-                    if (!entity1.GetAttribute(aa.Name, out result))
-                        throw new RuntimeErrorException(
-                            $"Attribute {aa.Name} not found");
+                    result = entity1.GetAttribute(aa.Name) switch
+                    {
+                        null =>
+                            throw new RuntimeErrorException(
+                                $"Attribute {aa.Name} not found"),
+                        var value => value,
+                    };
                     break;
 
                 case AttributeAccess aa:
@@ -129,14 +129,22 @@ namespace Crisp.Runtime
                     break;
 
                 case Identifier identifier:
-                    if (!Environment.Get(identifier.Name, out result))
-                        throw new RuntimeErrorException(
-                            identifier.Position,
-                            $"Identifier <{identifier.Name}> unbound");
+                    result = Environment.Get(identifier.Name) switch
+                    {
+                        null =>
+                            throw new RuntimeErrorException(
+                                identifier.Position,
+                                $"Identifier <{identifier.Name}> unbound"),
+                        var value => value,
+                    };
                     break;
 
                 case Literal literal:
-                    result = literal.Value ?? Null.Instance;
+                    result = literal.Value;
+                    break;
+
+                case LiteralNull _:
+                    result = Null.Instance;
                     break;
 
                 case MessageSend ms:
@@ -242,7 +250,7 @@ namespace Crisp.Runtime
                     break;
 
                 case This _:
-                    result = (object)This ?? Null.Instance;
+                    result = (object?)This ?? Null.Instance;
                     break;
 
                 case Var var:

@@ -7,7 +7,6 @@
         And,
         Assignment,
         Comma,
-        Const,
         Divide,
         Else,
         EndOfInput,

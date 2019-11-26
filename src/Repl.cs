@@ -26,16 +26,15 @@ namespace Crisp
         public static void Run(TextReader reader, TextWriter writer)
         {
             var environment = new Runtime.Environment();
-            var parser = new Parser();
 
             while (true)
             {
-                var input = Prompt(reader, writer);
+                var input = Prompt(reader, writer) ?? "";
                 var command = ParseInput(input);
                 switch (command)
                 {
                     case Commands.EvalCode:
-                        Evaluate(input, parser, environment, writer);
+                        Evaluate(input, environment, writer);
                         break;
 
                     case Commands.Unknown:
@@ -54,7 +53,7 @@ namespace Crisp
             QuitRepl: writer.WriteLine("goodbye");
         }
 
-        static string Prompt(TextReader reader, TextWriter writer)
+        static string? Prompt(TextReader reader, TextWriter writer)
         {
             writer.Write("> ");
             return reader.ReadLine();
@@ -68,16 +67,19 @@ namespace Crisp
             }
 
             var args = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            return commands.GetValue(args[0], Commands.Unknown);
+
+            if (!commands.TryGetValue(args[0], out var command))
+                command = Commands.Unknown;
+            
+            return command;
         }
 
-        static void Evaluate(string code, Parser parser, Runtime.Environment environment, TextWriter writer)
+        static void Evaluate(string code, Runtime.Environment environment, TextWriter writer)
         {
             try
             {
-                var program = parser.Parse(code);
+                var program = Parser.Parse(code);
                 var result = Interpreter.Run(program, environment);
-                // var result = Evaluator.Run(program, environment);
                 writer.WriteLine(result);
             }
             catch (CrispException e)

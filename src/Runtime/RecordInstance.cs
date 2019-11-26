@@ -14,17 +14,10 @@ namespace Crisp.Runtime
             this.variables = variables;
         }
 
-        public bool GetAttribute(string name, out object value)
+        public object? GetAttribute(string name)
         {
-            if (variables.TryGetValue(name, out value))
-            {
-                return true;
-            }
-            else
-            {
-                value = Null.Instance;
-                return false;
-            }
+            variables.TryGetValue(name, out var value);
+            return value;
         }
 
         public bool SetAttribute(string name, object value)

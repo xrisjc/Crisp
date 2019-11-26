@@ -15,6 +15,11 @@
             Position = position;
         }
 
+        public Token()
+            : this("", TokenTag.Unknown, new Position(0, 0))
+        {
+        }
+
         public override string ToString()
         {
             return $"({Tag}, <{Lexeme}>, {Position})";

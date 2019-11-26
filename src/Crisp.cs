@@ -30,8 +30,7 @@ namespace Crisp
             try
             {
                 var code = File.ReadAllText(filename);
-                var parser = new Parser();
-                var program = parser.Parse(code);
+                var program = Parser.Parse(code);
                 var environment = new Runtime.Environment();
                 Interpreter.Run(program, environment);
             }

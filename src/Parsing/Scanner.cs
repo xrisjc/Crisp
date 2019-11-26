@@ -16,7 +16,6 @@ namespace Crisp.Parsing
             new Dictionary<string, TokenTag>
             {
                 ["and"]      = TokenTag.And,
-                ["const"]    = TokenTag.Const,
                 ["else"]     = TokenTag.Else,
                 ["false"]    = TokenTag.False,
                 ["function"] = TokenTag.Function,
@@ -178,7 +177,10 @@ namespace Crisp.Parsing
                             Next();
                         }
                         var token = AcceptMark();
-                        var tag = keywords.GetValue(token.Lexeme, TokenTag.Identifier);
+                        if (!keywords.TryGetValue(token.Lexeme, out var tag))
+                        {
+                            tag = TokenTag.Identifier;
+                        }
                         return new Token(token.Lexeme, tag, token.Position);
                     }
 

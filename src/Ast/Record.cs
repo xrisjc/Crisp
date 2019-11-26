@@ -9,5 +9,10 @@ namespace Crisp.Ast
         public List<string> Variables { get; } = new List<string>();
 
         public Dictionary<string, Function> Functions { get; } = new Dictionary<string, Function>();
+
+        public Record(string name)
+        {
+            Name = name;
+        }
     }
 }

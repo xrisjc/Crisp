@@ -6,8 +6,6 @@
 
         public static Literal False { get; } = new Literal(false);
 
-        public static Literal Null { get; } = new Literal(null);
-
         public object Value { get; }
 
         public Literal(object value)

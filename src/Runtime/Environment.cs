@@ -4,31 +4,25 @@ namespace Crisp.Runtime
 {
     class Environment
     {
-        Environment outer;
+        Environment? outer;
         Dictionary<string, object> values = new Dictionary<string, object>();
 
-        public Environment(Environment outer = null)
+        public Environment(Environment? outer = null)
         {
             this.outer = outer;
         }
 
-        public bool Get(string name, out object value)
+        public object? Get(string name)
         {
-            for (var e = this; e != null; e = e.outer)
-            {
-                if (e.values.TryGetValue(name, out value))
-                {
-                    return true;
-                }
-            }
-
-            value = Null.Instance;
-            return false;
-        }
+            for (Environment? e = this; e != null; e = e.outer)
+                if (e.values.TryGetValue(name, out var value))
+                    return value;
+            return null;
+       }
 
         public bool Set(string name, object value)
         {
-            for (var e = this; e != null; e = e.outer)
+            for (Environment? e = this; e != null; e = e.outer)
             {
                 if (e.values.ContainsKey(name))
                 {
@@ -54,7 +48,7 @@ namespace Crisp.Runtime
 
         public void Write()
         {
-            for (var e = this; e != null; e = e.outer)
+            for (Environment? e = this; e != null; e = e.outer)
             {
                 System.Console.WriteLine("#");
                 foreach (var item in e.values)
