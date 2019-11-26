@@ -8,9 +8,9 @@ namespace Crisp.Ast
 
         public List<string> Parameters { get; }
 
-        public List<IExpression> Body { get; }
+        public Block Body { get; }
 
-        public Function(Identifier name, List<string> parameters, List<IExpression> body)
+        public Function(Identifier name, List<string> parameters, Block body)
         {
             Name = name;
             Parameters = parameters;

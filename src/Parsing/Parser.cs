@@ -125,12 +125,7 @@ namespace Crisp.Parsing
             var name = Expect(TokenTag.Identifier);
             var parameters = Parameters();
             Expect(TokenTag.LBrace);
-            var body = new List<IExpression>();
-            while (!Match(TokenTag.RBrace))
-            {
-                var expr = Expression();
-                body.Add(expr);
-            }
+            var body = Block();
 
             var fn = new Function(
                 new Identifier(name.Position, name.Lexeme),
@@ -213,16 +208,11 @@ namespace Crisp.Parsing
         {
             var guard = Expression();
             Expect(TokenTag.LBrace);
-            var body = new List<IExpression>();
-            while (!Match(TokenTag.RBrace))
-            {
-                var expr = Expression();
-                body.Add(expr);
-            }
+            var body = Block();
             return new While(guard, body);
         }
 
-        IExpression Block()
+        Block Block()
         {
             var body = new List<IExpression>();
             while (!Match(TokenTag.RBrace))

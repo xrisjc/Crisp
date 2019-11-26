@@ -95,7 +95,7 @@ namespace Crisp.Runtime
                         }
 
                         var interpreter = new Interpreter(env, Program, This);
-                        result = interpreter.Evaluate(new Block(fn.Body));
+                        result = interpreter.Evaluate(fn.Body);
                     }
                     break;
 
@@ -172,7 +172,7 @@ namespace Crisp.Runtime
                         }
 
                         var interpreter = new Interpreter(env, Program, @this);
-                        result = interpreter.Evaluate(new Block(fn.Body));
+                        result = interpreter.Evaluate(fn.Body);
                     }
                     else
                         throw new RuntimeErrorException(
@@ -263,7 +263,7 @@ namespace Crisp.Runtime
 
                 case While @while:
                     while (IsTruthy(Evaluate(@while.Guard)))
-                        Evaluate(new Block(@while.Body));
+                        Evaluate(@while.Body);
                     result = Null.Instance;
                     break;
 

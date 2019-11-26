@@ -6,9 +6,9 @@ namespace Crisp.Ast
     {
         public IExpression Guard { get; }
 
-        public List<IExpression> Body { get; }
+        public Block Body { get; }
 
-        public While(IExpression guard, List<IExpression> body)
+        public While(IExpression guard, Block body)
         {
             Guard = guard;
             Body = body;
