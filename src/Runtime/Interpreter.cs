@@ -38,18 +38,17 @@ namespace Crisp.Runtime
 
                 case AttributeAccess aa
                 when Evaluate(aa.Entity) is RecordInstance entity1:
-                    result = entity1.GetAttribute(aa.Name) switch
-                    {
-                        null =>
-                            throw new RuntimeErrorException(
-                                $"Attribute {aa.Name} not found"),
-                        var value => value,
-                    };
+                    if (entity1.GetAttribute(aa.Name.Name) is object attributeValue)
+                        result = attributeValue;
+                    else
+                        throw new RuntimeErrorException(
+                            aa.Name.Position,
+                            $"Attribute {aa.Name.Name} not found");
                     break;
 
                 case AttributeAccess aa:
-                    // TODO: Need positions for all the runtime errors.
                     throw new RuntimeErrorException(
+                        aa.Name.Position,
                         "Attribute access on non entity object");
 
                 case AttributeAssignment aa

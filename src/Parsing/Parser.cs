@@ -272,7 +272,7 @@ namespace Crisp.Parsing
 
                 if (left is AttributeAccess aa)
                 {
-                    return new AttributeAssignment(token.Position, aa.Entity, aa.Name, right);
+                    return new AttributeAssignment(token.Position, aa.Entity, aa.Name.Name, right);
                 }
 
                 throw new SyntaxErrorException("Left hand side of assignment must be assignable,", token.Position);
@@ -394,7 +394,7 @@ namespace Crisp.Parsing
         {
             return left switch
             {
-                AttributeAccess member => new MessageSend(position, member.Entity, member.Name, Arguments()),
+                AttributeAccess member => new MessageSend(position, member.Entity, member.Name.Name, Arguments()),
 
                 Identifier identifier => new Call(position, identifier.Name, Arguments()),
 
@@ -422,7 +422,7 @@ namespace Crisp.Parsing
         {
             var identifierToken = Expect(TokenTag.Identifier);
             var name = new Identifier(identifierToken.Position, identifierToken.Lexeme);
-            return new AttributeAccess(left, name.Name);
+            return new AttributeAccess(left, name);
         }
 
         IExpression Primary()

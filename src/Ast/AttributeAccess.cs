@@ -4,9 +4,9 @@
     {
         public IExpression Entity { get; }
 
-        public string Name { get; }
+        public Identifier Name { get; }
 
-        public AttributeAccess(IExpression entity, string name)
+        public AttributeAccess(IExpression entity, Identifier name)
         {
             Entity = entity;
             Name = name;
