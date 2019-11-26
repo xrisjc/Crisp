@@ -2,11 +2,11 @@
 {
     class Var : IExpression
     {
-        public string Name { get; }
+        public Identifier Name { get; }
 
         public IExpression InitialValue { get; }
 
-        public Var(string name, IExpression initialValue)
+        public Var(Identifier name, IExpression initialValue)
         {
             Name = name;
             InitialValue = initialValue;

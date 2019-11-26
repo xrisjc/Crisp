@@ -54,16 +54,15 @@ namespace Crisp.Runtime
                 case AttributeAssignment aa
                 when Evaluate(aa.Entity) is RecordInstance entity2:
                     result = Evaluate(aa.Value);
-                    if (!entity2.SetAttribute(aa.Name, result))
-                        // TODO: Need position!
+                    if (!entity2.SetAttribute(aa.Name.Name, result))
                         throw new RuntimeErrorException(
-                            $"attritue {aa.Name} not found.");
+                            aa.Name.Position,
+                            $"attritue {aa.Name.Name} not found.");
                     break;
 
                 case AttributeAssignment aa:
-                    // TODO: Need position!            
                     throw new RuntimeErrorException(
-                        aa.Position,
+                        aa.Name.Position,
                         "Attribute assignment on non entity object");
 
                 case Block block:
@@ -91,6 +90,7 @@ namespace Crisp.Runtime
                             var value = Evaluate(arg);
                             if (!env.Create(param, value))
                                 throw new RuntimeErrorException(
+                                    call.Position,
                                     $"{param} already bound");
                         }
 
@@ -103,6 +103,7 @@ namespace Crisp.Runtime
                 when Program.Types.TryGetValue(call.Name, out var type):
                     if (call.Arguments.Count > 0)
                         throw new RuntimeErrorException(
+                            call.Position,
                             $"Record constructor {call.Name} must have no arguments");
 
                     result = new RecordInstance(
@@ -167,6 +168,7 @@ namespace Crisp.Runtime
                             if (!env.Create(param, value))
                                 // TODO: No position for the parameter!
                                 throw new RuntimeErrorException(
+                                    ms.Position,
                                     $"{param} already bound");
                         }
 
@@ -254,9 +256,10 @@ namespace Crisp.Runtime
 
                 case Var var:
                     result = Evaluate(var.InitialValue);
-                    if (!Environment.Create(var.Name, result))
+                    if (!Environment.Create(var.Name.Name, result))
                         throw new RuntimeErrorException(
-                            $"Identifier <{var.Name}> is already bound");
+                            var.Name.Position,
+                            $"Identifier <{var.Name.Name}> is already bound");
                     break;
 
                 case While @while:

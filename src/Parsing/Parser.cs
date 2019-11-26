@@ -172,7 +172,9 @@ namespace Crisp.Parsing
             Expect(TokenTag.Assignment);
             var initialValue = Expression();
 
-            return new Var(name.Lexeme, initialValue);
+            return new Var(
+                new Identifier(name.Position, name.Lexeme),
+                initialValue);
         }
 
         IExpression If()
@@ -272,7 +274,7 @@ namespace Crisp.Parsing
 
                 if (left is AttributeAccess aa)
                 {
-                    return new AttributeAssignment(token.Position, aa.Entity, aa.Name.Name, right);
+                    return new AttributeAssignment(aa.Entity, aa.Name, right);
                 }
 
                 throw new SyntaxErrorException("Left hand side of assignment must be assignable,", token.Position);
