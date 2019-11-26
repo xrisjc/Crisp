@@ -13,10 +13,5 @@ namespace Crisp.Ast
             Position = position;
             Name = name;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

@@ -20,10 +20,5 @@ namespace Crisp.Ast
             Name = name;
             ArgumentExprs = argumentExprs;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

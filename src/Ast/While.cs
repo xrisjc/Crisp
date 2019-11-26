@@ -13,10 +13,5 @@ namespace Crisp.Ast
             Guard = guard;
             Body = body;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

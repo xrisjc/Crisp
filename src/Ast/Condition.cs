@@ -10,10 +10,5 @@ namespace Crisp.Ast
         {
             Branches = branches;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

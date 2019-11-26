@@ -10,12 +10,5 @@ namespace Crisp.Ast
         public string Name { get; set; }
 
         public List<IExpression> Arguments { get; set; }
-
-        public int Arity => Arguments.Count;
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

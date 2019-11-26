@@ -19,10 +19,5 @@ namespace Crisp.Ast
             Left = left;
             Right = right;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

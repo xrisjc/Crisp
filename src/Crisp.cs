@@ -25,16 +25,24 @@ namespace Crisp
 
         static void RunFile(string filename)
         {
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             try
             {
                 var code = File.ReadAllText(filename);
                 var parser = new Parser();
                 var program = parser.Parse(code);
-                Evaluator.Run(program);
+                var environment = new Runtime.Environment();
+                Interpreter.Run(program, environment);
             }
             catch (CrispException e)
             {
                 Console.WriteLine(e.FormattedMessage());
+            }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"{sw.ElapsedMilliseconds} ms");
             }
         }
     }

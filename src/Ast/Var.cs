@@ -11,10 +11,5 @@
             Name = name;
             InitialValue = initialValue;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

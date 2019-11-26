@@ -11,10 +11,5 @@
             Target = target;
             Value = value;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

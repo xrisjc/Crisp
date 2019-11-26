@@ -11,10 +11,5 @@
             Entity = entity;
             Name = name;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

@@ -10,10 +10,5 @@ namespace Crisp.Ast
         {
             Body = body;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

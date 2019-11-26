@@ -278,7 +278,7 @@ namespace Crisp.Parsing
 
                 if (left is AttributeAccess aa)
                 {
-                    return new AttributeAssignment(aa.Entity, aa.Name, right);
+                    return new AttributeAssignment(token.Position, aa.Entity, aa.Name, right);
                 }
 
                 throw new SyntaxErrorException("Left hand side of assignment must be assignable,", token.Position);

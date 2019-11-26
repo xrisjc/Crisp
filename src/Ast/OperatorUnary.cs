@@ -16,10 +16,5 @@ namespace Crisp.Ast
             Op = op;
             Expression = expression;
         }
-
-        public void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
     }
 }

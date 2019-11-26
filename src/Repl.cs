@@ -76,7 +76,8 @@ namespace Crisp
             try
             {
                 var program = parser.Parse(code);
-                var result = Evaluator.Run(program, environment);
+                var result = Interpreter.Run(program, environment);
+                // var result = Evaluator.Run(program, environment);
                 writer.WriteLine(result);
             }
             catch (CrispException e)
