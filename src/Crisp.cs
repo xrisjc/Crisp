@@ -31,8 +31,8 @@ namespace Crisp
             {
                 var code = File.ReadAllText(filename);
                 var program = Parser.Parse(code);
-                var environment = new Runtime.Environment();
-                Interpreter.Run(program, environment);
+                var globals = new Runtime.Environment();
+                Interpreter.Run(program, globals);
             }
             catch (CrispException e)
             {

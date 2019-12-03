@@ -278,6 +278,14 @@ function testVariablesAndBlocks(t) {
     // TODO: Test that y is undefined here.
 }
 
+// Variables declared in the top scope are global variables.
+var globalVar := 1234
+
+function testGlobalVariables(t) {
+    var localVar := 4321
+    t.assertEq(globalVar + localVar, 5555, 'global variable')
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Branching
 ///////////////////////////////////////////////////////////////////////////////
@@ -592,6 +600,7 @@ function doAllTests() {
     testLiterals(t)
     testOperators(t)
     testVariablesAndBlocks(t)
+    testGlobalVariables(t)
     testBranching(t)
     testLooping(t)
     testFunctions(t)

@@ -2,13 +2,15 @@
 
 namespace Crisp.Ast
 {
-    class Record
+    class Record : IProgramItem
     {
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public List<string> Variables { get; } = new List<string>();
+        public List<Identifier> Variables { get; } =
+            new List<Identifier>();
 
-        public Dictionary<string, Function> Functions { get; } = new Dictionary<string, Function>();
+        public Dictionary<string, Function> Functions { get; } =
+            new Dictionary<string, Function>();
 
         public Record(string name)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Crisp.Ast
 {
-    interface IExpression
+    interface IExpression : IProgramItem
     {
     }
 }

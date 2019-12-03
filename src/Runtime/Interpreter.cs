@@ -6,31 +6,50 @@ namespace Crisp.Runtime
 {
     class Interpreter
     {
-        public Environment Environment { get; }
+        public Environment Globals { get; }
+        public Environment? Locals { get; }
         public Program Program { get; }
         public RecordInstance? This { get; }
 
         public Interpreter(
-            Environment environment,
+            Environment globals,
+            Environment? locals,
             Program program,
             RecordInstance? @this)
         {
-            Environment = environment;
+            Globals = globals;
+            Locals = locals;
             Program = program;
             This = @this;
         }
+        
+        Interpreter PushLocals() =>
+            new Interpreter(
+                Globals,
+                new Environment(Locals),
+                Program,
+                This);
 
-        public Interpreter PushEnvironment() =>
-            new Interpreter(new Environment(Environment), Program, This);
+        object? Get(string name) =>
+            Locals?.Get(name) ??
+            Globals.Get(name);
 
-        public dynamic Evaluate(IExpression expression)
+        bool Set(string name, object value) =>
+            Locals?.Set(name, value) ?? false ||
+            Globals.Set(name, value);
+
+        bool Create(string name, object value) =>
+            Locals?.Create(name, value) ?? false ||
+            Globals.Create(name, value);
+
+        dynamic Evaluate(IExpression expression)
         {
             dynamic result;
             switch (expression)
             {
                 case AssignmentIdentifier ai:
                     result = Evaluate(ai.Value);
-                    if (!Environment.Set(ai.Target.Name, result))
+                    if (!Set(ai.Target.Name, result))
                         throw new RuntimeErrorException(
                             ai.Target.Position,
                             $"Identifier <{ai.Target.Name}> is unbound");
@@ -68,7 +87,7 @@ namespace Crisp.Runtime
                 case Block block:
                     result = Null.Instance;
                     {
-                        var interpreter = PushEnvironment();
+                        var interpreter = PushLocals();
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
@@ -88,13 +107,13 @@ namespace Crisp.Runtime
                             var arg = call.Arguments[i];
                             var param = fn.Parameters[i];
                             var value = Evaluate(arg);
-                            if (!env.Create(param, value))
+                            if (!env.Create(param.Name, value))
                                 throw new RuntimeErrorException(
                                     call.Position,
                                     $"{param} already bound");
                         }
 
-                        var interpreter = new Interpreter(env, Program, This);
+                        var interpreter = new Interpreter(Globals, env, Program, This);
                         result = interpreter.Evaluate(fn.Body);
                     }
                     break;
@@ -109,7 +128,7 @@ namespace Crisp.Runtime
                     result = new RecordInstance(
                         type.Name,
                         type.Variables.ToDictionary(
-                            name => name,
+                            name => name.Name,
                             name => (object)Null.Instance));
                     break;
 
@@ -129,14 +148,10 @@ namespace Crisp.Runtime
                     break;
 
                 case Identifier identifier:
-                    result = Environment.Get(identifier.Name) switch
-                    {
-                        null =>
-                            throw new RuntimeErrorException(
-                                identifier.Position,
-                                $"Identifier <{identifier.Name}> unbound"),
-                        var value => value,
-                    };
+                    result = Get(identifier.Name) ??
+                                throw new RuntimeErrorException(
+                                    identifier.Position,
+                                    $"Identifier <{identifier.Name}> unbound");
                     break;
 
                 case Literal literal:
@@ -165,13 +180,13 @@ namespace Crisp.Runtime
                             var arg = ms.ArgumentExprs[i];
                             var param = fn.Parameters[i];
                             var value = Evaluate(arg);
-                            if (!env.Create(param, value))
+                            if (!env.Create(param.Name, value))
                                 throw new RuntimeErrorException(
                                     ms.Position,
                                     $"{param} already bound");
                         }
 
-                        var interpreter = new Interpreter(env, Program, @this);
+                        var interpreter = new Interpreter(Globals, env, Program, @this);
                         result = interpreter.Evaluate(fn.Body);
                     }
                     else
@@ -255,7 +270,7 @@ namespace Crisp.Runtime
 
                 case Var var:
                     result = Evaluate(var.InitialValue);
-                    if (!Environment.Create(var.Name.Name, result))
+                    if (!Create(var.Name.Name, result))
                         throw new RuntimeErrorException(
                             var.Name.Position,
                             $"Identifier <{var.Name.Name}> is already bound");
@@ -281,9 +296,9 @@ namespace Crisp.Runtime
             return result;
         }
 
-        public static object Run(Program program, Environment environment)
+        public static object Run(Program program, Environment globals)
         {
-            var interpreter = new Interpreter(environment, program, null);
+            var interpreter = new Interpreter(globals, null, program, null);
             object result = Null.Instance;
             foreach (var expr in program.Expressions)
                 result = interpreter.Evaluate(expr);

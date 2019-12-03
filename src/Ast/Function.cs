@@ -2,15 +2,18 @@
 
 namespace Crisp.Ast
 {
-    class Function
+    class Function : IProgramItem
     {
         public Identifier Name { get; }
 
-        public List<string> Parameters { get; }
+        public List<Identifier> Parameters { get; }
 
         public Block Body { get; }
 
-        public Function(Identifier name, List<string> parameters, Block body)
+        public Function(
+            Identifier name,
+            List<Identifier> parameters,
+            Block body)
         {
             Name = name;
             Parameters = parameters;

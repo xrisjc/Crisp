@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class While : IExpression
     {

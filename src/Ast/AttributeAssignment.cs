@@ -1,6 +1,4 @@
-﻿using Crisp.Parsing;
-
-namespace Crisp.Ast
+﻿namespace Crisp.Ast
 {
     class AttributeAssignment : IExpression
     {

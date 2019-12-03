@@ -25,7 +25,7 @@ namespace Crisp
 
         public static void Run(TextReader reader, TextWriter writer)
         {
-            var environment = new Runtime.Environment();
+            var globals = new Runtime.Environment();
 
             while (true)
             {
@@ -34,7 +34,7 @@ namespace Crisp
                 switch (command)
                 {
                     case Commands.EvalCode:
-                        Evaluate(input, environment, writer);
+                        Evaluate(input, globals, writer);
                         break;
 
                     case Commands.Unknown:
@@ -45,7 +45,7 @@ namespace Crisp
                         goto QuitRepl;
 
                     case Commands.WriteEnvironment:
-                        environment.Write();
+                        globals.Write();
                         break;
                 }
             }
@@ -74,12 +74,12 @@ namespace Crisp
             return command;
         }
 
-        static void Evaluate(string code, Runtime.Environment environment, TextWriter writer)
+        static void Evaluate(string code, Runtime.Environment globals, TextWriter writer)
         {
             try
             {
                 var program = Parser.Parse(code);
-                var result = Interpreter.Run(program, environment);
+                var result = Interpreter.Run(program, globals);
                 writer.WriteLine(result);
             }
             catch (CrispException e)

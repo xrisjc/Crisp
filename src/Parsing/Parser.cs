@@ -41,47 +41,29 @@ namespace Crisp.Parsing
         {
             var program = new Program();
 
-            while (true)
+            while (!Match(TokenTag.EndOfInput))
             {
-                if (Match(TokenTag.EndOfInput))
+                if (Match(TokenTag.Type))
                 {
-                    break;
-                }
-                else if (Match(TokenTag.Type))
-                {
-                    Type(program.Types);
+                    var record = Type();
+                    program.Add(record);
                 }
                 else if (Match(TokenTag.Function))
                 {
-                    Function(program.Fns);
+                    var fn = Function();
+                    program.Add(fn);
                 }
                 else
                 {
-                    program.Expressions.Add(Expression());
+                    var expr = Expression();
+                    program.Add(expr);
                 }
             }
 
             return program;
         }
 
-        void Const(Dictionary<string, Literal> consts)
-        {
-            var name = Expect(TokenTag.Identifier);
-            Expect(TokenTag.Equals);
-            var valuePosition = Current.Position;
-            var value = Expression();
-
-            if (value is Literal literal)
-            {
-                consts.Add(name.Lexeme, literal);
-            }
-            else
-            {
-                throw new SyntaxErrorException($"a constant value must be null or a literal integer, float, Boolean or string", valuePosition);
-            }
-        }
-
-        void Type(Dictionary<string, Record> types)
+        Record Type()
         {
             var typeName = Expect(TokenTag.Identifier);
 
@@ -106,7 +88,9 @@ namespace Crisp.Parsing
                     }
                     else if (Match(TokenTag.Function))
                     {
-                        Function(record.Functions);
+                        var fn = Function();
+                        // TODO: Need to check for duplicate names?
+                        record.Functions.Add(fn.Name.Name, fn);
                     }
                     else
                     {
@@ -117,10 +101,10 @@ namespace Crisp.Parsing
 
             Expect(TokenTag.RBrace);
 
-            types.Add(typeName.Lexeme, record);
+            return record;
         }
 
-        void Function(Dictionary<string, Function> fns)
+        Function Function()
         {
             var name = Expect(TokenTag.Identifier);
             var parameters = Parameters();
@@ -131,7 +115,8 @@ namespace Crisp.Parsing
                 new Identifier(name.Position, name.Lexeme),
                 parameters,
                 body);
-            fns.Add(name.Lexeme, fn);
+
+            return fn;
         }
 
         IExpression Expression()
@@ -223,13 +208,13 @@ namespace Crisp.Parsing
             return new Block(body);
         }
 
-        List<string> Parameters()
+        List<Identifier> Parameters()
         {
 
             Expect(TokenTag.LParen);
             if (Match(TokenTag.RParen))
             {
-                return new List<string>();
+                return new List<Identifier>();
             }
             else
             {
@@ -239,12 +224,12 @@ namespace Crisp.Parsing
             }
         }
 
-        IEnumerable<string> IdentifierList()
+        IEnumerable<Identifier> IdentifierList()
         {
             do
             {
                 var name = Expect(TokenTag.Identifier);
-                yield return name.Lexeme;
+                yield return new Identifier(name.Position, name.Lexeme);
             }
             while (Match(TokenTag.Comma));
         }
