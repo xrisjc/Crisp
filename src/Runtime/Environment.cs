@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Crisp.Ast;
+using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
@@ -12,13 +13,13 @@ namespace Crisp.Runtime
             this.outer = outer;
         }
 
-        public object? Get(string name)
+        public object? Get(Identifier identifier)
         {
             for (Environment? e = this; e != null; e = e.outer)
-                if (e.values.TryGetValue(name, out var value))
+                if (e.values.TryGetValue(identifier.Name, out var value))
                     return value;
-            return null;
-       }
+            return null;           
+        }
 
         public bool Set(string name, object value)
         {

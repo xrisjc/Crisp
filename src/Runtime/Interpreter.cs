@@ -30,9 +30,9 @@ namespace Crisp.Runtime
                 Program,
                 This);
 
-        object? Get(string name) =>
-            Locals?.Get(name) ??
-            Globals.Get(name);
+        object? Get(Identifier identifier) =>
+            Locals?.Get(identifier) ??
+            Globals.Get(identifier);
 
         bool Set(string name, object value) =>
             Locals?.Set(name, value) ?? false ||
@@ -148,7 +148,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Identifier identifier:
-                    result = Get(identifier.Name) ??
+                    result = Get(identifier) ??
                                 throw new RuntimeErrorException(
                                     identifier.Position,
                                     $"Identifier <{identifier.Name}> unbound");
