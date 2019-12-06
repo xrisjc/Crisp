@@ -43,12 +43,7 @@ namespace Crisp.Parsing
 
             while (!Match(TokenTag.EndOfInput))
             {
-                if (Match(TokenTag.Type))
-                {
-                    var record = Type();
-                    program.Add(record);
-                }
-                else if (Match(TokenTag.Function))
+                if (Match(TokenTag.Function))
                 {
                     var fn = Function();
                     program.Add(fn);
@@ -61,47 +56,6 @@ namespace Crisp.Parsing
             }
 
             return program;
-        }
-
-        Record Type()
-        {
-            var typeName = Expect(TokenTag.Identifier);
-
-            var record = new Record(typeName.Lexeme);
-
-            // Right now there are only record user defined types.
-            Expect(TokenTag.Record);
-            Expect(TokenTag.LBrace);
-
-            if (Current.Tag == TokenTag.Identifier)
-            {
-                // The short form of a variable field only record.
-                record.Variables.AddRange(IdentifierList());
-            }
-            else
-            {
-                while (true)
-                {
-                    if (Match(TokenTag.Var))
-                    {
-                        record.Variables.AddRange(IdentifierList());
-                    }
-                    else if (Match(TokenTag.Function))
-                    {
-                        var fn = Function();
-                        // TODO: Need to check for duplicate names?
-                        record.Functions.Add(fn.Name.Name, fn);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            Expect(TokenTag.RBrace);
-
-            return record;
         }
 
         Function Function()
@@ -121,7 +75,6 @@ namespace Crisp.Parsing
 
         IExpression Expression()
         {
-
             if (Match(TokenTag.Var))
             {
                 return Var();
@@ -210,7 +163,6 @@ namespace Crisp.Parsing
 
         List<Identifier> Parameters()
         {
-
             Expect(TokenTag.LParen);
             if (Match(TokenTag.RParen))
             {
@@ -238,22 +190,17 @@ namespace Crisp.Parsing
         {
             var left = LogicalOr();
 
-            if (Match2(TokenTag.Assignment) is Token token)
+            if (Match2(TokenTag.Assignment) is Token assignmentToken)
             {
-                var right = Expression();
-
                 if (left is Identifier identifier)
                 {
+                    var right = Expression();
                     return new AssignmentIdentifier(identifier, right);
                 }
 
-                if (left is AttributeAccess aa)
-                {
-                    return new AttributeAssignment(aa.Entity, aa.Name, right);
-                }
-
-                throw new SyntaxErrorException("Left hand side of assignment must be assignable,", token.Position);
-
+                throw new SyntaxErrorException(
+                    "Left hand side of assignment must be assignable,",
+                    assignmentToken.Position);
             }
 
             return left;
@@ -345,65 +292,21 @@ namespace Crisp.Parsing
                 return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);
             }
 
-            return Invoke();
-        }
-
-        IExpression Invoke()
-        {
-            var expr = Primary();
-
-            while (Match2(TokenTag.LParen, TokenTag.Period) is Token token)
-            {
-                if (token.Tag == TokenTag.LParen)
-                {
-                    expr = Call(token.Position, expr);
-                }
-                else if (token.Tag == TokenTag.Period)
-                {
-                    expr = Member(expr);
-                }
-            }
-
-            return expr;
-        }
-
-        IExpression Call(Position position, IExpression left)
-        {
-            return left switch
-            {
-                AttributeAccess member => new MessageSend(position, member.Entity, member.Name.Name, Arguments()),
-
-                Identifier identifier => new Call(position, identifier.Name, Arguments()),
-
-                _ => throw new SyntaxErrorException("Invalid call target", position),
-            };
-        }
-
-        List<IExpression> Arguments()
-        {
-            var arguments = new List<IExpression>();
-            if (!Match(TokenTag.RParen))
-            {
-                do
-                {
-                    var argument = Expression();
-                    arguments.Add(argument);
-                }
-                while (Match(TokenTag.Comma));
-                Expect(TokenTag.RParen);
-            }
-            return arguments;
-        }
-
-        IExpression Member(IExpression left)
-        {
-            var identifierToken = Expect(TokenTag.Identifier);
-            var name = new Identifier(identifierToken.Position, identifierToken.Lexeme);
-            return new AttributeAccess(left, name);
+            return Primary();
         }
 
         IExpression Primary()
         {
+            if (Current.Tag == TokenTag.Identifier &&
+                Peek.Tag == TokenTag.LParen)
+            {
+                var name = Current;
+                NextToken();
+                NextToken();
+                var arguments = Arguments();
+                return new Call(name.Position, name.Lexeme, arguments);
+            }
+
             if (Match2(TokenTag.Float) is Token token)
             {
                 if (double.TryParse(token.Lexeme, out var value))
@@ -452,11 +355,6 @@ namespace Crisp.Parsing
                 return LiteralNull.Instance;
             }
 
-            if (Match(TokenTag.This))
-            {
-                return This.Instance;
-            }
-
             if (Match(TokenTag.LParen))
             {
                 var expression = Expression();
@@ -470,6 +368,22 @@ namespace Crisp.Parsing
             }
 
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
+        }
+
+        List<IExpression> Arguments()
+        {
+            var arguments = new List<IExpression>();
+            if (!Match(TokenTag.RParen))
+            {
+                do
+                {
+                    var argument = Expression();
+                    arguments.Add(argument);
+                }
+                while (Match(TokenTag.Comma));
+                Expect(TokenTag.RParen);
+            }
+            return arguments;
         }
 
         IExpression Write()

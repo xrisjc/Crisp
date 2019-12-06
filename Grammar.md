@@ -1,17 +1,8 @@
 
     program -> program_item* ;
-    program_item -> type
-                  | function
+    program_item -> function
                   | expr ;
 
-    type -> "type" id "record" "{" type_body "}" ;
-
-    type_body -> id_list
-               | type_decl* ;
-
-    type_decl -> "var" id
-               | function ;
-    
     function -> "function" id params block ;
     
     params -> "(" id_list? ")" ;
@@ -40,11 +31,9 @@
     relation -> addition ( ( "<" | "<=" | ">" | ">=" ) addition )* ;
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
     multiplication -> unary ( ( "*" | "/" ) unary )* ;
-    unary -> ( ( "-" | "not" ) expr ) | invoke ;
-    invoke -> primary ( args | member )* ;
-    args -> "(" expr* ")" ;
-    member -> "." id ;
-    primary -> number
+    unary -> ( ( "-" | "not" ) expr ) | primary ;
+    primary -> id args
+             | number
              | string
              | "true"
              | "false"
@@ -53,6 +42,7 @@
              | "this"
              | "(" expr ")" ;
              | "write" args ;
+    args -> "(" expr* ")" ;
     number -> digit+ ( "." digit+ )? ;
     string -> "'" ([^'])* "'" ;
     id -> alpha ( alpha | digit )* ;

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Crisp.Ast;
 
 namespace Crisp.Runtime
@@ -9,37 +8,33 @@ namespace Crisp.Runtime
         public Environment Globals { get; }
         public Environment? Locals { get; }
         public Program Program { get; }
-        public RecordInstance? This { get; }
 
         public Interpreter(
             Environment globals,
             Environment? locals,
-            Program program,
-            RecordInstance? @this)
+            Program program)
         {
             Globals = globals;
             Locals = locals;
             Program = program;
-            This = @this;
         }
         
         Interpreter PushLocals() =>
             new Interpreter(
                 Globals,
                 new Environment(Locals),
-                Program,
-                This);
+                Program);
 
         object? Get(Identifier identifier) =>
             Locals?.Get(identifier) ??
             Globals.Get(identifier);
 
         bool Set(string name, object value) =>
-            Locals?.Set(name, value) ?? false ||
+            (Locals?.Set(name, value) ?? false) ||
             Globals.Set(name, value);
 
         bool Create(string name, object value) =>
-            Locals?.Create(name, value) ?? false ||
+            (Locals?.Create(name, value) ?? false) ||
             Globals.Create(name, value);
 
         dynamic Evaluate(IExpression expression)
@@ -52,37 +47,8 @@ namespace Crisp.Runtime
                     if (!Set(ai.Target.Name, result))
                         throw new RuntimeErrorException(
                             ai.Target.Position,
-                            $"Identifier <{ai.Target.Name}> is unbound");
+                            $"Cannot assign, <{ai.Target.Name}> is unbound");
                     break;
-
-                case AttributeAccess aa
-                when Evaluate(aa.Entity) is RecordInstance entity1:
-                    if (entity1.GetAttribute(aa.Name.Name) is object attributeValue)
-                        result = attributeValue;
-                    else
-                        throw new RuntimeErrorException(
-                            aa.Name.Position,
-                            $"Attribute {aa.Name.Name} not found");
-                    break;
-
-                case AttributeAccess aa:
-                    throw new RuntimeErrorException(
-                        aa.Name.Position,
-                        "Attribute access on non entity object");
-
-                case AttributeAssignment aa
-                when Evaluate(aa.Entity) is RecordInstance entity2:
-                    result = Evaluate(aa.Value);
-                    if (!entity2.SetAttribute(aa.Name.Name, result))
-                        throw new RuntimeErrorException(
-                            aa.Name.Position,
-                            $"attritue {aa.Name.Name} not found.");
-                    break;
-
-                case AttributeAssignment aa:
-                    throw new RuntimeErrorException(
-                        aa.Name.Position,
-                        "Attribute assignment on non entity object");
 
                 case Block block:
                     result = Null.Instance;
@@ -110,26 +76,12 @@ namespace Crisp.Runtime
                             if (!env.Create(param.Name, value))
                                 throw new RuntimeErrorException(
                                     call.Position,
-                                    $"{param} already bound");
+                                    $"Parameter {param} already bound");
                         }
 
-                        var interpreter = new Interpreter(Globals, env, Program, This);
+                        var interpreter = new Interpreter(Globals, env, Program);
                         result = interpreter.Evaluate(fn.Body);
                     }
-                    break;
-
-                case Call call
-                when Program.Types.TryGetValue(call.Name, out var type):
-                    if (call.Arguments.Count > 0)
-                        throw new RuntimeErrorException(
-                            call.Position,
-                            $"Record constructor {call.Name} must have no arguments");
-
-                    result = new RecordInstance(
-                        type.Name,
-                        type.Variables.ToDictionary(
-                            name => name.Name,
-                            name => (object)Null.Instance));
                     break;
 
                 case Call call:
@@ -160,39 +112,6 @@ namespace Crisp.Runtime
 
                 case LiteralNull _:
                     result = Null.Instance;
-                    break;
-
-                case MessageSend ms:
-                    if (Evaluate(ms.EntityExpr) is RecordInstance @this)
-                    {
-                        // TODO: There is no error checking here!
-                        var record = Program.Types[@this.RecordName];
-                        var fn = record.Functions[ms.Name];
-
-                        if (fn.Parameters.Count != ms.ArgumentExprs.Count)
-                            throw new RuntimeErrorException(
-                                ms.Position,
-                                "Arity mismatch");
-
-                        var env = new Environment();
-                        for (var i = 0; i < ms.ArgumentExprs.Count; i++)
-                        {
-                            var arg = ms.ArgumentExprs[i];
-                            var param = fn.Parameters[i];
-                            var value = Evaluate(arg);
-                            if (!env.Create(param.Name, value))
-                                throw new RuntimeErrorException(
-                                    ms.Position,
-                                    $"{param} already bound");
-                        }
-
-                        var interpreter = new Interpreter(Globals, env, Program, @this);
-                        result = interpreter.Evaluate(fn.Body);
-                    }
-                    else
-                        throw new RuntimeErrorException(
-                            ms.Position,
-                            "Message sent to non entity object");
                     break;
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
@@ -264,10 +183,6 @@ namespace Crisp.Runtime
                     };
                     break;
 
-                case This _:
-                    result = (object?)This ?? Null.Instance;
-                    break;
-
                 case Var var:
                     result = Evaluate(var.InitialValue);
                     if (!Create(var.Name.Name, result))
@@ -298,7 +213,7 @@ namespace Crisp.Runtime
 
         public static object Run(Program program, Environment globals)
         {
-            var interpreter = new Interpreter(globals, null, program, null);
+            var interpreter = new Interpreter(globals, null, program);
             object result = Null.Instance;
             foreach (var expr in program.Expressions)
                 result = interpreter.Evaluate(expr);

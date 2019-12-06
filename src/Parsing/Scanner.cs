@@ -20,16 +20,11 @@ namespace Crisp.Parsing
                 ["false"]    = TokenTag.False,
                 ["function"] = TokenTag.Function,
                 ["if"]       = TokenTag.If,
-                ["in"]       = TokenTag.In,
                 ["not"]      = TokenTag.Not,
                 ["null"]     = TokenTag.Null,
                 ["mod"]      = TokenTag.Mod,
                 ["or"]       = TokenTag.Or,
-                ["record"]   = TokenTag.Record,
-                ["this"]     = TokenTag.This,
                 ["true"]     = TokenTag.True,
-                ["to"]       = TokenTag.To,
-                ["type"]     = TokenTag.Type,
                 ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,
                 ["write"]    = TokenTag.Write,
@@ -120,7 +115,6 @@ namespace Crisp.Parsing
                 case '(': return Accept(TokenTag.LParen);
                 case ')': return Accept(TokenTag.RParen);
                 case ',': return Accept(TokenTag.Comma);
-                case '.': return Accept(TokenTag.Period);
                 case '=': return Accept(TokenTag.Equals);
                 case '+': return Accept(TokenTag.Add);
                 case '-': return Accept(TokenTag.Subtract);

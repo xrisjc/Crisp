@@ -15,7 +15,7 @@
             Peek = scanner.NextToken();
         }
 
-        private void NextToken()
+        public void NextToken()
         {
             Current = Peek;
             Peek = scanner.NextToken();
