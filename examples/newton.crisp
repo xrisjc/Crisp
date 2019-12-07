@@ -1,4 +1,4 @@
-// Netwon's method to calculate the square root of two.
+// Netwon's method to calculate the square roots.
 
 function abs(x) {
     if x < 0 { -x } else { x }
