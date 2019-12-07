@@ -1,0 +1,6 @@
+function factorial(n) {
+    if n = 1 { 1 }
+    else { n * factorial(n - 1) }
+}
+
+write('6! = ', factorial(6), '\n')
