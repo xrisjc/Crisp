@@ -1,0 +1,19 @@
+// Netwon's method to calculate the square root of two.
+
+function abs(x) {
+    if x < 0 { -x } else { x }
+}
+
+function sqrt(x) {
+    var guess := x / 2.0
+    while abs(guess * guess - x) >= 0.00001 {
+        guess := 0.5 * (guess + x / guess)
+    }
+    guess
+}
+
+var x := 1
+while x <= 100 {
+    write(x, ' -- ', sqrt(x), '\n')
+    x := x + 1
+}
