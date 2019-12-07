@@ -1,6 +1,21 @@
+// Recursion vs iteration.
+
 function factorial(n) {
     if n = 1 { 1 }
     else { n * factorial(n - 1) }
 }
 
+function itrFactorial(n) {
+    var product := 1
+    var counter := 1
+
+    while counter <= n {
+        product := counter * product
+        counter := counter + 1
+    }
+
+    product
+}
+
 write('6! = ', factorial(6), '\n')
+write('6! = ', itrFactorial(6), '\n')
