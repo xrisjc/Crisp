@@ -146,7 +146,6 @@ namespace Crisp.Parsing
                         {
                             Next();
                         }
-                        TokenTag tag;
                         if (current == '.' && peek.HasValue && char.IsDigit(peek.Value))
                         {
                             do
@@ -154,13 +153,8 @@ namespace Crisp.Parsing
                                 Next();
                             }
                             while (current.HasValue && char.IsDigit(current.Value));
-                            tag = TokenTag.Float;
                         }
-                        else
-                        {
-                            tag = TokenTag.Integer;
-                        }
-                        return AcceptMark(tag);
+                        return AcceptMark(TokenTag.Number);
                     }
 
                 case char c when char.IsLetter(c):

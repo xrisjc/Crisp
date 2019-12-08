@@ -23,9 +23,9 @@ function testLiterals() {
     // internally.
     assertEq('hi', 'hi', 'string literal')
 
-    // Number values are 32 bit integers or 64 bit floating point numbers.
-    assertEq(123, 123, 'int number literal')
-    assertEq(1.5, 1.5, 'floating point')
+    // Number values are 64 bit floating point numbers.
+    assertEq(123, 123, 'integer number literal')
+    assertEq(1.5, 1.5, 'fractional number literal')
 
     // Boolean values are given by keywords true and false representing the
     // obvious values.  The are represented by the bool type internally.
@@ -44,39 +44,14 @@ function testLiterals() {
 function testOperators() {
     // After literals, more complex expressions can be created with operators.
 
-    // Crisp has the usual arithmetic operators for integer and floating point
-    // values.
-    assertEq(1 + 2,  3, 'integer addition')
-    assertEq(5 - 2,  3, 'integer subtraction')
-    assertEq(2 * 3,  6, 'integer multiplication')
-    assertEq(12 mod 5, 2, 'integer modulo')
-    assertEq(15 / 5, 3, 'integer division #1')
-    assertEq(1 / 2,  0, 'integer division #2')
-    assertEq(-2, 2-4, 'integer negation')
-
-    assertEq(1.0 + 2.5,  3.5, 'floating point addition')
-    assertEq(5.5 - 2.0,  3.5, 'floating point subtraction')
-    assertEq(2.5 * 3.0,  7.5, 'floating point multiplication')
-    assertEq(12.5 mod 5.0, 2.5, 'floating point modulo')
-    assertEq(15.0 / 5.0, 3.0, 'floating point division #1')
-    assertEq(1.0 / 2.0,  0.5, 'floating point division #2')
-    assertEq(-0.5, 0.5-1.0, 'floating point negation')
-
-    // Integer and floating point can be combined. The integer  value will be
-    // converted into a floating point, and the result will be floating point.
-    assertEq(1 + 2.5,   3.5, 'int left float right addition')
-    assertEq(5 - 2.5,   2.5, 'int left float right subtraction')
-    assertEq(3 * 3.5,  10.5, 'int left float right multiplication')
-    assertEq(6 mod 5.5,   0.5, 'int left float right modulo')
-    assertEq(15 / 5.0,  3.0, 'int left float right division #1')
-    assertEq(1 / 2.0,   0.5, 'int left float right division #2')
-
-    assertEq(1.5 + 2,   3.5, 'float left int right addition')
-    assertEq(4.5 - 2,   2.5, 'float left int right subtraction')
-    assertEq(3.5 * 3,  10.5, 'float left int right multiplication')
-    assertEq(5.5 mod 5,   0.5, 'float left int right modulo')
-    assertEq(15.0 / 5,  3.0, 'float left int right division #1')
-    assertEq(1.0 / 2,   0.5, 'float left int right division #2')
+    // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `mod`.
+    assertEq(1.0 + 2.5,  3.5, 'addition')
+    assertEq(5.5 - 2.0,  3.5, 'subtraction')
+    assertEq(2.5 * 3.0,  7.5, 'multiplication')
+    assertEq(12.5 mod 5.0, 2.5, 'modulo')
+    assertEq(15.0 / 5.0, 3.0, 'division #1')
+    assertEq(1.0 / 2.0,  0.5, 'division #2')
+    assertEq(-0.5, 0.5-1.0, 'negation')
 
     // The arithmetic operators have the usual precedence levels.
     assertEq(1 + 2 * 3,  7, 'addition and multiplication')
@@ -123,13 +98,6 @@ function testOperators() {
     // <> is also a strict inequality operator. There are no conversions done.
     assertEq(false <> 0, true, 'false and zero are inequal')
 
-    // Exception! Integers are converted into floating points when testing against
-    // another floating point.
-    assertEq(1 = 1.0,   true, 'int right float left equality true')
-    assertEq(1 = 1.5,  false, 'int right float left equality false')
-    assertEq(1.5 <> 1,  true, 'float right int left inequality true')
-    assertEq(1.0 <> 1, false, 'float right int left inequality false')
-
     // = and <> are lower than arithmetic in precedence.
     assertEq(1  +  2 * 3 = 7, true, '= precedence')
     assertEq(1  +  2 * 3 <> 9, true, '<> precedence')
@@ -158,8 +126,6 @@ function testOperators() {
     assertEq(3.5 >= 3.5,  true, 'Float greater than or equal #2')
     assertEq(3.5 >= 4.0, false, 'Float greater than or equal #3')
 
-    // As with arithmetic and equality, mixing integer and floating point values
-    // in relational operators will convert the integer to a floating point.
     assertEq(1 < 2.5,   true, 'Int left float right less than #1')
     assertEq(2 < 2.0,  false, 'Int left float right less than #2')
     assertEq(1 <= 2.0,  true, 'Int left float right less than or equal #1')

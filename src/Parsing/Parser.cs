@@ -307,7 +307,7 @@ namespace Crisp.Parsing
                 return new Call(name.Position, name.Lexeme, arguments);
             }
 
-            if (Match2(TokenTag.Float) is Token token)
+            if (Match2(TokenTag.Number) is Token token)
             {
                 if (double.TryParse(token.Lexeme, out var value))
                 {
@@ -316,17 +316,6 @@ namespace Crisp.Parsing
                 throw new SyntaxErrorException(
                     $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
                     token.Position);
-            }
-
-            if (Match2(TokenTag.Integer) is Token tokenInteger)
-            {
-                if (int.TryParse(tokenInteger.Lexeme, out var value))
-                {
-                    return new Literal(value);
-                }
-                throw new SyntaxErrorException(
-                    $"Unable to convert <{tokenInteger.Lexeme}> into a 32 bit integer.",
-                    tokenInteger.Position);
             }
 
             if (Match2(TokenTag.String) is Token tokenString)
