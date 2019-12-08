@@ -6,36 +6,23 @@ namespace Crisp.Runtime
     class Interpreter
     {
         public Environment Globals { get; }
-        public Environment? Locals { get; }
+        public Environment Environment { get; }
         public Program Program { get; }
 
         public Interpreter(
             Environment globals,
-            Environment? locals,
+            Environment environment,
             Program program)
         {
             Globals = globals;
-            Locals = locals;
+            Environment = environment;
             Program = program;
         }
-        
-        Interpreter PushLocals() =>
-            new Interpreter(
-                Globals,
-                new Environment(Locals),
-                Program);
 
-        object? Get(Identifier identifier) =>
-            Locals?.Get(identifier) ??
-            Globals.Get(identifier);
-
-        bool Set(string name, object value) =>
-            (Locals?.Set(name, value) ?? false) ||
-            Globals.Set(name, value);
-
-        bool Create(string name, object value) =>
-            (Locals?.Create(name, value) ?? false) ||
-            Globals.Create(name, value);
+        public Interpreter(Environment globals, Program program)
+            : this(globals, globals, program)
+        {
+        }
 
         dynamic Evaluate(IExpression expression)
         {
@@ -44,7 +31,7 @@ namespace Crisp.Runtime
             {
                 case AssignmentIdentifier ai:
                     result = Evaluate(ai.Value);
-                    if (!Set(ai.Target.Name, result))
+                    if (!Environment.Set(ai.Target.Name, result))
                         throw new RuntimeErrorException(
                             ai.Target.Position,
                             $"Cannot assign, <{ai.Target.Name}> is unbound");
@@ -53,7 +40,10 @@ namespace Crisp.Runtime
                 case Block block:
                     result = Null.Instance;
                     {
-                        var interpreter = PushLocals();
+                        var interpreter = new Interpreter(
+                            Globals,
+                            new Environment(Environment),
+                            Program);
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
@@ -67,7 +57,7 @@ namespace Crisp.Runtime
                             "Arity mismatch");
                     
                     {
-                        var env = new Environment();
+                        var env = new Environment(Globals);
                         for (var i = 0; i < call.Arguments.Count; i++)
                         {
                             var arg = call.Arguments[i];
@@ -100,7 +90,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Identifier identifier:
-                    result = Get(identifier) ??
+                    result = Environment.Get(identifier) ??
                                 throw new RuntimeErrorException(
                                     identifier.Position,
                                     $"Identifier <{identifier.Name}> unbound");
@@ -185,7 +175,7 @@ namespace Crisp.Runtime
 
                 case Var var:
                     result = Evaluate(var.InitialValue);
-                    if (!Create(var.Name.Name, result))
+                    if (!Environment.Create(var.Name.Name, result))
                         throw new RuntimeErrorException(
                             var.Name.Position,
                             $"Identifier <{var.Name.Name}> is already bound");
@@ -213,7 +203,7 @@ namespace Crisp.Runtime
 
         public static object Run(Program program, Environment globals)
         {
-            var interpreter = new Interpreter(globals, null, program);
+            var interpreter = new Interpreter(globals, program);
             object result = Null.Instance;
             foreach (var expr in program.Expressions)
                 result = interpreter.Evaluate(expr);
