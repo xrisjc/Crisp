@@ -3,11 +3,7 @@ using System.Collections.Generic;
 
 namespace Crisp.Ast
 {
-    interface IProgramItem
-    {
-    }
-
-    interface IExpression : IProgramItem
+    interface IExpression
     {
     }
 
@@ -49,15 +45,12 @@ namespace Crisp.Ast
 
     class Call : IExpression
     {
-        public Position Position { get; }
-
-        public string Name { get; }
+        public Identifier Name { get; }
 
         public List<IExpression> Arguments { get; }
 
-        public Call(Position position, string name, List<IExpression> arguments)
+        public Call(Identifier name, List<IExpression> arguments)
         {
-            Position = position;
             Name = name;
             Arguments = arguments;
         }
@@ -73,20 +66,14 @@ namespace Crisp.Ast
         }
     }
 
-    class Function : IProgramItem
+    class Function : IExpression
     {
-        public Identifier Name { get; }
-
         public List<Identifier> Parameters { get; }
 
         public Block Body { get; }
 
-        public Function(
-            Identifier name,
-            List<Identifier> parameters,
-            Block body)
+        public Function(List<Identifier> parameters, Block body)
         {
-            Name = name;
             Parameters = parameters;
             Body = body;
         }
@@ -105,27 +92,28 @@ namespace Crisp.Ast
         }
     }
 
-    class Literal : IExpression
+    abstract class Literal<T>
     {
-        public static Literal True { get; } = new Literal(true);
+        public T Value { get; }
 
-        public static Literal False { get; } = new Literal(false);
-
-        public object Value { get; }
-
-        public Literal(object value)
-        {
-            Value = value;
-        }
+        public Literal(T value) { Value = value; }
     }
 
-    class LiteralNull : IExpression
+    class LiteralBool : Literal<bool>, IExpression
     {
-        public static LiteralNull Instance { get; } = new LiteralNull();
+        public LiteralBool(bool value) : base(value) { }
+    }
 
-        private LiteralNull()
-        {
-        }
+    class LiteralNull : IExpression { }
+
+    class LiteralNumber : Literal<double>, IExpression
+    {
+        public LiteralNumber(double value) : base(value) { }
+    }
+
+    class LiteralString : Literal<string>, IExpression
+    {
+        public LiteralString(string value) : base(value) { }
     }
 
     enum OperatorBinaryTag
@@ -188,27 +176,11 @@ namespace Crisp.Ast
 
     class Program
     {
-        public Dictionary<string, Function> Fns { get; } =
-            new Dictionary<string, Function>();
+        public List<IExpression> Expressions { get; }
 
-        public List<IExpression> Expressions { get; } =
-            new List<IExpression>();
-
-        public List<IProgramItem> ProgramItems { get; } =
-            new List<IProgramItem>();
-
-        public void Add(Function function)
+        public Program(List<IExpression> expressions)
         {
-            ProgramItems.Add(function);
-
-            // TODO: Check for duplicate names?
-            Fns.Add(function.Name.Name, function);
-        }
-
-        public void Add(IExpression expression)
-        {
-            ProgramItems.Add(expression);
-            Expressions.Add(expression);
+            Expressions = expressions;
         }
     }
 

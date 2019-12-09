@@ -1,11 +1,11 @@
 // Recursion vs iteration.
 
-function factorial(n) {
+var factorial := function (n) {
     if n = 1 { 1 }
     else { n * factorial(n - 1) }
 }
 
-function itrFactorial(n) {
+var itrFactorial := function (n) {
     var product := 1
     var counter := 1
 

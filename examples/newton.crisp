@@ -1,10 +1,10 @@
 // Netwon's method to calculate the square roots.
 
-function abs(x) {
+var abs := function (x) {
     if x < 0 { -x } else { x }
 }
 
-function sqrt(x) {
+var sqrt := function (x) {
     var guess := x / 2.0
     while abs(guess * guess - x) >= 0.00001 {
         guess := 0.5 * (guess + x / guess)

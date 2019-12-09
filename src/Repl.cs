@@ -79,8 +79,10 @@ namespace Crisp
             try
             {
                 var program = Parser.Parse(code);
-                var result = Interpreter.Run(program, globals);
-                writer.WriteLine(result);
+                var result = new ObjectNull();
+                var interpreter = new Interpreter(globals);
+                foreach (var expr in program.Expressions)
+                    writer.WriteLine(interpreter.Evaluate(expr));
             }
             catch (CrispException e)
             {

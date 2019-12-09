@@ -39,38 +39,15 @@ namespace Crisp.Parsing
 
         Program Program()
         {
-            var program = new Program();
+            var expressions = new List<IExpression>();
 
             while (!Match(TokenTag.EndOfInput))
             {
-                if (Match(TokenTag.Function))
-                {
-                    var fn = Function();
-                    program.Add(fn);
-                }
-                else
-                {
-                    var expr = Expression();
-                    program.Add(expr);
-                }
+                var expr = Expression();
+                expressions.Add(expr);
             }
 
-            return program;
-        }
-
-        Function Function()
-        {
-            var name = Expect(TokenTag.Identifier);
-            var parameters = Parameters();
-            Expect(TokenTag.LBrace);
-            var body = Block();
-
-            var fn = new Function(
-                new Identifier(name.Position, name.Lexeme),
-                parameters,
-                body);
-
-            return fn;
+            return new Program(expressions);
         }
 
         IExpression Expression()
@@ -78,6 +55,11 @@ namespace Crisp.Parsing
             if (Match(TokenTag.Var))
             {
                 return Var();
+            }
+
+            if (Match(TokenTag.Function))
+            {
+                return Function();
             }
 
             if (Match(TokenTag.If))
@@ -110,6 +92,14 @@ namespace Crisp.Parsing
                 initialValue);
         }
 
+        Function Function()
+        {
+            var parameters = Parameters();
+            Expect(TokenTag.LBrace);
+            var body = Block();
+            return new Function(parameters, body);
+        }
+
         IExpression If()
         {
             IEnumerable<Branch> Branches()
@@ -128,8 +118,9 @@ namespace Crisp.Parsing
                     if (Match(TokenTag.Else))
                     {
                         sawIfElse = Match(TokenTag.If);
-                        yield return new Branch(sawIfElse ? Expression() : Literal.True,
-                                                Consequence());
+                        yield return new Branch(
+                            sawIfElse ? Expression() : new LiteralBool(true),
+                            Consequence());
                     }
                     else
                     {
@@ -304,14 +295,14 @@ namespace Crisp.Parsing
                 NextToken();
                 NextToken();
                 var arguments = Arguments();
-                return new Call(name.Position, name.Lexeme, arguments);
+                return new Call(new Identifier(name.Position, name.Lexeme), arguments);
             }
 
             if (Match2(TokenTag.Number) is Token token)
             {
                 if (double.TryParse(token.Lexeme, out var value))
                 {
-                    return new Literal(value);
+                    return new LiteralNumber(value);
                 }
                 throw new SyntaxErrorException(
                     $"Unable to convert <{token.Lexeme}> into a 64 bit floating bit",
@@ -321,17 +312,17 @@ namespace Crisp.Parsing
             if (Match2(TokenTag.String) is Token tokenString)
             {
                 var str = ParseString(tokenString.Lexeme, tokenString.Position);
-                return new Literal(str);
+                return new LiteralString(str);
             }
 
             if (Match(TokenTag.True))
             {
-                return Literal.True;
+                return new LiteralBool(true);
             }
 
             if (Match(TokenTag.False))
             {
-                return Literal.False;
+                return new LiteralBool(false);
             }
 
             if (Match2(TokenTag.Identifier) is Token tokenIdentifier)
@@ -341,7 +332,7 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.Null))
             {
-                return LiteralNull.Instance;
+                return new LiteralNull();
             }
 
             if (Match(TokenTag.LParen))

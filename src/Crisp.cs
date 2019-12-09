@@ -32,7 +32,9 @@ namespace Crisp
                 var code = File.ReadAllText(filename);
                 var program = Parser.Parse(code);
                 var globals = new Runtime.Environment();
-                Interpreter.Run(program, globals);
+                var interpreter = new Interpreter(globals);
+                foreach (var expr in program.Expressions)
+                    interpreter.Evaluate(expr);
             }
             catch (CrispException e)
             {

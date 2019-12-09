@@ -12,11 +12,15 @@
 // fit.
 //
 
+//
+// In Crisp, everything is an expression, including functions.
+//
+
 ///////////////////////////////////////////////////////////////////////////////
 // Basic Literals
 ///////////////////////////////////////////////////////////////////////////////
 
-function testLiterals() {
+var testLiterals := function () {
     // Crisp has the literal expressions you would expect.
 
     // Strings are delimited by single quotes. The are the .NET string type
@@ -41,7 +45,7 @@ function testLiterals() {
 // Operators
 ///////////////////////////////////////////////////////////////////////////////
 
-function testOperators() {
+var testOperators := function () {
     // After literals, more complex expressions can be created with operators.
 
     // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `mod`.
@@ -188,7 +192,7 @@ function testOperators() {
 // Variables Blocks
 ///////////////////////////////////////////////////////////////////////////////
 
-function testVariablesAndBlocks() {
+var testVariablesAndBlocks := function () {
 
     // Variables are declared with the keyword "var" and the assignment operator:
     // ":=".  A variable must be declared before it is used or else there will be
@@ -245,7 +249,7 @@ function testVariablesAndBlocks() {
 // Variables declared in the top scope are global variables.
 var globalVar := 1234
 
-function testGlobalVariables() {
+var testGlobalVariables := function () {
     var localVar := 4321
     assertEq(globalVar + localVar, 5555, 'global variable')
 }
@@ -254,7 +258,7 @@ function testGlobalVariables() {
 // Branching
 ///////////////////////////////////////////////////////////////////////////////
 
-function testBranching() {
+var testBranching := function () {
     // The usual if / else is present.  The syntax is
     //     if <condition> <block>
     //     [else if <condition> <block>]*
@@ -316,7 +320,7 @@ function testBranching() {
 // Looping
 ///////////////////////////////////////////////////////////////////////////////
 
-function testLooping() {
+var testLooping := function () {
 
     // The usual while loop is present.  The syntax is
     //     while <condition> <block>
@@ -355,20 +359,21 @@ function testLooping() {
 ///////////////////////////////////////////////////////////////////////////////
 
 // The syntax for a function definition is
-//   function <name> (<comma separated parameters>) <block>
+//   function (<comma separated parameters>) <block>
 // The value of the function is the final expression, or in case of an empty
-// function, null.  As is usual, () is the "invocation" operator. 
+// function, null.  As is usual, () is the "invocation" operator.  Functions
+// must be assigned to a variable if you want to call them by a name.
 
-function nothing() { }
+var nothing := function () { }
 
-function square(x) { x * x }
+var square := function (x) { x * x }
 
-function divides(m, n) {
+var divides := function (m, n) {
     var remainder := n mod m
     remainder = 0
 }
 
-function testFunctions() {
+var testFunctions := function () {
     assertEq(nothing(), null, 'Empty function')
     assertEq(square(3), 9, 'Function declaration')
     assertEq(divides(5, 35), true, 'Named functions')
@@ -379,9 +384,9 @@ function testFunctions() {
 ///////////////////////////////////////////////////////////////////////////////
 
 var nCounter := 0
-function counterGet() { nCounter := nCounter + 1 }
+var counterGet := function () { nCounter := nCounter + 1 }
 
-function testLogicalAndOr() {
+var testLogicalAndOr := function () {
     // The 'and' operator short circuits in the expected way.
     assertEq(false and counterGet() = 1, false, 'and short circuits #1')
     assertEq(counterGet(), 1, 'and short circuits #2')
@@ -396,24 +401,23 @@ function testLogicalAndOr() {
     assertEq(counterGet(), 3, 'or short circuits #4')
 }
 
-
 // Code to manage running our tests.
 var nTests := 0
 var nErrors := 0
 var showPassedTest := true
 
-function pass(message) {
+var pass := function (message) {
     nTests := nTests + 1
     write('[OK] "', message, '"\n')
 }
 
-function fail(message) {
+var fail := function (message) {
     nTests := nTests + 1
     nErrors := nErrors + 1
     write('[FAILED] "', message, '"\n')
 }
 
-function assert(condition, message) {
+var assert := function (condition, message) {
     if not condition {
         fail(message)
     } else if showPassedTest {
@@ -421,7 +425,7 @@ function assert(condition, message) {
     }
 }
 
-function assertEq(test, expected, message) {
+var assertEq := function (test, expected, message) {
     nTests := nTests + 1
     if test <> expected {
         write('[FAILED] "', message, '": expected <', expected, '> got <',
@@ -433,13 +437,13 @@ function assertEq(test, expected, message) {
     }
 }
 
-function displaySummary() {
+var displaySummary := function () {
     write('\n', nTests - nErrors, ' out of ', nTests, ' tests passed.\n')
     write('There are ', nErrors, ' errors. ')
     write(if nErrors = 0 { ':-)' } else { 'D-:' }, '\n')
 }
 
-function doAllTests() {
+var doAllTests := function () {
     testLiterals()
     testOperators()
     testVariablesAndBlocks()

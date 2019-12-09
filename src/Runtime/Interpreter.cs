@@ -7,26 +7,21 @@ namespace Crisp.Runtime
     {
         public Environment Globals { get; }
         public Environment Environment { get; }
-        public Program Program { get; }
 
-        public Interpreter(
-            Environment globals,
-            Environment environment,
-            Program program)
+        public Interpreter(Environment globals, Environment environment)
         {
             Globals = globals;
             Environment = environment;
-            Program = program;
         }
 
-        public Interpreter(Environment globals, Program program)
-            : this(globals, globals, program)
+        public Interpreter(Environment globals)
+            : this(globals, globals)
         {
         }
 
-        dynamic Evaluate(IExpression expression)
+        public IObject Evaluate(IExpression expression)
         {
-            dynamic result;
+            IObject result;
             switch (expression)
             {
                 case AssignmentIdentifier ai:
@@ -38,22 +33,21 @@ namespace Crisp.Runtime
                     break;
 
                 case Block block:
-                    result = Null.Instance;
+                    result = new ObjectNull();
                     {
                         var interpreter = new Interpreter(
                             Globals,
-                            new Environment(Environment),
-                            Program);
+                            new Environment(Environment));
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
                     break;
 
                 case Call call
-                when Program.Fns.TryGetValue(call.Name, out var fn):
-                    if (fn.Parameters.Count != call.Arguments.Count)
+                when Environment.Get(call.Name) is ObjectFunction fn:
+                    if (fn.Value.Parameters.Count != call.Arguments.Count)
                         throw new RuntimeErrorException(
-                            call.Position,
+                            call.Name.Position,
                             "Arity mismatch");
                     
                     {
@@ -61,32 +55,36 @@ namespace Crisp.Runtime
                         for (var i = 0; i < call.Arguments.Count; i++)
                         {
                             var arg = call.Arguments[i];
-                            var param = fn.Parameters[i];
+                            var param = fn.Value.Parameters[i];
                             var value = Evaluate(arg);
                             if (!env.Create(param.Name, value))
                                 throw new RuntimeErrorException(
-                                    call.Position,
+                                    call.Name.Position,
                                     $"Parameter {param} already bound");
                         }
 
-                        var interpreter = new Interpreter(Globals, env, Program);
-                        result = interpreter.Evaluate(fn.Body);
+                        var interpreter = new Interpreter(Globals, env);
+                        result = interpreter.Evaluate(fn.Value.Body);
                     }
                     break;
 
                 case Call call:
                     throw new RuntimeErrorException(
-                        call.Position,
-                        $"No function or type named <{call.Name}>.");
+                        call.Name.Position,
+                        $"No function bound to <{call.Name}>.");
 
                 case Condition condition:
-                    result = Null.Instance;
+                    result = new ObjectNull();
                     foreach (var b in condition.Branches)
-                        if (IsTruthy(Evaluate(b.Condition)))
+                        if (Evaluate(b.Condition).IsTruthy())
                         {
                             result = Evaluate(b.Consequence);
                             break;
                         }
+                    break;
+
+                case Function function:
+                    result = new ObjectFunction(function);
                     break;
 
                 case Identifier identifier:
@@ -96,24 +94,40 @@ namespace Crisp.Runtime
                                     $"Identifier <{identifier.Name}> unbound");
                     break;
 
-                case Literal literal:
-                    result = literal.Value;
+                case LiteralBool literalBool:
+                    result = new ObjectBool(literalBool.Value);
                     break;
 
                 case LiteralNull _:
-                    result = Null.Instance;
+                    result = new ObjectNull();
+                    break;
+
+                case LiteralNumber number:
+                    result = new ObjectNumber(number.Value);
+                    break;
+
+                case LiteralString literalString:
+                    result = new ObjectString(literalString.Value);
                     break;
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
-                    result = IsTruthy(Evaluate(op.Left))
-                                ? IsTruthy(Evaluate(op.Right))
-                                : false;
+                    {
+                        var leftResult = Evaluate(op.Left).IsTruthy();
+                        if (leftResult)
+                            result = Evaluate(op.Right).IsTruthy();
+                        else
+                            result = leftResult;
+                    }
                     break;
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.Or:
-                    result = IsTruthy(Evaluate(op.Left))
-                                ? true
-                                : IsTruthy(Evaluate(op.Right));
+                    {
+                        var leftResult = Evaluate(op.Left).IsTruthy();
+                        if (leftResult)
+                            result = leftResult;
+                        else
+                            result = Evaluate(op.Right).IsTruthy();
+                    }
                     break;
 
                 case OperatorBinary op:
@@ -121,37 +135,18 @@ namespace Crisp.Runtime
                     var right = Evaluate(op.Right);
                     result = op.Tag switch
                     {
-                        OperatorBinaryTag.Add when left is string && right is string => string.Concat(left, right),
-
-                        OperatorBinaryTag.Add when CheckNumeric(left, right) => left + right,
-
-                        OperatorBinaryTag.Sub when CheckNumeric(left, right) => left - right,
-
-                        OperatorBinaryTag.Mul when CheckNumeric(left, right) => left * right,
-
-                        OperatorBinaryTag.Div when CheckNumeric(left, right) => left / right,
-
-                        OperatorBinaryTag.Mod when CheckNumeric(left, right) => left % right,
-
-                        OperatorBinaryTag.Lt when CheckNumeric(left, right) => left < right,
-
-                        OperatorBinaryTag.LtEq when CheckNumeric(left, right) => left <= right,
-
-                        OperatorBinaryTag.Gt when CheckNumeric(left, right) => left > right,
-
-                        OperatorBinaryTag.GtEq when CheckNumeric(left, right) => left >= right,
-
-                        OperatorBinaryTag.Eq when CheckNumeric(left, right) =>
-                            // If left is int and right is double then
-                            // left.Equals(right) may not be the same as
-                            // right.Equals(left).  I suppose it's something to
-                            // do with calinging Int32's Equals.  == seems to
-                            // work for numbers, though.
-                            left == right,
-
-                        OperatorBinaryTag.Eq => left.Equals(right),
-                        OperatorBinaryTag.Neq => !left.Equals(right),
-
+                        OperatorBinaryTag.Add when left is ObjectString l && right is ObjectString r => l + r,
+                        OperatorBinaryTag.Add when left is ObjectNumber l && right is ObjectNumber r => l + r,
+                        OperatorBinaryTag.Sub when left is ObjectNumber l && right is ObjectNumber r => l - r,
+                        OperatorBinaryTag.Mul when left is ObjectNumber l && right is ObjectNumber r => l * r,
+                        OperatorBinaryTag.Div when left is ObjectNumber l && right is ObjectNumber r => l / r,
+                        OperatorBinaryTag.Mod when left is ObjectNumber l && right is ObjectNumber r => l % r,
+                        OperatorBinaryTag.Lt when left is ObjectNumber l && right is ObjectNumber r => l < r,
+                        OperatorBinaryTag.LtEq when left is ObjectNumber l && right is ObjectNumber r => l <= r,
+                        OperatorBinaryTag.Gt when left is ObjectNumber l && right is ObjectNumber r => l > r,
+                        OperatorBinaryTag.GtEq when left is ObjectNumber l && right is ObjectNumber r => l >= r,
+                        OperatorBinaryTag.Eq => left.Eq(right),
+                        OperatorBinaryTag.Neq => !left.Eq(right),
                         _ =>
                             throw new RuntimeErrorException(
                                 op.Position,
@@ -164,8 +159,8 @@ namespace Crisp.Runtime
                     left = Evaluate(op.Expression);
                     result = op.Op switch
                     {
-                        OperatorUnaryTag.Neg when CheckNumeric(left) => -left,
-                        OperatorUnaryTag.Not => IsFalsey(left),
+                        OperatorUnaryTag.Not => !left.IsTruthy(),
+                        OperatorUnaryTag.Neg when left is ObjectNumber n => -n,
                         _ =>
                             throw new RuntimeErrorException(
                                 op.Position,
@@ -182,42 +177,22 @@ namespace Crisp.Runtime
                     break;
 
                 case While @while:
-                    while (IsTruthy(Evaluate(@while.Guard)))
+                    while (Evaluate(@while.Guard).IsTruthy())
                         Evaluate(@while.Body);
-                    result = Null.Instance;
+                    result = new ObjectNull();
                     break;
 
                 case Write write:
                     foreach (var e in write.Arguments)
                         Console.Write(Evaluate(e));
-                    result = Null.Instance;
+                    result = new ObjectNull();
                     break;
 
                 default:
                     throw new NotImplementedException(
                         $"Unimplemented {expression.GetType()}");
             }
-
             return result;
         }
-
-        public static object Run(Program program, Environment globals)
-        {
-            var interpreter = new Interpreter(globals, program);
-            object result = Null.Instance;
-            foreach (var expr in program.Expressions)
-                result = interpreter.Evaluate(expr);
-            return result;
-        }
-
-        static bool IsFalsey(dynamic x) =>
-            x.Equals(false) || ReferenceEquals(x, Null.Instance);
-
-        static bool IsTruthy(dynamic x) => !IsFalsey(x);
-
-        static bool CheckNumeric(dynamic x) => x is int || x is double;
-
-        static bool CheckNumeric(dynamic left, dynamic right) =>
-            CheckNumeric(left) && CheckNumeric(right);
     }
 }

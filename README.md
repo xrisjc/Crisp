@@ -3,16 +3,9 @@ A toy programming language interpreter.
 
 # Grammar
 
-    program -> program_item* ;
-    program_item -> function
-                  | expr ;
-
-    function -> "function" id params block ;
-    
-    params -> "(" id_list? ")" ;
-    id_list -> id ( "," id )* ;
-
+    program -> expr* ;
     expr -> var
+          | function
           | if
           | while
           | block
@@ -20,13 +13,17 @@ A toy programming language interpreter.
 
     var -> "var" id ":=" expr ;
 
+    function -> "function" params block ;
+    params -> "(" id_list? ")" ;
+    id_list -> id ( "," id )* ;
+
+    block -> "{" expr* "}" ;
+
     if -> "if" expr block
           ("else" "if" expr block)*
           ("else" block)? ;
 
     while -> "while" expr block ;
-
-    block -> "{" expr* "}" ;
 
     assignment -> logical_or ( ":=" expr )* ;
     logical_or -> logical_and ( "or" logical_and )* ;
@@ -36,7 +33,7 @@ A toy programming language interpreter.
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
     multiplication -> unary ( ( "*" | "/" ) unary )* ;
     unary -> ( ( "-" | "not" ) expr ) | primary ;
-    primary -> id args
+    primary -> call
              | number
              | string
              | "true"
@@ -46,6 +43,7 @@ A toy programming language interpreter.
              | "this"
              | "(" expr ")" ;
              | "write" args ;
+    call -> id args
     args -> "(" expr* ")" ;
     number -> digit+ ( "." digit+ )? ;
     string -> "'" ([^'])* "'" ;
