@@ -30,19 +30,6 @@ namespace Crisp.Ast
         }
     }
 
-    class Branch
-    {
-        public IExpression Condition { get; }
-
-        public IExpression Consequence { get; }
-
-        public Branch(IExpression condition, IExpression consequence)
-        {
-            Condition = condition;
-            Consequence = consequence;
-        }
-    }
-
     class Call : IExpression
     {
         public Identifier Name { get; }
@@ -56,23 +43,13 @@ namespace Crisp.Ast
         }
     }
 
-    class Condition : IExpression
-    {
-        public List<Branch> Branches { get; }
-
-        public Condition(List<Branch> branches)
-        {
-            Branches = branches;
-        }
-    }
-
     class Function : IExpression
     {
         public List<Identifier> Parameters { get; }
 
-        public Block Body { get; }
+        public IExpression Body { get; }
 
-        public Function(List<Identifier> parameters, Block body)
+        public Function(List<Identifier> parameters, IExpression body)
         {
             Parameters = parameters;
             Body = body;
@@ -89,6 +66,25 @@ namespace Crisp.Ast
         {
             Position = position;
             Name = name;
+        }
+    }
+
+    class If : IExpression
+    {
+        public IExpression Condition { get; }
+
+        public IExpression Consequence { get; }
+
+        public IExpression Alternative { get; }
+
+        public If(
+            IExpression condition,
+            IExpression consequence,
+            IExpression alternative)
+        {
+            Condition = condition;
+            Consequence = consequence;
+            Alternative = alternative;
         }
     }
 
@@ -201,9 +197,9 @@ namespace Crisp.Ast
     {
         public IExpression Guard { get; }
 
-        public Block Body { get; }
+        public IExpression Body { get; }
 
-        public While(IExpression guard, Block body)
+        public While(IExpression guard, IExpression body)
         {
             Guard = guard;
             Body = body;

@@ -16,7 +16,10 @@ namespace Crisp.Parsing
             new Dictionary<string, TokenTag>
             {
                 ["and"]      = TokenTag.And,
+                ["begin"]    = TokenTag.Begin,
+                ["do"]       = TokenTag.Do,
                 ["else"]     = TokenTag.Else,
+                ["end"]      = TokenTag.End,
                 ["false"]    = TokenTag.False,
                 ["function"] = TokenTag.Function,
                 ["if"]       = TokenTag.If,
@@ -24,6 +27,7 @@ namespace Crisp.Parsing
                 ["null"]     = TokenTag.Null,
                 ["mod"]      = TokenTag.Mod,
                 ["or"]       = TokenTag.Or,
+                ["then"]     = TokenTag.Then,
                 ["true"]     = TokenTag.True,
                 ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,

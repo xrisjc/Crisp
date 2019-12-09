@@ -72,7 +72,7 @@ namespace Crisp.Parsing
                 return While();
             }
 
-            if (Match(TokenTag.LBrace))
+            if (Match(TokenTag.Begin))
             {
                 return Block();
             }
@@ -95,56 +95,31 @@ namespace Crisp.Parsing
         Function Function()
         {
             var parameters = Parameters();
-            Expect(TokenTag.LBrace);
-            var body = Block();
+            var body = Expression();
             return new Function(parameters, body);
         }
 
         IExpression If()
         {
-            IEnumerable<Branch> Branches()
-            {
-                IExpression Consequence()
-                {
-                    Expect(TokenTag.LBrace);
-                    return Block();
-                }
-
-                yield return new Branch(Expression(), Consequence());
-
-                bool sawIfElse;
-                do
-                {
-                    if (Match(TokenTag.Else))
-                    {
-                        sawIfElse = Match(TokenTag.If);
-                        yield return new Branch(
-                            sawIfElse ? Expression() : new LiteralBool(true),
-                            Consequence());
-                    }
-                    else
-                    {
-                        sawIfElse = false;
-                    }
-                }
-                while (sawIfElse);
-            }
-
-            return new Condition(Branches().ToList());
+            var condition = Expression();
+            Expect(TokenTag.Then);
+            var consequence = Expression();
+            var alternative = Match(TokenTag.Else) ? Expression() : new LiteralNull();
+            return new If(condition, consequence, alternative);
         }
 
         IExpression While()
         {
             var guard = Expression();
-            Expect(TokenTag.LBrace);
-            var body = Block();
+            Expect(TokenTag.Do);
+            var body = Expression();
             return new While(guard, body);
         }
 
         Block Block()
         {
             var body = new List<IExpression>();
-            while (!Match(TokenTag.RBrace))
+            while (!Match(TokenTag.End))
             {
                 var expr = Expression();
                 body.Add(expr);

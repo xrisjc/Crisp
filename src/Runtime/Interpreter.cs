@@ -73,14 +73,11 @@ namespace Crisp.Runtime
                         call.Name.Position,
                         $"No function bound to <{call.Name}>.");
 
-                case Condition condition:
-                    result = new ObjectNull();
-                    foreach (var b in condition.Branches)
-                        if (Evaluate(b.Condition).IsTruthy())
-                        {
-                            result = Evaluate(b.Consequence);
-                            break;
-                        }
+                case If @if:
+                    if (Evaluate(@if.Condition).IsTruthy())
+                        result = Evaluate(@if.Consequence);
+                    else
+                        result = Evaluate(@if.Alternative);
                     break;
 
                 case Function function:

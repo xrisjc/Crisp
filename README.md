@@ -3,7 +3,9 @@ A toy programming language interpreter.
 
 # Grammar
 
-    program -> expr* ;
+    program -> expr_sequence ;
+    expr_sequence -> expr* ;
+
     expr -> var
           | function
           | if
@@ -13,17 +15,15 @@ A toy programming language interpreter.
 
     var -> "var" id ":=" expr ;
 
-    function -> "function" params block ;
+    function -> "function" params expr ;
     params -> "(" id_list? ")" ;
     id_list -> id ( "," id )* ;
 
-    block -> "{" expr* "}" ;
+    block -> "begin" expr_sequence "end" ;
 
-    if -> "if" expr block
-          ("else" "if" expr block)*
-          ("else" block)? ;
+    if -> "if" expr "then" expr ("else" expr)? ;
 
-    while -> "while" expr block ;
+    while -> "while" expr "do" expr ;
 
     assignment -> logical_or ( ":=" expr )* ;
     logical_or -> logical_and ( "or" logical_and )* ;

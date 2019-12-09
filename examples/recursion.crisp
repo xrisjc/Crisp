@@ -1,21 +1,21 @@
 // Recursion vs iteration.
 
-var factorial := function (n) {
-    if n = 1 { 1 }
-    else { n * factorial(n - 1) }
-}
+var factorial := function (n) begin
+    if n = 1 then 1
+    else n * factorial(n - 1)
+end
 
-var itrFactorial := function (n) {
+var itrFactorial := function (n) begin
     var product := 1
     var counter := 1
 
-    while counter <= n {
+    while counter <= n do begin
         product := counter * product
         counter := counter + 1
-    }
+    end
 
     product
-}
+end
 
 write('6! = ', factorial(6), '\n')
 write('6! = ', itrFactorial(6), '\n')
