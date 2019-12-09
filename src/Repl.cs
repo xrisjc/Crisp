@@ -13,19 +13,16 @@ namespace Crisp
             EvalCode,
             Unknown,
             Quit,
-            WriteEnvironment,
         }
 
         static Dictionary<string, Commands> commands =
             new Dictionary<string, Commands>
             {
-                [":q"] = Commands.Quit,
-                [":e"] = Commands.WriteEnvironment,
-            };
+                [":q"] = Commands.Quit,            };
 
         public static void Run(TextReader reader, TextWriter writer)
         {
-            var globals = new Runtime.Environment();
+            var globals = new Runtime.ObjectObject();
 
             while (true)
             {
@@ -43,10 +40,6 @@ namespace Crisp
 
                     case Commands.Quit:
                         goto QuitRepl;
-
-                    case Commands.WriteEnvironment:
-                        globals.Write();
-                        break;
                 }
             }
 
@@ -74,7 +67,7 @@ namespace Crisp
             return command;
         }
 
-        static void Evaluate(string code, Runtime.Environment globals, TextWriter writer)
+        static void Evaluate(string code, Runtime.ObjectObject globals, TextWriter writer)
         {
             try
             {

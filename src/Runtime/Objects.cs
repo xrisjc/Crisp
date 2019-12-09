@@ -1,24 +1,61 @@
 using Crisp.Ast;
+using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
-    interface IObject
+    abstract class CrispObject
     {
-        ObjectBool IsTruthy() => true;
+        CrispObject? prototype;
+
+        Dictionary<string, CrispObject> values = new Dictionary<string, CrispObject>();
+
+        public CrispObject(CrispObject? prototype = null)
+        {
+            this.prototype = prototype;
+        }
+
+        public CrispObject? Get(string name)
+        {
+            for (CrispObject? o = this; o != null; o = o.prototype)
+                if (o.values.TryGetValue(name, out var value))
+                    return value;
+            return null;           
+        }
+
+        public bool Set(string name, CrispObject value)
+        {
+            for (CrispObject? o = this; o != null; o = o.prototype)
+                if (o.values.ContainsKey(name))
+                {
+                    o.values[name] = value;
+                    return true;
+                }
+            return false;
+        }
+
+        public bool Create(string name, CrispObject value)
+        {
+            if (values.ContainsKey(name))
+            {
+                return false;
+            }
+            else
+            {
+                values.Add(name, value);
+                return true;
+            }
+        }
+
+        public virtual ObjectBool IsTruthy() => true;
         
-        ObjectBool Eq(IObject other);
+        public abstract ObjectBool Eq(CrispObject other);
     }
 
-    abstract class ValueWrapper<T>
+    class ObjectBool : CrispObject
     {
-        public T Value { get; }
+        public bool Value { get; }
 
-        public ValueWrapper(T value) { Value = value; }   
-    }
-
-    class ObjectBool : ValueWrapper<bool>, IObject
-    {
-        public ObjectBool(bool value) : base(value) { }
+        public ObjectBool(bool value) { Value = value; }
 
         public static implicit operator ObjectBool(bool value) => new ObjectBool(value);
 
@@ -26,34 +63,38 @@ namespace Crisp.Runtime
 
         public static ObjectBool operator !(ObjectBool a) => !a.Value;
 
-        public ObjectBool IsTruthy() => Value;
+        public override ObjectBool IsTruthy() => Value;
 
-        public ObjectBool Eq(IObject other) => other is ObjectBool x && Value == x.Value;
+        public override ObjectBool Eq(CrispObject other) => other is ObjectBool x && Value == x.Value;
 
         public override string ToString() => Value ? "true" : "false";
     }
 
-    class ObjectFunction : ValueWrapper<Function>, IObject
+    class ObjectFunction : CrispObject
     {
-        public ObjectFunction(Function function) : base(function) { }
+        public Function Value { get; }
 
-        public ObjectBool Eq(IObject other) => ReferenceEquals(this, other);
+        public ObjectFunction(Function function) { Value = function; }
+
+        public override ObjectBool Eq(CrispObject other) => ReferenceEquals(this, other);
     }
 
-    class ObjectNull : IObject
+    class ObjectNull : CrispObject
     {
-        public ObjectBool IsTruthy() => false;
+        public override ObjectBool IsTruthy() => false;
 
-        public ObjectBool Eq(IObject other) => other is ObjectNull;
+        public override ObjectBool Eq(CrispObject other) => other is ObjectNull;
 
         public override string ToString() => "null";
     }
 
-    class ObjectNumber : ValueWrapper<double>, IObject
+    class ObjectNumber : CrispObject
     {
-        public ObjectNumber(double value) : base(value) { }
+        public double Value { get; }
+
+        public ObjectNumber(double value) { Value = value; }
         
-        public ObjectBool Eq(IObject other) => other is ObjectNumber n && Value == n.Value;
+        public override ObjectBool Eq(CrispObject other) => other is ObjectNumber n && Value == n.Value;
         
         public static implicit operator ObjectNumber(double value) => new ObjectNumber(value);
         public static ObjectNumber operator +(ObjectNumber a, ObjectNumber b) => a.Value + b.Value;
@@ -70,11 +111,20 @@ namespace Crisp.Runtime
         public override string ToString() => Value.ToString();
     }
     
-    class ObjectString : ValueWrapper<string>, IObject
+    class ObjectObject : CrispObject
     {
-        public ObjectString(string value) : base(value) { }
+        public override ObjectBool Eq(CrispObject other) => ReferenceEquals(this, other);
+
+        public ObjectObject(CrispObject? prototype = null) : base(prototype) { }
+    }
+
+    class ObjectString : CrispObject
+    {
+        public string Value { get; }
+
+        public ObjectString(string value) { Value = value; }
         
-        public ObjectBool Eq(IObject other) => other is ObjectString s && Value == s.Value;
+        public override ObjectBool Eq(CrispObject other) => other is ObjectString s && Value == s.Value;
         
         public static implicit operator ObjectString(string value) => new ObjectString(value);
         public static ObjectString operator +(ObjectString a, ObjectString b) => a.Value + b.Value;

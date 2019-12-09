@@ -5,23 +5,23 @@ namespace Crisp.Runtime
 {
     class Interpreter
     {
-        public Environment Globals { get; }
-        public Environment Environment { get; }
+        public ObjectObject Globals { get; }
+        public ObjectObject Environment { get; }
 
-        public Interpreter(Environment globals, Environment environment)
+        public Interpreter(ObjectObject globals, ObjectObject environment)
         {
             Globals = globals;
             Environment = environment;
         }
 
-        public Interpreter(Environment globals)
+        public Interpreter(ObjectObject globals)
             : this(globals, globals)
         {
         }
 
-        public IObject Evaluate(IExpression expression)
+        public CrispObject Evaluate(IExpression expression)
         {
-            IObject result;
+            CrispObject result;
             switch (expression)
             {
                 case AssignmentIdentifier ai:
@@ -37,21 +37,21 @@ namespace Crisp.Runtime
                     {
                         var interpreter = new Interpreter(
                             Globals,
-                            new Environment(Environment));
+                            new ObjectObject(Environment));
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
                     break;
 
                 case Call call
-                when Environment.Get(call.Name) is ObjectFunction fn:
+                when Environment.Get(call.Name.Name) is ObjectFunction fn:
                     if (fn.Value.Parameters.Count != call.Arguments.Count)
                         throw new RuntimeErrorException(
                             call.Name.Position,
                             "Arity mismatch");
                     
                     {
-                        var env = new Environment(Globals);
+                        var env = new ObjectObject(Globals);
                         for (var i = 0; i < call.Arguments.Count; i++)
                         {
                             var arg = call.Arguments[i];
@@ -88,7 +88,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Identifier identifier:
-                    result = Environment.Get(identifier) ??
+                    result = Environment.Get(identifier.Name) ??
                                 throw new RuntimeErrorException(
                                     identifier.Position,
                                     $"Identifier <{identifier.Name}> unbound");
