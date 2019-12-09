@@ -40,7 +40,6 @@ A toy programming language interpreter.
              | "false"
              | id
              | "null"
-             | "this"
              | "(" expr ")" ;
              | "write" args ;
     call -> id args
