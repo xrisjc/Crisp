@@ -127,7 +127,6 @@ namespace Crisp.Runtime
         public override ObjectBool Eq(CrispObject other) => other is ObjectString s && Value == s.Value;
         
         public static implicit operator ObjectString(string value) => new ObjectString(value);
-        public static ObjectString operator +(ObjectString a, ObjectString b) => a.Value + b.Value;
 
         public override string ToString() => Value;
     }

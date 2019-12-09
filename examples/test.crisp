@@ -68,9 +68,6 @@ var testOperators := function () {
     assertEq((1 + 2) * 3,   9, 'addition grouped and multiplication')
     assertEq((10 - 2) * 3, 24, 'subtraction grouped and multiplication')
 
-    // + also concats strings
-    assertEq('first ' + 'second', 'first second', 'string concat')
-
     // All relation operators evaluate to a boolean value.
     // The equal operator is a single =.
     assertEq(1 = 1,          true, 'int equality true')

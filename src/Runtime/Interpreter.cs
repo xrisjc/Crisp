@@ -135,7 +135,6 @@ namespace Crisp.Runtime
                     var right = Evaluate(op.Right);
                     result = op.Tag switch
                     {
-                        OperatorBinaryTag.Add when left is ObjectString l && right is ObjectString r => l + r,
                         OperatorBinaryTag.Add when left is ObjectNumber l && right is ObjectNumber r => l + r,
                         OperatorBinaryTag.Sub when left is ObjectNumber l && right is ObjectNumber r => l - r,
                         OperatorBinaryTag.Mul when left is ObjectNumber l && right is ObjectNumber r => l * r,
