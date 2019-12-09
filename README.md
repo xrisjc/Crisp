@@ -31,7 +31,7 @@ A toy programming language interpreter.
     equality -> relation ( ( "=" | "<>" ) relation )* ;
     relation -> addition ( ( "<" | "<=" | ">" | ">=" ) addition )* ;
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
-    multiplication -> unary ( ( "*" | "/" ) unary )* ;
+    multiplication -> unary ( ( "*" | "/" | "mod" ) unary )* ;
     unary -> ( ( "-" | "not" ) expr ) | primary ;
     primary -> call
              | number
