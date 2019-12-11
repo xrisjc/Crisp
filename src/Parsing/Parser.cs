@@ -156,7 +156,7 @@ namespace Crisp.Parsing
         {
             var left = LogicalOr();
 
-            if (Match2(TokenTag.Assignment) is Token assignmentToken)
+            if (Match(TokenTag.Assignment) is Token assignmentToken)
             {
                 if (left is Identifier identifier)
                 {
@@ -175,7 +175,7 @@ namespace Crisp.Parsing
         IExpression LogicalOr()
         {
             var left = LogicalAnd();
-            while (Match2(TokenTag.Or) is Token token)
+            while (Match(TokenTag.Or) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = LogicalAnd();
@@ -187,7 +187,7 @@ namespace Crisp.Parsing
         IExpression LogicalAnd()
         {
             var left = Equality();
-            while (Match2(TokenTag.And) is Token token)
+            while (Match(TokenTag.And) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Equality();
@@ -199,7 +199,7 @@ namespace Crisp.Parsing
         IExpression Equality()
         {
             var left = Relation();
-            while (Match2(TokenTag.Equals, TokenTag.InequalTo) is Token token)
+            while (Match(TokenTag.Equals, TokenTag.InequalTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Relation();
@@ -211,7 +211,7 @@ namespace Crisp.Parsing
         IExpression Relation()
         {
             var left = Addition();
-            while (Match2(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo) is Token token)
+            while (Match(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Addition();
@@ -223,7 +223,7 @@ namespace Crisp.Parsing
         IExpression Addition()
         {
             var left = Multiplication();
-            while (Match2(TokenTag.Add, TokenTag.Subtract) is Token token)
+            while (Match(TokenTag.Add, TokenTag.Subtract) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Multiplication();
@@ -235,7 +235,7 @@ namespace Crisp.Parsing
         IExpression Multiplication()
         {
             var left = Unary();
-            while (Match2(TokenTag.Multiply, TokenTag.Divide, TokenTag.Mod) is Token token)
+            while (Match(TokenTag.Multiply, TokenTag.Divide, TokenTag.Mod) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Unary();
@@ -246,13 +246,13 @@ namespace Crisp.Parsing
 
         IExpression Unary()
         {
-            if (Match2(TokenTag.Subtract) is Token tokenSubtract)
+            if (Match(TokenTag.Subtract) is Token tokenSubtract)
             {
                 var expression = Unary();
                 return new OperatorUnary(tokenSubtract.Position, OperatorUnaryTag.Neg, expression);
             }
 
-            if (Match2(TokenTag.Not) is Token tokenNot)
+            if (Match(TokenTag.Not) is Token tokenNot)
             {
                 var expression = Unary();
                 return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);
@@ -266,7 +266,7 @@ namespace Crisp.Parsing
             var left = Primary();
             while (true)
             {
-                if (Match2(TokenTag.LParen) is Token token)                
+                if (Match(TokenTag.LParen) is Token token)                
                     left = new Call(token.Position, left, Arguments());
                 else
                     break;
@@ -276,7 +276,7 @@ namespace Crisp.Parsing
 
         IExpression Primary()
         {
-            if (Match2(TokenTag.Number) is Token token)
+            if (Match(TokenTag.Number) is Token token)
             {
                 if (double.TryParse(token.Lexeme, out var value))
                 {
@@ -287,7 +287,7 @@ namespace Crisp.Parsing
                     token.Position);
             }
 
-            if (Match2(TokenTag.String) is Token tokenString)
+            if (Match(TokenTag.String) is Token tokenString)
             {
                 var str = ParseString(tokenString.Lexeme, tokenString.Position);
                 return new LiteralString(str);
@@ -303,7 +303,7 @@ namespace Crisp.Parsing
                 return new LiteralBool(false);
             }
 
-            if (Match2(TokenTag.Identifier) is Token tokenIdentifier)
+            if (Match(TokenTag.Identifier) is Token tokenIdentifier)
             {
                 return new Identifier(tokenIdentifier.Position, tokenIdentifier.Lexeme);
             }

@@ -21,7 +21,7 @@
             Peek = scanner.NextToken();
         }
 
-        public Token? Match2(TokenTag tag)
+        public Token? Match(TokenTag tag)
         {
             if (Current.Tag == tag)
             {
@@ -33,23 +33,18 @@
                 return null;
         }
 
-        public Token? Match2(params TokenTag[] tags)
+        public Token? Match(params TokenTag[] tags)
         {
             foreach (var tag in tags)
-                if (Match2(tag) is Token token)
+                if (Match(tag) is Token token)
                     return token;
 
             return null;
         }
 
-        public bool Match(TokenTag tag)
-        {
-            return Match2(tag) != null;
-        }
-
         public Token Expect(TokenTag tag)
         {
-            if (Match2(tag) is Token token)
+            if (Match(tag) is Token token)
                 return token;
             else
                 throw new SyntaxErrorException(
