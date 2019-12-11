@@ -1,4 +1,5 @@
 using Crisp.Ast;
+using System;
 using System.Collections.Generic;
 
 namespace Crisp.Runtime
@@ -14,6 +15,8 @@ namespace Crisp.Runtime
         {
             this.prototype = prototype;
         }
+
+        public static implicit operator CrispObject(bool value) => new ObjectBool(value);
 
         public CrispObject? Get(CrispObject key)
         {
@@ -38,27 +41,26 @@ namespace Crisp.Runtime
         }
 
         public virtual ObjectBool IsTruthy() => true;
-        
-        public abstract ObjectBool Eq(CrispObject other);
     }
 
-    class ObjectBool : CrispObject
+    class ObjectBool : CrispObject, IEquatable<ObjectBool>
     {
         public bool Value { get; }
 
         public ObjectBool(bool value) { Value = value; }
 
         public static implicit operator ObjectBool(bool value) => new ObjectBool(value);
-
         public static implicit operator bool(ObjectBool value) => value.Value;
 
         public static ObjectBool operator !(ObjectBool a) => !a.Value;
 
         public override ObjectBool IsTruthy() => Value;
 
-        public override ObjectBool Eq(CrispObject other) => other is ObjectBool x && Value == x.Value;
-
         public override string ToString() => Value ? "true" : "false";
+
+        public override bool Equals(object? obj) => Equals(obj as ObjectBool);
+        public bool Equals(ObjectBool? other) => other != null && Value == other.Value;
+        public override int GetHashCode() => Value.GetHashCode();
     }
 
     class ObjectFunction : CrispObject
@@ -66,27 +68,25 @@ namespace Crisp.Runtime
         public Function Value { get; }
 
         public ObjectFunction(Function function) { Value = function; }
-
-        public override ObjectBool Eq(CrispObject other) => ReferenceEquals(this, other);
     }
 
-    class ObjectNull : CrispObject
+    class ObjectNull : CrispObject, IEquatable<ObjectNull>
     {
         public override ObjectBool IsTruthy() => false;
 
-        public override ObjectBool Eq(CrispObject other) => other is ObjectNull;
-
         public override string ToString() => "null";
+
+        public override bool Equals(object? obj) => Equals(obj as ObjectNull);
+        public bool Equals(ObjectNull? other) => other != null;
+        public override int GetHashCode() => 0;
     }
 
-    class ObjectNumber : CrispObject
+    class ObjectNumber : CrispObject, IEquatable<ObjectNumber>
     {
         public double Value { get; }
 
         public ObjectNumber(double value) { Value = value; }
-        
-        public override ObjectBool Eq(CrispObject other) => other is ObjectNumber n && Value == n.Value;
-        
+
         public static implicit operator ObjectNumber(double value) => new ObjectNumber(value);
         public static ObjectNumber operator +(ObjectNumber a, ObjectNumber b) => a.Value + b.Value;
         public static ObjectNumber operator -(ObjectNumber a, ObjectNumber b) => a.Value - b.Value;
@@ -100,25 +100,24 @@ namespace Crisp.Runtime
         public static ObjectNumber operator -(ObjectNumber a) => -a.Value;
 
         public override string ToString() => Value.ToString();
-    }
-    
-    class ObjectObject : CrispObject
-    {
-        public override ObjectBool Eq(CrispObject other) => ReferenceEquals(this, other);
 
-        public ObjectObject(CrispObject? prototype = null) : base(prototype) { }
+        public override bool Equals(object? obj) => Equals(obj as ObjectNumber);
+        public bool Equals(ObjectNumber? other) => other != null && Value.Equals(other.Value);
+        public override int GetHashCode() => Value.GetHashCode();
     }
 
-    class ObjectString : CrispObject
+    class ObjectString : CrispObject, IEquatable<ObjectString>
     {
         public string Value { get; }
 
         public ObjectString(string value) { Value = value; }
-        
-        public override ObjectBool Eq(CrispObject other) => other is ObjectString s && Value == s.Value;
-        
+
         public static implicit operator ObjectString(string value) => new ObjectString(value);
 
         public override string ToString() => Value;
+
+        public override bool Equals(object? obj) => Equals(obj as ObjectString);
+        public bool Equals(ObjectString? other) => other != null && Value.Equals(other.Value);
+        public override int GetHashCode() => Value.GetHashCode();
     }
 }

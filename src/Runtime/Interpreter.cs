@@ -166,8 +166,8 @@ namespace Crisp.Runtime
                         OperatorBinaryTag.LtEq when left is ObjectNumber l && right is ObjectNumber r => l <= r,
                         OperatorBinaryTag.Gt when left is ObjectNumber l && right is ObjectNumber r => l > r,
                         OperatorBinaryTag.GtEq when left is ObjectNumber l && right is ObjectNumber r => l >= r,
-                        OperatorBinaryTag.Eq => left.Eq(right),
-                        OperatorBinaryTag.Neq => !left.Eq(right),
+                        OperatorBinaryTag.Eq => left.Equals(right),
+                        OperatorBinaryTag.Neq => !left.Equals(right),
                         _ =>
                             throw new RuntimeErrorException(
                                 op.Position,
