@@ -22,7 +22,7 @@ namespace Crisp
 
         public static void Run(TextReader reader, TextWriter writer)
         {
-            var globals = new Runtime.ObjectObject();
+            var globals = new Runtime.Environment();
 
             while (true)
             {
@@ -67,7 +67,7 @@ namespace Crisp
             return command;
         }
 
-        static void Evaluate(string code, Runtime.ObjectObject globals, TextWriter writer)
+        static void Evaluate(string code, Runtime.Environment globals, TextWriter writer)
         {
             try
             {

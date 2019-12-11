@@ -164,6 +164,12 @@ namespace Crisp.Parsing
                     return new AssignmentIdentifier(identifier, right);
                 }
 
+                if (left is Index index)
+                {
+                    var right = Expression();
+                    return new AssignmentIndex(index, right);
+                }
+
                 throw new SyntaxErrorException(
                     "Left hand side of assignment must be assignable,",
                     assignmentToken.Position);
@@ -266,8 +272,14 @@ namespace Crisp.Parsing
             var left = Primary();
             while (true)
             {
-                if (Match(TokenTag.LParen) is Token token)                
-                    left = new Call(token.Position, left, Arguments());
+                if (Match(TokenTag.LParen) is Token tokenCall)
+                    left = new Call(tokenCall.Position, left, Arguments());
+                else if (Match(TokenTag.LBracket) is Token tokenIndex)
+                {
+                    var at = Expression();
+                    Expect(TokenTag.RBracket);
+                    left = new Index(tokenIndex.Position, left, at);
+                }
                 else
                     break;
             }

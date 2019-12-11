@@ -7,43 +7,34 @@ namespace Crisp.Runtime
     {
         CrispObject? prototype;
 
-        Dictionary<string, CrispObject> values = new Dictionary<string, CrispObject>();
+        Dictionary<CrispObject, CrispObject> properties =
+            new Dictionary<CrispObject, CrispObject>();
 
         public CrispObject(CrispObject? prototype = null)
         {
             this.prototype = prototype;
         }
 
-        public CrispObject? Get(string name)
+        public CrispObject? Get(CrispObject key)
         {
             for (CrispObject? o = this; o != null; o = o.prototype)
-                if (o.values.TryGetValue(name, out var value))
+                if (o.properties.TryGetValue(key, out var value))
                     return value;
             return null;           
         }
 
-        public bool Set(string name, CrispObject value)
+        public void Set(CrispObject key, CrispObject value)
         {
+            // If the key exists somewhere, set it.
             for (CrispObject? o = this; o != null; o = o.prototype)
-                if (o.values.ContainsKey(name))
+                if (o.properties.ContainsKey(key))
                 {
-                    o.values[name] = value;
-                    return true;
+                    o.properties[key] = value;
+                    return;
                 }
-            return false;
-        }
 
-        public bool Create(string name, CrispObject value)
-        {
-            if (values.ContainsKey(name))
-            {
-                return false;
-            }
-            else
-            {
-                values.Add(name, value);
-                return true;
-            }
+            // Key doesn't exist so set it in this object.
+            properties[key] = value;
         }
 
         public virtual ObjectBool IsTruthy() => true;

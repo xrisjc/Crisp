@@ -5,16 +5,16 @@ namespace Crisp.Runtime
 {
     class Interpreter
     {
-        public ObjectObject Globals { get; }
-        public ObjectObject Environment { get; }
+        public Environment Globals { get; }
+        public Environment Environment { get; }
 
-        public Interpreter(ObjectObject globals, ObjectObject environment)
+        public Interpreter(Environment globals, Environment environment)
         {
             Globals = globals;
             Environment = environment;
         }
 
-        public Interpreter(ObjectObject globals)
+        public Interpreter(Environment globals)
             : this(globals, globals)
         {
         }
@@ -32,12 +32,22 @@ namespace Crisp.Runtime
                             $"Cannot assign, <{ai.Target.Name}> is unbound");
                     break;
 
+                case AssignmentIndex ai:
+                    {
+                        var target = Evaluate(ai.Index.Target);
+                        var key = Evaluate(ai.Index.Key);
+                        var value = Evaluate(ai.Value);
+                        target.Set(key, value);
+                        result = value;
+                    }
+                    break;
+
                 case Block block:
                     result = new ObjectNull();
                     {
                         var interpreter = new Interpreter(
                             Globals,
-                            new ObjectObject(Environment));
+                            new Environment(Environment));
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
@@ -47,7 +57,7 @@ namespace Crisp.Runtime
                     if (Evaluate(call.Target) is ObjectFunction fn)
                         if (fn.Value.Parameters.Count == call.Arguments.Count)
                         {
-                            var env = new ObjectObject(Globals);
+                            var env = new Environment(Globals);
                             for (var i = 0; i < call.Arguments.Count; i++)
                             {
                                 var arg = call.Arguments[i];
@@ -77,6 +87,22 @@ namespace Crisp.Runtime
                         result = Evaluate(@if.Consequence);
                     else
                         result = Evaluate(@if.Alternative);
+                    break;
+
+                case Ast.Index index:
+                    {
+                        var target = Evaluate(index.Target);
+                        var key = Evaluate(index.Key);
+                        if (target.Get(key) is CrispObject value)
+                            result = value;
+                        else
+                            // TODO: How to make this more robust?  Do what JS
+                            // does and have an undefined value?  Have a method
+                            // that checks if key exists?
+                            throw new RuntimeErrorException(
+                                index.Position,
+                                $"Key <{key}> does not exist in indexed object.");
+                    }
                     break;
 
                 case Function function:

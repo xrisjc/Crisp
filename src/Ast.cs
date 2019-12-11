@@ -20,6 +20,17 @@ namespace Crisp.Ast
         }
     }
 
+    class AssignmentIndex : IExpression
+    {
+        public Index Index { get; }
+        public IExpression Value { get; }
+        public AssignmentIndex(Index index, IExpression value)
+        {
+            Index = index;
+            Value = value;
+        }
+    }
+
     class Block : IExpression
     {
         public List<IExpression> Body { get; }
@@ -88,6 +99,19 @@ namespace Crisp.Ast
             Condition = condition;
             Consequence = consequence;
             Alternative = alternative;
+        }
+    }
+
+    class Index : IExpression
+    {
+        public Position Position { get; }
+        public IExpression Target { get; }
+        public IExpression Key { get; }
+        public Index(Position position, IExpression target, IExpression key)
+        {
+            Position = position;
+            Target = target;
+            Key = key;
         }
     }
 
