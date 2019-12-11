@@ -248,31 +248,34 @@ namespace Crisp.Parsing
         {
             if (Match2(TokenTag.Subtract) is Token tokenSubtract)
             {
-                var expression = Expression();
+                var expression = Unary();
                 return new OperatorUnary(tokenSubtract.Position, OperatorUnaryTag.Neg, expression);
             }
 
             if (Match2(TokenTag.Not) is Token tokenNot)
             {
-                var expression = Expression();
+                var expression = Unary();
                 return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);
             }
 
-            return Primary();
+            return Call();
+        }
+
+        IExpression Call()
+        {
+            var left = Primary();
+            while (true)
+            {
+                if (Match2(TokenTag.LParen) is Token token)                
+                    left = new Call(token.Position, left, Arguments());
+                else
+                    break;
+            }
+            return left;
         }
 
         IExpression Primary()
         {
-            if (Current.Tag == TokenTag.Identifier &&
-                Peek.Tag == TokenTag.LParen)
-            {
-                var name = Current;
-                NextToken();
-                NextToken();
-                var arguments = Arguments();
-                return new Call(new Identifier(name.Position, name.Lexeme), arguments);
-            }
-
             if (Match2(TokenTag.Number) is Token token)
             {
                 if (double.TryParse(token.Lexeme, out var value))

@@ -43,35 +43,34 @@ namespace Crisp.Runtime
                     }
                     break;
 
-                case Call call
-                when Environment.Get(call.Name.Name) is ObjectFunction fn:
-                    if (fn.Value.Parameters.Count != call.Arguments.Count)
-                        throw new RuntimeErrorException(
-                            call.Name.Position,
-                            "Arity mismatch");
-                    
-                    {
-                        var env = new ObjectObject(Globals);
-                        for (var i = 0; i < call.Arguments.Count; i++)
-                        {
-                            var arg = call.Arguments[i];
-                            var param = fn.Value.Parameters[i];
-                            var value = Evaluate(arg);
-                            if (!env.Create(param.Name, value))
-                                throw new RuntimeErrorException(
-                                    call.Name.Position,
-                                    $"Parameter {param} already bound");
-                        }
-
-                        var interpreter = new Interpreter(Globals, env);
-                        result = interpreter.Evaluate(fn.Value.Body);
-                    }
-                    break;
-
                 case Call call:
-                    throw new RuntimeErrorException(
-                        call.Name.Position,
-                        $"No function bound to <{call.Name}>.");
+                    if (Evaluate(call.Target) is ObjectFunction fn)
+                        if (fn.Value.Parameters.Count == call.Arguments.Count)
+                        {
+                            var env = new ObjectObject(Globals);
+                            for (var i = 0; i < call.Arguments.Count; i++)
+                            {
+                                var arg = call.Arguments[i];
+                                var param = fn.Value.Parameters[i];
+                                var value = Evaluate(arg);
+                                if (!env.Create(param.Name, value))
+                                    throw new RuntimeErrorException(
+                                        param.Position,
+                                        $"Parameter {param} already bound");
+                            }
+
+                            var interpreter = new Interpreter(Globals, env);
+                            result = interpreter.Evaluate(fn.Value.Body);
+                        }
+                        else
+                            throw new RuntimeErrorException(
+                                call.Position,
+                                "Arity mismatch");
+                    else
+                        throw new RuntimeErrorException(
+                            call.Position,
+                            "Cannot call non-callable object.");
+                    break;
 
                 case If @if:
                     if (Evaluate(@if.Condition).IsTruthy())

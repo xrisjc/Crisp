@@ -32,13 +32,16 @@ namespace Crisp.Ast
 
     class Call : IExpression
     {
-        public Identifier Name { get; }
-
+        public Position Position { get; }
+        public IExpression Target { get; }
         public List<IExpression> Arguments { get; }
-
-        public Call(Identifier name, List<IExpression> arguments)
+        public Call(
+            Position position,
+            IExpression target,
+            List<IExpression> arguments)
         {
-            Name = name;
+            Position = position;
+            Target = target;
             Arguments = arguments;
         }
     }

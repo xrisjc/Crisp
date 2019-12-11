@@ -32,9 +32,9 @@ A toy programming language interpreter.
     relation -> addition ( ( "<" | "<=" | ">" | ">=" ) addition )* ;
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
     multiplication -> unary ( ( "*" | "/" | "mod" ) unary )* ;
-    unary -> ( ( "-" | "not" ) expr ) | primary ;
-    primary -> call
-             | number
+    unary -> ( ( "-" | "not" ) unary ) | call ; 
+    call -> primary ( "(" arguments ")" )*
+    primary -> number
              | string
              | "true"
              | "false"
@@ -42,8 +42,7 @@ A toy programming language interpreter.
              | "null"
              | "(" expr ")" ;
              | "write" args ;
-    call -> id args
-    args -> "(" expr* ")" ;
+    arguments -> expr ( "," expr )* ;
     number -> digit+ ( "." digit+ )? ;
     string -> "'" ([^'])* "'" ;
     id -> alpha ( alpha | digit )* ;

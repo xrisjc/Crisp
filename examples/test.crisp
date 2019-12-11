@@ -63,6 +63,7 @@ var testOperators := function () begin
     assertEq(10 - 2 * 3, 4, 'subtraction and multiplication')
     assertEq(1 + 15 / 3, 6, 'addition and division')
     assertEq(1 + 8 mod 3,  3, 'addition and modulo')
+    assertEq(-2 + 4, 2, 'leading negatives')
 
     // But, grouping with parenthesis will change order of evaluation, as you
     // would expected.
@@ -169,6 +170,7 @@ var testOperators := function () begin
 
     assertEq(not true, false, 'Not #1')
     assertEq(not false, true, 'Not #2')
+    assertEq(not false or true, true, 'Leading not')
 
     // Logical and has lower precedence than equality and inequality.
     assert(1 <> 2 and 2 = 2, 'and precedence #1')
