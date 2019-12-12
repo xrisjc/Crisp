@@ -117,7 +117,7 @@ namespace Crisp.Runtime
                     break;
 
                 case LiteralBool literalBool:
-                    result = new ObjectBool(literalBool.Value);
+                    result = literalBool.Value;
                     break;
 
                 case LiteralNull _:
@@ -128,8 +128,14 @@ namespace Crisp.Runtime
                     result = new ObjectNumber(number.Value);
                     break;
 
+                case LiteralObject literalObject:
+                    result = new CrispObject();
+                    foreach (var (key, value) in literalObject.Properties)
+                        result.Set(key.Name, Evaluate(value));
+                    break;
+
                 case LiteralString literalString:
-                    result = new ObjectString(literalString.Value);
+                    result = literalString.Value;
                     break;
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:

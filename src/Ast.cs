@@ -129,6 +129,15 @@ namespace Crisp.Ast
 
     class LiteralNull : IExpression { }
 
+    class LiteralObject : IExpression
+    {
+        public List<(Identifier, IExpression)> Properties { get; }
+        public LiteralObject(List<(Identifier, IExpression)> properties)
+        {
+            Properties = properties;
+        }
+    }
+
     class LiteralNumber : Literal<double>, IExpression
     {
         public LiteralNumber(double value) : base(value) { }
@@ -204,6 +213,17 @@ namespace Crisp.Ast
         public Program(List<IExpression> expressions)
         {
             Expressions = expressions;
+        }
+    }
+
+    class Refinement : IExpression
+    {
+        public IExpression Target { get; }
+        public Identifier Name { get; }
+        public Refinement(IExpression target, Identifier name)
+        {
+            Target = target;
+            Name = name;
         }
     }
 

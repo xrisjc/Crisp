@@ -10,6 +10,7 @@
         Comma,
         Divide,
         Do,
+        Dot,
         Else,
         End,
         EndOfInput,

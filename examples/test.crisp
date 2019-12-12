@@ -397,7 +397,39 @@ var testLogicalAndOr := function () begin
     assertEq(counterGet(), 3, 'or short circuits #4')
 end
 
-// Code to manage running our tests.
+///////////////////////////////////////////////////////////////////////////////
+// Objects
+///////////////////////////////////////////////////////////////////////////////
+
+var testObjects := function () begin
+    // New objects can be created with object literals.  Object literals are
+    // a list of properties with the syntax <identifier> := <expression>.
+    var empty := { }
+    var person := {
+        name := {
+            first := 'John'
+            last := 'Smith'
+        }
+        age := 40
+    }
+
+    // Object properties can be retrieved with the index operator.  The
+    // property name must be passed in as a string.
+    assertEq(person['age'], 40, 'Object indexing get #1')
+    assertEq(person['name']['first'], 'John', 'Object indexing get #2')
+
+    // Object properties can be updated and added using the index operator
+    // and an assignment operator.
+    person['weight'] := 250
+    person['name']['middle'] := 'James'
+    assertEq(person['weight'], 250, 'Object index set #1')
+    assertEq(person['name']['middle'], 'James', 'Object index set #2')
+end
+
+///////////////////////////////////////////////////////////////////////////////
+// Code to manage running tests.
+///////////////////////////////////////////////////////////////////////////////
+
 var nTests := 0
 var nErrors := 0
 var showPassedTest := true
@@ -445,6 +477,7 @@ var doAllTests := function () begin
     testLooping()
     testFunctions()
     testLogicalAndOr()
+    testObjects()
 
     displaySummary()
 end

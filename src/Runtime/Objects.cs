@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
-    abstract class CrispObject
+    class CrispObject
     {
         CrispObject? prototype;
 
@@ -16,7 +16,10 @@ namespace Crisp.Runtime
             this.prototype = prototype;
         }
 
-        public static implicit operator CrispObject(bool value) => new ObjectBool(value);
+        public static implicit operator CrispObject(bool value) =>
+            new ObjectBool(value);
+        public static implicit operator CrispObject(string value) =>
+            new ObjectString(value);
 
         public CrispObject? Get(CrispObject key)
         {
@@ -112,7 +115,8 @@ namespace Crisp.Runtime
 
         public ObjectString(string value) { Value = value; }
 
-        public static implicit operator ObjectString(string value) => new ObjectString(value);
+        public static implicit operator ObjectString(string value) =>
+            new ObjectString(value);
 
         public override string ToString() => Value;
 

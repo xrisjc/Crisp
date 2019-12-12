@@ -128,6 +128,7 @@ namespace Crisp.Parsing
                 case '/': return Accept(TokenTag.Divide);
                 case '<': return Accept(TokenTag.LessThan);
                 case '>': return Accept(TokenTag.GreaterThan);
+                case '.': return Accept(TokenTag.Dot);
 
                 case '\'':
                     {
