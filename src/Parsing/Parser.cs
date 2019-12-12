@@ -170,6 +170,12 @@ namespace Crisp.Parsing
                     return new AssignmentIndex(index, right);
                 }
 
+                if (left is Refinement refinement)
+                {
+                    var right = Expression();
+                    return new AssignmentRefinement(refinement, right);
+                }
+
                 throw new SyntaxErrorException(
                     "Left hand side of assignment must be assignable,",
                     assignmentToken.Position);

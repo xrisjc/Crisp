@@ -424,48 +424,69 @@ var testObjects := function () begin
     person['name']['middle'] := 'James'
     assertEq(person['weight'], 250, 'Object index set #1')
     assertEq(person['name']['middle'], 'James', 'Object index set #2')
+
+    // If the object's key is a valid identfier then a property's value can
+    // be got with a '.' operator.  It can also be set the same way.  This,
+    // of course, is easier to use than the index operator.
+    person.height := 5.5
+    person.name.title := 'Dr.'
+    assertEq(person.height, 5.5, 'Dot operator #1')
+    assertEq(person.name.title, 'Dr.', 'Dot operator #2')
+
+    // In fact the key to an object property can be any other object, but
+    // then you're stuck with using the index operator.  That is objects
+    // are maps / dictionaries / associative arrays.  You can also
+    // add properties to objects other than user defined ones.
+    person[false] := 2.5
+    var f := function (x) 2 * x
+    f.description := 'a function that doubles'
+    assertEq(person[false], 2.5, 'Index operator bool key')
+    assertEq(f.description, 'a function that doubles', 'Property on a function')
+    assertEq(f(2), 4, 'Function call that has a property')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
 // Code to manage running tests.
 ///////////////////////////////////////////////////////////////////////////////
 
-var nTests := 0
-var nErrors := 0
-var showPassedTest := true
+var test := {
+    nTests := 0
+    nErrors := 0
+    showPassedTest := true
+}
 
 var pass := function (message) begin
-    nTests := nTests + 1
+    test.nTests := test.nTests + 1
     write('[OK] "', message, '"\n')
 end
 
 var fail := function (message) begin
-    nTests := nTests + 1
-    nErrors := nErrors + 1
+    test.nTests := test.nTests + 1
+    test.nErrors := test.nErrors + 1
     write('[FAILED] "', message, '"\n')
 end
 
 var assert := function (condition, message) begin
     if not condition then
         fail(message)
-    else if showPassedTest then
+    else if test.showPassedTest then
         pass(message)
 end
 
-var assertEq := function (test, expected, message) begin
-    nTests := nTests + 1
-    if test <> expected then begin
+var assertEq := function (actual, expected, message) begin
+    test.nTests := test.nTests + 1
+    if actual <> expected then begin
         write('[FAILED] "', message, '": expected <', expected, '> got <',
-            test, '>\n')
-        nErrors := nErrors + 1
-    end else if showPassedTest then
+            actual, '>\n')
+        test.nErrors := test.nErrors + 1
+    end else if test.showPassedTest then
         write('[OK] "', message, '"\n')
 end
 
 var displaySummary := function () begin
-    write('\n', nTests - nErrors, ' out of ', nTests, ' tests passed.\n')
-    write('There are ', nErrors, ' errors. ')
-    write(if nErrors = 0 then ':-)' else 'D-:', '\n')
+    write('\n', test.nTests - test.nErrors, ' out of ', test.nTests, ' tests passed.\n')
+    write('There are ', test.nErrors, ' errors. ')
+    write(if test.nErrors = 0 then ':-)' else 'D-:', '\n')
 end
 
 var doAllTests := function () begin

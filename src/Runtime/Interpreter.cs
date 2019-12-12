@@ -42,6 +42,16 @@ namespace Crisp.Runtime
                     }
                     break;
 
+                case AssignmentRefinement ar:
+                    {
+                        var target = Evaluate(ar.Refinement.Target);
+                        var key = ar.Refinement.Name.Name;
+                        var value = Evaluate(ar.Value);
+                        target.Set(key, value);
+                        result = value;
+                    }
+                    break;
+
                 case Block block:
                     result = new ObjectNull();
                     {
@@ -96,9 +106,6 @@ namespace Crisp.Runtime
                         if (target.Get(key) is CrispObject value)
                             result = value;
                         else
-                            // TODO: How to make this more robust?  Do what JS
-                            // does and have an undefined value?  Have a method
-                            // that checks if key exists?
                             throw new RuntimeErrorException(
                                 index.Position,
                                 $"Key <{key}> does not exist in indexed object.");
@@ -193,6 +200,13 @@ namespace Crisp.Runtime
                                 op.Position,
                                 $"Operator {op.Op} cannot be applied to values <{left}>"),
                     };
+                    break;
+
+                case Refinement rfnt:
+                    result = Evaluate(rfnt.Target).Get(rfnt.Name.Name) ??
+                                throw new RuntimeErrorException(
+                                    rfnt.Name.Position,
+                                    $"Object doesn't have property <{rfnt.Name.Name}>.");
                     break;
 
                 case Var var:

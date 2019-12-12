@@ -31,6 +31,17 @@ namespace Crisp.Ast
         }
     }
 
+    class AssignmentRefinement : IExpression
+    {
+        public Refinement Refinement { get; }
+        public IExpression Value { get; }
+        public AssignmentRefinement(Refinement refinement, IExpression value)
+        {
+            Refinement = refinement;
+            Value = value;
+        }
+    }
+
     class Block : IExpression
     {
         public List<IExpression> Body { get; }
