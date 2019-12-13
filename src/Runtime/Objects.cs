@@ -31,15 +31,6 @@ namespace Crisp.Runtime
 
         public void Set(CrispObject key, CrispObject value)
         {
-            // If the key exists somewhere, set it.
-            for (CrispObject? o = this; o != null; o = o.prototype)
-                if (o.properties.ContainsKey(key))
-                {
-                    o.properties[key] = value;
-                    return;
-                }
-
-            // Key doesn't exist so set it in this object.
             properties[key] = value;
         }
 
