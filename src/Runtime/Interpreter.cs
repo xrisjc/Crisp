@@ -238,10 +238,10 @@ namespace Crisp.Runtime
             CrispObject target,
             CrispObject? self = null)
         {
-            if (target is ObjectFunction fn)
+            if (target is ICallable fn)
             {
                 var args = call.Arguments;
-                var pars = fn.Definition.Parameters;
+                var pars = fn.Parameters;
                 var env = new Environment(Globals);
                 for (var i = 0; i < args.Count; i++)
                 {
@@ -253,7 +253,7 @@ namespace Crisp.Runtime
                                 $"Parameter {pars[i].Name} already bound.");
                 }
                 var interpreter = new Interpreter(Globals, env, self);
-                return interpreter.Evaluate(fn.Definition.Body);
+                return fn.Invoke(interpreter);
             }
             else
             {

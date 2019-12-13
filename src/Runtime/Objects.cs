@@ -57,11 +57,22 @@ namespace Crisp.Runtime
         public override int GetHashCode() => Value.GetHashCode();
     }
 
-    class ObjectFunction : CrispObject
+    interface ICallable
+    {
+        List<Identifier> Parameters { get; }
+        CrispObject Invoke(Interpreter interpreter);
+    }
+
+    class ObjectFunction : CrispObject, ICallable
     {
         public Function Definition { get; }
 
         public ObjectFunction(Function definition) { Definition = definition; }
+
+        List<Identifier> ICallable.Parameters => Definition.Parameters;
+        
+        CrispObject ICallable.Invoke(Interpreter interpreter) =>
+            interpreter.Evaluate(Definition.Body);
     }
 
     class ObjectNull : CrispObject, IEquatable<ObjectNull>
