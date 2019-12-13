@@ -348,6 +348,11 @@ namespace Crisp.Parsing
                 return new LiteralNull();
             }
 
+            if (Match(TokenTag.Self) is Token tokenSelf)
+            {
+                return new Self(tokenSelf.Position);
+            }
+
             if (Match(TokenTag.LBrace))
             {
                 return LiteralObject();

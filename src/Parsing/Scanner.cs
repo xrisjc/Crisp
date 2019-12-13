@@ -28,6 +28,7 @@ namespace Crisp.Parsing
                 ["null"]     = TokenTag.Null,
                 ["mod"]      = TokenTag.Mod,
                 ["or"]       = TokenTag.Or,
+                ["self"]     = TokenTag.Self,
                 ["then"]     = TokenTag.Then,
                 ["true"]     = TokenTag.True,
                 ["var"]      = TokenTag.Var,

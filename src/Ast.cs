@@ -239,6 +239,15 @@ namespace Crisp.Ast
         }
     }
 
+    class Self : IExpression
+    {
+        public Position Position { get; }
+        public Self(Position position)
+        {
+            Position = position;
+        }
+    }
+
     class Var : IExpression
     {
         public Identifier Name { get; }

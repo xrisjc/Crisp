@@ -59,9 +59,9 @@ namespace Crisp.Runtime
 
     class ObjectFunction : CrispObject
     {
-        public Function Value { get; }
+        public Function Definition { get; }
 
-        public ObjectFunction(Function function) { Value = function; }
+        public ObjectFunction(Function definition) { Definition = definition; }
     }
 
     class ObjectNull : CrispObject, IEquatable<ObjectNull>

@@ -38,6 +38,7 @@
         RBracket,
         RParen,
         String,
+        Self,
         Subtract,
         Then,
         True,

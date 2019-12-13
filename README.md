@@ -41,6 +41,7 @@ A toy programming language interpreter.
              | "false"
              | id
              | "null"
+             | "self"
              | object
              | "(" expr ")" ;
              | "write" arguments ;

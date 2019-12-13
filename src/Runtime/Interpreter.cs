@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Crisp.Ast;
 
 namespace Crisp.Runtime
@@ -7,15 +8,20 @@ namespace Crisp.Runtime
     {
         public Environment Globals { get; }
         public Environment Environment { get; }
+        public CrispObject? Self { get; }
 
-        public Interpreter(Environment globals, Environment environment)
+        public Interpreter(
+            Environment globals,
+            Environment environment,
+            CrispObject? self)
         {
             Globals = globals;
             Environment = environment;
+            Self = self;
         }
 
         public Interpreter(Environment globals)
-            : this(globals, globals)
+            : this(globals, globals, null)
         {
         }
 
@@ -57,39 +63,32 @@ namespace Crisp.Runtime
                     {
                         var interpreter = new Interpreter(
                             Globals,
-                            new Environment(Environment));
+                            new Environment(Environment),
+                            Self);
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
                     break;
 
-                case Call call:
-                    if (Evaluate(call.Target) is ObjectFunction fn)
-                        if (fn.Value.Parameters.Count == call.Arguments.Count)
-                        {
-                            var env = new Environment(Globals);
-                            for (var i = 0; i < call.Arguments.Count; i++)
-                            {
-                                var arg = call.Arguments[i];
-                                var param = fn.Value.Parameters[i];
-                                var value = Evaluate(arg);
-                                if (!env.Create(param.Name, value))
-                                    throw new RuntimeErrorException(
-                                        param.Position,
-                                        $"Parameter {param} already bound");
-                            }
+                case Call call when call.Target is Ast.Index index:
+                    {
+                        var self = Evaluate(index.Target);
+                        var key = Evaluate(index.Key);
+                        var fn = self.Get(key);
+                        result = Invoke(call, fn, self);
+                    }
+                    break;
 
-                            var interpreter = new Interpreter(Globals, env);
-                            result = interpreter.Evaluate(fn.Value.Body);
-                        }
-                        else
-                            throw new RuntimeErrorException(
-                                call.Position,
-                                "Arity mismatch");
-                    else
-                        throw new RuntimeErrorException(
-                            call.Position,
-                            "Cannot call non-callable object.");
+                case Call call when call.Target is Refinement refinement:
+                    {
+                        var self = Evaluate(refinement.Target);
+                        var fn = self.Get(refinement.Name.Name);
+                        result = Invoke(call, fn, self);
+                    }
+                    break;
+
+                case Call call:
+                    result = Invoke(call, Evaluate(call.Target));
                     break;
 
                 case If @if:
@@ -198,6 +197,15 @@ namespace Crisp.Runtime
                     result = Evaluate(rfnt.Target).Get(rfnt.Name.Name);
                     break;
 
+                case Self self:
+                    if (Self != null)
+                        result = Self;
+                    else
+                        throw new RuntimeErrorException(
+                            self.Position,
+                            "self is not defined in this context");
+                    break;
+
                 case Var var:
                     result = Evaluate(var.InitialValue);
                     if (!Environment.Create(var.Name.Name, result))
@@ -223,6 +231,36 @@ namespace Crisp.Runtime
                         $"Unimplemented {expression.GetType()}");
             }
             return result;
+        }
+
+        CrispObject Invoke(
+            Call call,
+            CrispObject target,
+            CrispObject? self = null)
+        {
+            if (target is ObjectFunction fn)
+            {
+                var args = call.Arguments;
+                var pars = fn.Definition.Parameters;
+                var env = new Environment(Globals);
+                for (var i = 0; i < args.Count; i++)
+                {
+                    var arg = Evaluate(args[i]);
+                    if (i < pars.Count)
+                        if (!env.Create(pars[i].Name, arg))
+                            throw new RuntimeErrorException(
+                                pars[i].Position,
+                                $"Parameter {pars[i].Name} already bound.");
+                }
+                var interpreter = new Interpreter(Globals, env, self);
+                return interpreter.Evaluate(fn.Definition.Body);
+            }
+            else
+            {
+                throw new RuntimeErrorException(
+                    call.Position,
+                    "Cannot call non-callable object.");
+            }
         }
     }
 }
