@@ -100,16 +100,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Ast.Index index:
-                    {
-                        var target = Evaluate(index.Target);
-                        var key = Evaluate(index.Key);
-                        if (target.Get(key) is CrispObject value)
-                            result = value;
-                        else
-                            throw new RuntimeErrorException(
-                                index.Position,
-                                $"Key <{key}> does not exist in indexed object.");
-                    }
+                    result = Evaluate(index.Target).Get(Evaluate(index.Key));
                     break;
 
                 case Function function:
@@ -203,10 +194,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Refinement rfnt:
-                    result = Evaluate(rfnt.Target).Get(rfnt.Name.Name) ??
-                                throw new RuntimeErrorException(
-                                    rfnt.Name.Position,
-                                    $"Object doesn't have property <{rfnt.Name.Name}>.");
+                    result = Evaluate(rfnt.Target).Get(rfnt.Name.Name);
                     break;
 
                 case Var var:

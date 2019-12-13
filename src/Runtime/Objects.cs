@@ -21,12 +21,12 @@ namespace Crisp.Runtime
         public static implicit operator CrispObject(string value) =>
             new ObjectString(value);
 
-        public CrispObject? Get(CrispObject key)
+        public CrispObject Get(CrispObject key)
         {
             for (CrispObject? o = this; o != null; o = o.prototype)
                 if (o.properties.TryGetValue(key, out var value))
                     return value;
-            return null;           
+            return new ObjectNull();           
         }
 
         public void Set(CrispObject key, CrispObject value)

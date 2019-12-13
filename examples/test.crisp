@@ -443,6 +443,9 @@ var testObjects := function () begin
     assertEq(person[false], 2.5, 'Index operator bool key')
     assertEq(f.description, 'a function that doubles', 'Property on a function')
     assertEq(f(2), 4, 'Function call that has a property')
+
+    // If a key isn't in an object, then retrieving it returns null.
+    assertEq(person.gender, null, 'object key not set')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
