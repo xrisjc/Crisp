@@ -184,6 +184,7 @@ namespace Crisp.Runtime
                     left = Evaluate(op.Expression);
                     result = op.Op switch
                     {
+                        OperatorUnaryTag.Beget => new CrispObject(left),
                         OperatorUnaryTag.Not => !left.IsTruthy(),
                         OperatorUnaryTag.Neg when left is ObjectNumber n => -n,
                         _ =>

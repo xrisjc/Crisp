@@ -446,6 +446,8 @@ var testObjects := function () begin
 
     // If a key isn't in an object, then retrieving it returns null.
     assertEq(person.gender, null, 'object key not set')
+
+    // TODO: beget operator.
 end
 
 ///////////////////////////////////////////////////////////////////////////////

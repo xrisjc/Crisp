@@ -16,6 +16,7 @@ namespace Crisp.Parsing
             new Dictionary<string, TokenTag>
             {
                 ["and"]      = TokenTag.And,
+                ["beget"]    = TokenTag.Beget,
                 ["begin"]    = TokenTag.Begin,
                 ["do"]       = TokenTag.Do,
                 ["else"]     = TokenTag.Else,

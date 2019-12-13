@@ -197,6 +197,7 @@ namespace Crisp.Ast
 
     enum OperatorUnaryTag
     {
+        Beget,
         Neg,
         Not,
     }

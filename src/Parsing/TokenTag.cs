@@ -6,6 +6,7 @@
         Add,
         And,
         Assignment,
+        Beget,
         Begin,
         Comma,
         Divide,
