@@ -346,6 +346,45 @@ var testLooping := function (t) begin
 
     // A while always evaluates to null.
     t.assertEq(while false do 0, null, 'While evals to null')
+
+    // While expressions 
+end
+
+///////////////////////////////////////////////////////////////////////////////
+// Scopes in if/else and while expressions.
+///////////////////////////////////////////////////////////////////////////////
+var testifElseWhileScopes := function (t) begin
+
+    // If consequence and else alternative expression introduce a new scope
+    // even if a block isn't used.
+    var x := 1
+    
+    if true then
+        var x := 100
+    t.assertEq(x, 1, 'If consequence scoping')
+    
+    if false then
+        var x := 1000
+    else
+        var x := 2000
+    t.assertEq(x, 1, 'Else alternative scoping')
+
+
+
+    // While body expression introduce a new scope even if a block isn't used.
+    var toggle := {
+        state := true
+        
+        getState := function () begin
+            var result := self.state
+            self.state := not self.state
+            result
+        end
+    }
+    var y := 1
+    while toggle.getState() do
+        var y := 100
+    t.assertEq(y, 1, 'While body scoping')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -506,6 +545,7 @@ begin
     testGlobalVariables(test)
     testBranching(test)
     testLooping(test)
+    testifElseWhileScopes(test)
     testFunctions(test)
     testLogicalAndOr(test)
     testObjects(test)

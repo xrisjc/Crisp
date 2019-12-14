@@ -25,6 +25,12 @@ namespace Crisp.Runtime
         {
         }
 
+        Interpreter Push() =>
+            new Interpreter(Globals, new Environment(Environment), Self);
+
+        Interpreter PushCall(CrispObject? self) =>
+            new Interpreter(Globals, new Environment(Globals), self);
+
         public CrispObject Evaluate(IExpression expression)
         {
             CrispObject result;
@@ -61,41 +67,52 @@ namespace Crisp.Runtime
                 case Block block:
                     result = new ObjectNull();
                     {
-                        var interpreter = new Interpreter(
-                            Globals,
-                            new Environment(Environment),
-                            Self);
+                        var interpreter = Push();
                         foreach (var e in block.Body)
                             result = interpreter.Evaluate(e);
                     }
                     break;
 
-                case Call call when call.Target is Ast.Index index:
-                    {
-                        var self = Evaluate(index.Target);
-                        var key = Evaluate(index.Key);
-                        var fn = self.Get(key);
-                        result = Invoke(call, fn, self);
-                    }
-                    break;
-
-                case Call call when call.Target is Refinement refinement:
-                    {
-                        var self = Evaluate(refinement.Target);
-                        var fn = self.Get(refinement.Name.Name);
-                        result = Invoke(call, fn, self);
-                    }
-                    break;
-
                 case Call call:
-                    result = Invoke(call, Evaluate(call.Target));
+                    {
+                        CrispObject? self;
+                        CrispObject target;
+                        switch (call.Target)
+                        {
+                            case Ast.Index index:
+                                self = Evaluate(index.Target);
+                                target = self.Get(Evaluate(index.Key));
+                                break;
+                            case Refinement refinement:
+                                self = Evaluate(refinement.Target);
+                                target = self.Get(refinement.Name.Name);
+                                break;
+                            default:
+                                self = Self;
+                                target = Evaluate(call.Target);
+                                break;
+                        }
+
+                        if (target is ICallable fn)
+                        {
+                            var args = from arg in call.Arguments
+                                        select Evaluate(arg);
+                            result = fn.Invoke(PushCall(self), args.ToArray());
+                        }
+                        else
+                        {
+                            throw new RuntimeErrorException(
+                                call.Position,
+                                $"Cannot call non-callable object <{target}>.");
+                        }
+                    }
                     break;
 
                 case If @if:
                     if (Evaluate(@if.Condition).IsTruthy())
-                        result = Evaluate(@if.Consequence);
+                        result = Push().Evaluate(@if.Consequence);
                     else
-                        result = Evaluate(@if.Alternative);
+                        result = Push().Evaluate(@if.Alternative);
                     break;
 
                 case Ast.Index index:
@@ -216,7 +233,7 @@ namespace Crisp.Runtime
 
                 case While @while:
                     while (Evaluate(@while.Guard).IsTruthy())
-                        Evaluate(@while.Body);
+                        Push().Evaluate(@while.Body);
                     result = new ObjectNull();
                     break;
 
@@ -231,27 +248,6 @@ namespace Crisp.Runtime
                         $"Unimplemented {expression.GetType()}");
             }
             return result;
-        }
-
-        CrispObject Invoke(
-            Call call,
-            CrispObject target,
-            CrispObject? self = null)
-        {
-            if (target is ICallable fn)
-            {
-                var args = from arg in call.Arguments
-                           select Evaluate(arg);
-                var environment = new Environment(Globals);
-                var interpreter = new Interpreter(Globals, environment, self);
-                return fn.Invoke(interpreter, args.ToArray());
-            }
-            else
-            {
-                throw new RuntimeErrorException(
-                    call.Position,
-                    $"Cannot call non-callable object <{target}>.");
-            }
         }
     }
 }
