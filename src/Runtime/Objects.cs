@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
+    interface ICallable
+    {
+        CrispObject Invoke(Interpreter interpreter, CrispObject[] arguments);
+    }
+
     class CrispObject
     {
         CrispObject? prototype;
@@ -57,22 +62,36 @@ namespace Crisp.Runtime
         public override int GetHashCode() => Value.GetHashCode();
     }
 
-    interface ICallable
-    {
-        List<Identifier> Parameters { get; }
-        CrispObject Invoke(Interpreter interpreter);
-    }
-
     class ObjectFunction : CrispObject, ICallable
     {
         public Function Definition { get; }
 
-        public ObjectFunction(Function definition) { Definition = definition; }
-
-        List<Identifier> ICallable.Parameters => Definition.Parameters;
+        public ObjectFunction(Function definition)
+        {
+            Definition = definition;
+        }
         
-        CrispObject ICallable.Invoke(Interpreter interpreter) =>
-            interpreter.Evaluate(Definition.Body);
+        public CrispObject Invoke(
+            Interpreter interpreter,
+            CrispObject[] arguments)
+        {
+            var environment = interpreter.Environment;
+            var parameters = Definition.Parameters;
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                CrispObject value;
+                if (i < arguments.Length)
+                    value = arguments[i];
+                else
+                    value = new ObjectNull();
+                
+                if (!environment.Create(parameters[i].Name, value))
+                    throw new RuntimeErrorException(
+                        parameters[i].Position,
+                        $"Parameter {parameters[i].Name} already bound.");
+            }
+            return interpreter.Evaluate(Definition.Body);
+        }
     }
 
     class ObjectNull : CrispObject, IEquatable<ObjectNull>

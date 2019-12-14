@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Crisp.Ast;
 
 namespace Crisp.Runtime
@@ -240,26 +240,17 @@ namespace Crisp.Runtime
         {
             if (target is ICallable fn)
             {
-                var args = call.Arguments;
-                var pars = fn.Parameters;
-                var env = new Environment(Globals);
-                for (var i = 0; i < args.Count; i++)
-                {
-                    var arg = Evaluate(args[i]);
-                    if (i < pars.Count)
-                        if (!env.Create(pars[i].Name, arg))
-                            throw new RuntimeErrorException(
-                                pars[i].Position,
-                                $"Parameter {pars[i].Name} already bound.");
-                }
-                var interpreter = new Interpreter(Globals, env, self);
-                return fn.Invoke(interpreter);
+                var args = from arg in call.Arguments
+                           select Evaluate(arg);
+                var environment = new Environment(Globals);
+                var interpreter = new Interpreter(Globals, environment, self);
+                return fn.Invoke(interpreter, args.ToArray());
             }
             else
             {
                 throw new RuntimeErrorException(
                     call.Position,
-                    "Cannot call non-callable object.");
+                    $"Cannot call non-callable object <{target}>.");
             }
         }
     }
