@@ -1,5 +1,4 @@
 ﻿using Crisp.Ast;
-using System;
 
 namespace Crisp.Runtime
 {
@@ -12,6 +11,8 @@ namespace Crisp.Runtime
         public CrispObject PrototypeNumber { get; }
         public CrispObject PrototypeString { get; }
         public CrispObject Null { get; }
+        public CrispObject True { get; }
+        public CrispObject False { get; }        
 
         public System()
         {
@@ -23,6 +24,9 @@ namespace Crisp.Runtime
             PrototypeString   = new CrispObject(PrototypeObject);
 
             Null = new ObjectNull(PrototypeNull);
+
+            True = new ObjectBool(PrototypeBool, true);
+            False = new ObjectBool(PrototypeBool, false);
         }
 
         public CrispObject Beget(CrispObject obj)
@@ -32,7 +36,7 @@ namespace Crisp.Runtime
             => new CrispObject(PrototypeObject);
 
         public CrispObject Create(bool value)
-            => new ObjectBool(PrototypeBool, value);
+            => value ? True : False;
         
         public CrispObject Create(string value)
             => new ObjectString(PrototypeString, value);
