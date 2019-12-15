@@ -6,30 +6,49 @@ namespace Crisp.Runtime
 {
     class Interpreter
     {
+        public System System { get; }
         public Environment Globals { get; }
         public Environment Environment { get; }
         public CrispObject? Self { get; }
 
         public Interpreter(
+            System system,
             Environment globals,
             Environment environment,
             CrispObject? self)
         {
+            System = system;
             Globals = globals;
             Environment = environment;
             Self = self;
         }
 
-        public Interpreter(Environment globals)
-            : this(globals, globals, null)
+        public Interpreter(System system, Environment globals)
+            : this(system, globals, globals, null)
         {
         }
 
-        Interpreter Push() =>
-            new Interpreter(Globals, new Environment(Environment), Self);
+        Interpreter Push()
+            => new Interpreter(System, Globals, new Environment(Environment), Self);
 
-        Interpreter PushCall(CrispObject? self) =>
-            new Interpreter(Globals, new Environment(Globals), self);
+        Interpreter PushCall(CrispObject? self)
+            => new Interpreter(System, Globals, new Environment(Globals), self);
+
+        bool IsTruthy(CrispObject obj)
+            => obj switch
+               {
+                   ObjectBool x => x.Value,
+                   ObjectNull _ => false,
+                   _ => true,
+               };
+
+        CrispObject LookupProperty(CrispObject obj, CrispObject key)
+        {
+            for (CrispObject? o = obj; o != null; o = o.Prototype)
+                if (o.Properties.TryGetValue(key, out var value))
+                    return value;
+            return System.Null;
+        }
 
         public CrispObject Evaluate(IExpression expression)
         {
@@ -49,7 +68,7 @@ namespace Crisp.Runtime
                         var target = Evaluate(ai.Index.Target);
                         var key = Evaluate(ai.Index.Key);
                         var value = Evaluate(ai.Value);
-                        target.Set(key, value);
+                        target.Properties[key] = value;
                         result = value;
                     }
                     break;
@@ -57,15 +76,15 @@ namespace Crisp.Runtime
                 case AssignmentRefinement ar:
                     {
                         var target = Evaluate(ar.Refinement.Target);
-                        var key = ar.Refinement.Name.Name;
+                        var key = System.Create(ar.Refinement.Name);
                         var value = Evaluate(ar.Value);
-                        target.Set(key, value);
+                        target.Properties[key] = value;
                         result = value;
                     }
                     break;
 
                 case Block block:
-                    result = new ObjectNull();
+                    result = System.Null;
                     {
                         var interpreter = Push();
                         foreach (var e in block.Body)
@@ -76,24 +95,27 @@ namespace Crisp.Runtime
                 case Call call:
                     {
                         CrispObject? self;
-                        CrispObject target;
+                        CrispObject key;
+                        CrispObject value;
                         switch (call.Target)
                         {
                             case Ast.Index index:
                                 self = Evaluate(index.Target);
-                                target = self.Get(Evaluate(index.Key));
+                                key = Evaluate(index.Key);
+                                value = LookupProperty(self, key);
                                 break;
-                            case Refinement refinement:
-                                self = Evaluate(refinement.Target);
-                                target = self.Get(refinement.Name.Name);
+                            case Refinement rfnt:
+                                self = Evaluate(rfnt.Target);
+                                key = System.Create(rfnt.Name);
+                                value = LookupProperty(self, key);
                                 break;
                             default:
                                 self = Self;
-                                target = Evaluate(call.Target);
+                                value = Evaluate(call.Target);
                                 break;
                         }
 
-                        if (target is ICallable fn)
+                        if (value is ICallable fn)
                         {
                             var args = from arg in call.Arguments
                                         select Evaluate(arg);
@@ -103,24 +125,28 @@ namespace Crisp.Runtime
                         {
                             throw new RuntimeErrorException(
                                 call.Position,
-                                $"Cannot call non-callable object <{target}>.");
+                                $"Cannot call non-callable object <{value}>.");
                         }
                     }
                     break;
 
                 case If @if:
-                    if (Evaluate(@if.Condition).IsTruthy())
+                    if (IsTruthy(Evaluate(@if.Condition)))
                         result = Push().Evaluate(@if.Consequence);
                     else
                         result = Push().Evaluate(@if.Alternative);
                     break;
 
                 case Ast.Index index:
-                    result = Evaluate(index.Target).Get(Evaluate(index.Key));
+                    {
+                        var obj = Evaluate(index.Target);
+                        var key = Evaluate(index.Key);
+                        result = LookupProperty(obj, key);
+                    }
                     break;
 
                 case Function function:
-                    result = new ObjectFunction(function);
+                    result = System.Create(function);
                     break;
 
                 case Identifier identifier:
@@ -131,45 +157,37 @@ namespace Crisp.Runtime
                     break;
 
                 case LiteralBool literalBool:
-                    result = literalBool.Value;
+                    result = System.Create(literalBool.Value);
                     break;
 
                 case LiteralNull _:
-                    result = new ObjectNull();
+                    result = System.Null;
                     break;
 
                 case LiteralNumber number:
-                    result = new ObjectNumber(number.Value);
+                    result = System.Create(number.Value);
                     break;
 
                 case LiteralObject literalObject:
-                    result = new CrispObject();
+                    result = System.Create();
                     foreach (var (key, value) in literalObject.Properties)
-                        result.Set(key.Name, Evaluate(value));
+                        result.Properties[System.Create(key)] = Evaluate(value);
                     break;
 
                 case LiteralString literalString:
-                    result = literalString.Value;
+                    result = System.Create(literalString.Value);
                     break;
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
-                    {
-                        var leftResult = Evaluate(op.Left).IsTruthy();
-                        if (leftResult)
-                            result = Evaluate(op.Right).IsTruthy();
-                        else
-                            result = leftResult;
-                    }
+                    result = System.Create(
+                                IsTruthy(Evaluate(op.Left)) &&
+                                IsTruthy(Evaluate(op.Right)));
                     break;
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.Or:
-                    {
-                        var leftResult = Evaluate(op.Left).IsTruthy();
-                        if (leftResult)
-                            result = leftResult;
-                        else
-                            result = Evaluate(op.Right).IsTruthy();
-                    }
+                    result = System.Create(
+                                IsTruthy(Evaluate(op.Left)) ||
+                                IsTruthy(Evaluate(op.Right)));
                     break;
 
                 case OperatorBinary op:
@@ -177,22 +195,47 @@ namespace Crisp.Runtime
                     var right = Evaluate(op.Right);
                     result = op.Tag switch
                     {
-                        OperatorBinaryTag.Add when left is ObjectNumber l && right is ObjectNumber r => l + r,
-                        OperatorBinaryTag.Sub when left is ObjectNumber l && right is ObjectNumber r => l - r,
-                        OperatorBinaryTag.Mul when left is ObjectNumber l && right is ObjectNumber r => l * r,
-                        OperatorBinaryTag.Div when left is ObjectNumber l && right is ObjectNumber r => l / r,
-                        OperatorBinaryTag.Mod when left is ObjectNumber l && right is ObjectNumber r => l % r,
-                        OperatorBinaryTag.Lt when left is ObjectNumber l && right is ObjectNumber r => l < r,
-                        OperatorBinaryTag.LtEq when left is ObjectNumber l && right is ObjectNumber r => l <= r,
-                        OperatorBinaryTag.Gt when left is ObjectNumber l && right is ObjectNumber r => l > r,
-                        OperatorBinaryTag.GtEq when left is ObjectNumber l && right is ObjectNumber r => l >= r,
-                        OperatorBinaryTag.Eq => left.Equals(right),
-                        OperatorBinaryTag.Neq => !left.Equals(right),
-                        _ =>
-                            throw new RuntimeErrorException(
-                                op.Position,
-                                $"Operator {op.Tag} cannot be applied to values " +
-                                $"<{left}> and <{right}>"),
+                        OperatorBinaryTag.Add when left is ObjectNumber l &&
+                                                   right is ObjectNumber r
+                            => System.Create(l.Value + r.Value),
+                        
+                        OperatorBinaryTag.Sub when left is ObjectNumber l &&
+                                                   right is ObjectNumber r
+                            => System.Create(l.Value - r.Value),
+                        
+                        OperatorBinaryTag.Mul when left is ObjectNumber l &&
+                                                   right is ObjectNumber r
+                            => System.Create(l.Value * r.Value),
+                        
+                        OperatorBinaryTag.Div when left is ObjectNumber l &&
+                                                   right is ObjectNumber r
+                            => System.Create(l.Value / r.Value),
+                        
+                        OperatorBinaryTag.Mod when left is ObjectNumber l &&
+                                                   right is ObjectNumber r
+                            => System.Create(l.Value % r.Value),
+                        
+                        OperatorBinaryTag.Lt when left is ObjectNumber l && 
+                                                  right is ObjectNumber r
+                            => System.Create(l.Value < r.Value),
+                        OperatorBinaryTag.LtEq when left is ObjectNumber l &&
+                                                    right is ObjectNumber r
+                            => System.Create(l.Value <= r.Value),
+                        OperatorBinaryTag.Gt when left is ObjectNumber l &&
+                                                  right is ObjectNumber r
+                            => System.Create(l.Value > r.Value),
+                        OperatorBinaryTag.GtEq when left is ObjectNumber l &&
+                                                    right is ObjectNumber r
+                            => System.Create(l.Value >= r.Value),
+                        OperatorBinaryTag.Eq
+                            => System.Create(left.Equals(right)),
+                        OperatorBinaryTag.Neq
+                            => System.Create(!left.Equals(right)),
+                        _
+                            => throw new RuntimeErrorException(
+                                   op.Position,
+                                   $"Operator {op.Tag} cannot be applied to values " +
+                                   $"<{left}> and <{right}>"),
                     };
                     break;
 
@@ -200,18 +243,25 @@ namespace Crisp.Runtime
                     left = Evaluate(op.Expression);
                     result = op.Op switch
                     {
-                        OperatorUnaryTag.Beget => new CrispObject(left),
-                        OperatorUnaryTag.Not => !left.IsTruthy(),
-                        OperatorUnaryTag.Neg when left is ObjectNumber n => -n,
-                        _ =>
-                            throw new RuntimeErrorException(
-                                op.Position,
-                                $"Operator {op.Op} cannot be applied to values <{left}>"),
+                        OperatorUnaryTag.Beget
+                            => System.Beget(left),
+                        OperatorUnaryTag.Not
+                            => System.Create(!IsTruthy(left)),
+                        OperatorUnaryTag.Neg when left is ObjectNumber n
+                            => System.Create(-n.Value),
+                        _
+                            => throw new RuntimeErrorException(
+                                   op.Position,
+                                   $"Operator {op.Op} cannot be applied to values <{left}>"),
                     };
                     break;
 
                 case Refinement rfnt:
-                    result = Evaluate(rfnt.Target).Get(rfnt.Name.Name);
+                    {
+                        var obj = Evaluate(rfnt.Target);
+                        var key = System.Create(rfnt.Name);
+                        result = LookupProperty(obj, key);
+                    }
                     break;
 
                 case Self self:
@@ -232,15 +282,22 @@ namespace Crisp.Runtime
                     break;
 
                 case While @while:
-                    while (Evaluate(@while.Guard).IsTruthy())
+                    while (IsTruthy(Evaluate(@while.Guard)))
                         Push().Evaluate(@while.Body);
-                    result = new ObjectNull();
+                    result = System.Null;
                     break;
 
                 case Write write:
                     foreach (var e in write.Arguments)
-                        Console.Write(Evaluate(e));
-                    result = new ObjectNull();
+                        Console.Write(
+                            Evaluate(e) switch
+                            {
+                                ObjectBool x => x.Value ? "true" : "false",
+                                ObjectNumber x => x.Value.ToString(),
+                                ObjectString x => x.Value,
+                                CrispObject x => x.ToString(),
+                            });
+                    result = System.Null;
                     break;
 
                 default:
