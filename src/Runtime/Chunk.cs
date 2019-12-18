@@ -50,7 +50,7 @@ namespace Crisp.Runtime
 
         public Op DissassembleCode(int i)
         {
-            int offset = -1, count = -1;
+            int offset = -1;
             var code = (Op)Code[i];
             Console.Write("{0:D8} {1}", i, code);
             switch (code)
@@ -64,12 +64,7 @@ namespace Crisp.Runtime
                     break;
                 case Op.Fn:
                     offset = Code[i + 1];
-                    count = Code[i + 2];
-                    Console.WriteLine(" @{0:D8}, {1}", offset, count);
-                    break;
-                case Op.Call:
-                    offset = Code[i + 1];
-                    Console.WriteLine(" {0}", offset);
+                    Console.WriteLine(" @{0:D8}", offset);
                     break;
                 case Op.Jump:
                 case Op.JumpTruthy:
