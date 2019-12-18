@@ -31,14 +31,11 @@ namespace Crisp
             {
                 var code = File.ReadAllText(filename);
                 var program = Parser.Parse(code);
-                var system = new Runtime.System();
+                var system = new Runtime.Library();
                 var globals = system.CreateGlobalEnvironment();
-                var compiler = new Runtime.Vm.Compiler();
+                var compiler = new Compiler();
                 compiler.Compile(program);
-                compiler.Chunk.Dissassemble();
-                //var interpreter = new Interpreter(system, globals);
-                //foreach (var expr in program.Expressions)
-                //    interpreter.Evaluate(expr);
+                Vm.Run(compiler.System, compiler.Chunk);
             }
             catch (CrispException e)
             {

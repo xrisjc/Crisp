@@ -2,7 +2,7 @@
 
 namespace Crisp.Runtime
 {
-    class System
+    class Library
     {
         public CrispObject PrototypeObject { get; }
         public CrispObject PrototypeBool { get; }
@@ -14,7 +14,7 @@ namespace Crisp.Runtime
         public CrispObject True { get; }
         public CrispObject False { get; }        
 
-        public System()
+        public Library()
         {
             PrototypeObject   = new CrispObject(null);
             PrototypeBool     = new CrispObject(PrototypeObject);
@@ -48,7 +48,7 @@ namespace Crisp.Runtime
             => new ObjectNumber(PrototypeNumber, value);
 
         public CrispObject Create(Function definition)
-            => new ObjectFunction(PrototypeFunction, definition);
+            => throw new System.NotImplementedException();
 
         public Environment CreateGlobalEnvironment()
         {
