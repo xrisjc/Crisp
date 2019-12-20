@@ -7,12 +7,14 @@ namespace Crisp.Runtime
         public Library System { get; } = new Library();
 
         Labels labels = new Labels();
+        Resolver resolver;
         FunctionLookup functions;
 
         public Chunk Chunk { get; } = new Chunk();
 
         public void Compile(Program program)
         {
+            resolver = new Resolver(program);
             functions = new FunctionLookup(program);
             foreach (var expr in program.Expressions)
             {
