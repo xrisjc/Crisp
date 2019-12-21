@@ -5,27 +5,24 @@ namespace Crisp.Runtime
 {
     class Resolver
     {
-        public enum Kind { Static, Local }
-        public enum State { Declared, Defined }
+        enum State { Declared, Defined }
 
-        public struct Symbol
+        struct Symbol
         {
             public State State { get; }
-            public Kind Kind { get; }
-            public int Index { get; }
+            public (int, int) Position { get; }
             public bool IsDefined => State == State.Defined;
-            public Symbol(State state, Kind kind, int index)
+            public Symbol(State state, (int, int) position)
             {
                 State = state;
-                Kind = kind;
-                Index = index;
+                Position = position;
             }
-            public Symbol(Kind kind, int index)
-                : this(State.Declared, kind, index)
+            public Symbol(int level, int index)
+                : this(State.Declared, (level, index))
             {
             }
             public Symbol Defined()
-                => new Symbol(State.Defined, Kind, Index);
+                => new Symbol(State.Defined, Position);
         }
         
         class Scope : Dictionary<string, Symbol>
@@ -33,22 +30,18 @@ namespace Crisp.Runtime
         }
 
         Stack<int> indexStack = new Stack<int>();
-        Stack<List<Scope>> scopesStack = new Stack<List<Scope>>();
         int nextIndex = 0;
-        Scope globals = new Scope();
-        List<Scope> scopes;
+        List<Scope> scopes = new List<Scope>();
 
-        public Dictionary<Identifier, (Kind, int)> Indices =
-            new Dictionary<Identifier, (Kind, int)>();
-
-        public Dictionary<Function, int> LocalCount =
-            new Dictionary<Function, int>();
+        public Dictionary<Identifier, (int, int)> Positions =
+            new Dictionary<Identifier, (int, int)>();
 
         public Resolver(Program program)
         {
-            scopes = new List<Scope> { globals };
+            BeginScope();
             foreach (var e in program.Expressions)
                 Resolve(e);
+            EndScope();
         }
 
         void Resolve(IExpression expression)
@@ -84,7 +77,6 @@ namespace Crisp.Runtime
                     break;
 
                 case Function f:
-                    BeginFrame();
                     BeginScope();
                     foreach (var p in f.Parameters)
                     {
@@ -92,9 +84,7 @@ namespace Crisp.Runtime
                         Define(p);
                     }
                     Resolve(f.Body);
-                    LocalCount[f] = nextIndex;
                     EndScope();
-                    EndFrame();
                     break;
 
                 case Identifier i:
@@ -147,7 +137,7 @@ namespace Crisp.Runtime
         void Resolve(Identifier identifier)
         {
             if (Lookup(identifier) is Symbol s && s.IsDefined)
-                Indices[identifier] = (s.Kind, s.Index);
+                Positions[identifier] = s.Position;
             else
                 throw new RuntimeErrorException(
                     identifier.Position,
@@ -173,12 +163,12 @@ namespace Crisp.Runtime
                     identifier.Position,
                     $"Variable `{identifier.Name}` is already declared");
             
-            var kind = indexStack.Count > 0 ? Kind.Local : Kind.Static;
+            var level = scopes.Count - 1;
             var index = nextIndex++;
-            var symbol = new Symbol(kind, index);
+            var symbol = new Symbol(level, index);
 
             scope[identifier.Name] = symbol;
-            Indices[identifier] = (kind, index);
+            Positions[identifier] = symbol.Position;
         }
 
         void Define(Identifier identifier)
@@ -196,27 +186,15 @@ namespace Crisp.Runtime
 
         void BeginScope()
         {
+            indexStack.Push(nextIndex);
+            nextIndex = 0;
             scopes.Add(new Scope());
         }
 
         void EndScope()
         {
-            scopes.RemoveAt(scopes.Count - 1);
-        }
-
-        void BeginFrame()
-        {
-            indexStack.Push(nextIndex);
-            nextIndex = 0;
-
-            scopesStack.Push(scopes);
-            scopes = new List<Scope> { globals };
-        }
-
-        void EndFrame()
-        {
-            scopes = scopesStack.Pop();
             nextIndex = indexStack.Pop();
+            scopes.RemoveAt(scopes.Count - 1);
         }
     }
 }
