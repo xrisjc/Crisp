@@ -1,8 +1,14 @@
+using Crisp.Ast;
 using System;
 using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
+    interface ICallable
+    {
+        CrispObject Invoke(Interpreter interpreter, CrispObject[] arguments);
+    }
+
     class CrispObject
     {
         public CrispObject? Prototype { get; }
@@ -12,7 +18,6 @@ namespace Crisp.Runtime
             Prototype = prototype;
             Properties = new Dictionary<CrispObject, CrispObject>();
         }
-        public override string ToString() => "<obj>";
     }
 
     class ObjectBool : CrispObject, IEquatable<ObjectBool>
@@ -24,24 +29,42 @@ namespace Crisp.Runtime
         {
             Value = value;
         }
-        public override string ToString() => Value ? "true" : "false";
         public override bool Equals(object? obj) => Equals(obj as ObjectBool);
         public bool Equals(ObjectBool? other) => other != null && Value == other.Value;
         public override int GetHashCode() => Value.GetHashCode();
     }
 
-    class ObjectFunction : CrispObject
+    class ObjectFunction : CrispObject, ICallable
     {
-        public int Offset { get; }
-        public CrispObject[] Parameters { get; }
+        public Function Definition { get; }
 
-        public ObjectFunction(CrispObject prototype, int offset, CrispObject[] parameters)
+        public ObjectFunction(CrispObject prototype, Function definition)
             : base(prototype)
         {
-            Offset = offset;
-            Parameters = parameters;
+            Definition = definition;
         }
-        public override string ToString() => string.Format("<fn@{0:D8}>", Offset);
+        
+        public CrispObject Invoke(
+            Interpreter interpreter,
+            CrispObject[] arguments)
+        {
+            var environment = interpreter.Environment;
+            var parameters = Definition.Parameters;
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                CrispObject value;
+                if (i < arguments.Length)
+                    value = arguments[i];
+                else
+                    value = interpreter.System.Null;
+                
+                if (!environment.Create(parameters[i].Name, value))
+                    throw new RuntimeErrorException(
+                        parameters[i].Position,
+                        $"Parameter {parameters[i].Name} already bound.");
+            }
+            return interpreter.Evaluate(Definition.Body);
+        }
     }
 
     class ObjectNull : CrispObject, IEquatable<ObjectNull>
@@ -62,7 +85,6 @@ namespace Crisp.Runtime
             Value = value;
         }
 
-        public override string ToString() => Value.ToString();
         public override bool Equals(object? obj) => Equals(obj as ObjectNumber);
         public bool Equals(ObjectNumber? other) => other != null && Value.Equals(other.Value);
         public override int GetHashCode() => Value.GetHashCode();
@@ -77,7 +99,6 @@ namespace Crisp.Runtime
             Value = value;
         }
 
-        public override string ToString() => Value;
         public override bool Equals(object? obj)
             => Equals(obj as ObjectString);
         public bool Equals(ObjectString? other)

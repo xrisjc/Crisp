@@ -22,7 +22,7 @@ namespace Crisp
 
         public static void Run(TextReader reader, TextWriter writer)
         {
-            var system = new Runtime.Library();
+            var system = new Runtime.System();
             var globals = system.CreateGlobalEnvironment();
 
             while (true)
@@ -70,13 +70,17 @@ namespace Crisp
 
         static void Evaluate(
             string code,
-            Runtime.Library system,
+            Runtime.System system,
             Runtime.Environment globals,
             TextWriter writer)
         {
             try
             {
                 var program = Parser.Parse(code);
+                var result = system.Null;
+                var interpreter = new Interpreter(system, globals);
+                foreach (var expr in program.Expressions)
+                    writer.WriteLine(interpreter.Evaluate(expr));
             }
             catch (CrispException e)
             {
