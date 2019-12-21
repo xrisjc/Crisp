@@ -12,7 +12,7 @@ namespace Crisp.Runtime
 
         public Chunk Chunk { get; } = new Chunk();
 
-        public Compiler(Program program)
+        public void Compile(Program program)
         {
             resolver = new Resolver(program);
             functions = new FunctionLookup(program);

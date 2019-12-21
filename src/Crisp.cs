@@ -33,7 +33,8 @@ namespace Crisp
                 var program = Parser.Parse(code);
                 var system = new Runtime.Library();
                 var globals = system.CreateGlobalEnvironment();
-                var compiler = new Compiler(program);
+                var compiler = new Compiler();
+                compiler.Compile(program);
                 compiler.Chunk.Dissassemble();
                 Vm.Run(compiler.System, compiler.Chunk);
             }

@@ -23,7 +23,7 @@
 
         public void EndBlock()
         {
-            Environment = Environment.Outer!;
+            Environment = Environment.Outer;
         }
     }
 }
