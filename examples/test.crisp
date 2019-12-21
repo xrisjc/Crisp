@@ -407,10 +407,16 @@ var divides := function (m, n) begin
     remainder = 0
 end
 
+var factorial := function (n) begin
+    if n = 1 then 1
+    else n * factorial(n - 1)
+end
+
 var testFunctions := function (t) begin
     t.assertEq(nothing(), null, 'Empty function')
     t.assertEq(square(3), 9, 'Function declaration')
     t.assertEq(divides(5, 35), true, 'Named functions')
+    t.assertEq(factorial(10), 3628800, 'Recursive functions')
 end
 
 ///////////////////////////////////////////////////////////////////////////////
