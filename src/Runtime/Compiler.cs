@@ -4,16 +4,16 @@ namespace Crisp.Runtime
 {
     class Compiler
     {
-        Library system;
+        public Library System { get; } = new Library();
+
         Labels labels = new Labels();
         Resolver resolver;
         FunctionLookup functions;
 
         public Chunk Chunk { get; } = new Chunk();
 
-        public Compiler(Program program, Library system)
+        public Compiler(Program program)
         {
-            this.system = system;
             resolver = new Resolver(program);
             functions = new FunctionLookup(program);
             foreach (var expr in program.Expressions)
@@ -57,14 +57,14 @@ namespace Crisp.Runtime
             // Test if we have arguments to discard if A > P.
             labels.Set(lStartDiscard, Chunk.NextOffset);
             Chunk.Emit(Op.Dup);
-            Chunk.Emit(Op.Const, system.Create(fn.Parameters.Count));
+            Chunk.Emit(Op.Const, System.Create(fn.Parameters.Count));
             Chunk.Emit(Op.LtEq);
             Chunk.Emit(Op.JumpTruthy, lEndDiscard);
 
             // Discard an argument and test again.
             Chunk.Emit(Op.Switch);
             Chunk.Emit(Op.Discard);
-            Chunk.Emit(Op.Const, system.Create(1));
+            Chunk.Emit(Op.Const, System.Create(1));
             Chunk.Emit(Op.Sub);
             Chunk.Emit(Op.Jump, lStartDiscard);
 
@@ -80,14 +80,14 @@ namespace Crisp.Runtime
 
                 labels.Set(lStartFake, Chunk.NextOffset);
                 Chunk.Emit(Op.Dup);
-                Chunk.Emit(Op.Const, system.Create(fn.Parameters.Count));
+                Chunk.Emit(Op.Const, System.Create(fn.Parameters.Count));
                 Chunk.Emit(Op.GtEq);
                 Chunk.Emit(Op.JumpTruthy, lEndFake);
 
                 // We don't have enough parameters, so push a null and loop.
                 Chunk.Emit(Op.Null);
                 Chunk.Emit(Op.Switch);
-                Chunk.Emit(Op.Const, system.Create(1));
+                Chunk.Emit(Op.Const, System.Create(1));
                 Chunk.Emit(Op.Add);
                 Chunk.Emit(Op.Jump, lStartFake);
 
@@ -97,7 +97,7 @@ namespace Crisp.Runtime
                 Chunk.Emit(Op.Discard); // Discard A
                 for (int i = fn.Parameters.Count - 1; i >= 0; i--)
                 {
-                    Chunk.Emit(Op.Const, system.Create(fn.Parameters[i]));
+                    Chunk.Emit(Op.Const, System.Create(fn.Parameters[i]));
                     Chunk.Emit(Op.Switch);
                     Chunk.Emit(Op.CreateVar);
                 }
@@ -113,7 +113,7 @@ namespace Crisp.Runtime
             switch (expr)
             {
                 case AssignmentIdentifier ai:
-                    Chunk.Emit(Op.Const, system.Create(ai.Target.Name));
+                    Chunk.Emit(Op.Const, System.Create(ai.Target.Name));
                     Compile(ai.Value);
                     Chunk.Emit(Op.SetVar);
                     break;
@@ -127,7 +127,7 @@ namespace Crisp.Runtime
 
                 case AssignmentRefinement ar:
                     Compile(ar.Refinement.Target);
-                    Chunk.Emit(Op.Const, system.Create(ar.Refinement.Name));
+                    Chunk.Emit(Op.Const, System.Create(ar.Refinement.Name));
                     Compile(ar.Value);
                     Chunk.Emit(Op.SetProp);
                     break;
@@ -156,7 +156,7 @@ namespace Crisp.Runtime
                         Compile(e);
 
                     // n
-                    Chunk.Emit(Op.Const, system.Create(c.Arguments.Count));
+                    Chunk.Emit(Op.Const, System.Create(c.Arguments.Count));
 
                     switch (c.Target)
                     {
@@ -176,7 +176,7 @@ namespace Crisp.Runtime
                             Compile(rfnt.Target);
                             // fn
                             Chunk.Emit(Op.Dup);
-                            Chunk.Emit(Op.Const, system.Create(rfnt.Name));
+                            Chunk.Emit(Op.Const, System.Create(rfnt.Name));
                             Chunk.Emit(Op.GetProp);
                             
                             Chunk.Emit(Op.CallMthd);
@@ -197,7 +197,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Identifier i:
-                    Chunk.Emit(Op.Const, system.Create(i.Name));
+                    Chunk.Emit(Op.Const, System.Create(i.Name));
                     Chunk.Emit(Op.GetVar);
                     break;
 
@@ -238,7 +238,7 @@ namespace Crisp.Runtime
                     foreach (var (n, e) in lo.Properties)
                     {
                         Chunk.Emit(Op.Dup);
-                        Chunk.Emit(Op.Const, system.Create(n));
+                        Chunk.Emit(Op.Const, System.Create(n));
                         Compile(e);
                         Chunk.Emit(Op.SetProp);
                         Chunk.Emit(Op.Discard);
@@ -246,11 +246,11 @@ namespace Crisp.Runtime
                     break;
 
                 case LiteralNumber ln:
-                    Chunk.Emit(Op.Const, system.Create(ln.Value));
+                    Chunk.Emit(Op.Const, System.Create(ln.Value));
                     break;
 
                 case LiteralString ls:
-                    Chunk.Emit(Op.Const, system.Create(ls.Value));
+                    Chunk.Emit(Op.Const, System.Create(ls.Value));
                     break;
 
                 case OperatorBinary ob when ob.Tag == OperatorBinaryTag.And:
@@ -340,7 +340,7 @@ namespace Crisp.Runtime
 
                 case Refinement r:
                     Compile(r.Target);
-                    Chunk.Emit(Op.Const, system.Create(r.Name));
+                    Chunk.Emit(Op.Const, System.Create(r.Name));
                     Chunk.Emit(Op.GetProp);
                     break;
 
@@ -349,7 +349,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Var v:
-                    Chunk.Emit(Op.Const, system.Create(v.Name));
+                    Chunk.Emit(Op.Const, System.Create(v.Name));
                     Compile(v.InitialValue);
                     Chunk.Emit(Op.CreateVar);
                     break;

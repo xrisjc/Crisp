@@ -9,7 +9,11 @@ namespace Crisp
     {
         static void Main(string[] args)
         {
-            if (args.Length == 1)
+            if (args.Length == 0)
+            {
+                Repl.Run(Console.In, Console.Out);
+            }
+            else if (args.Length == 1)
             {
                 RunFile(args[0]);
             }
@@ -21,18 +25,26 @@ namespace Crisp
 
         static void RunFile(string filename)
         {
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             try
             {
                 var code = File.ReadAllText(filename);
                 var program = Parser.Parse(code);
                 var system = new Runtime.Library();
-                var compiler = new Compiler(program, system);
-                // compiler.Chunk.Dissassemble();
-                Vm.Run(system, compiler.Chunk);
+                var globals = system.CreateGlobalEnvironment();
+                var compiler = new Compiler(program);
+                compiler.Chunk.Dissassemble();
+                Vm.Run(compiler.System, compiler.Chunk);
             }
             catch (CrispException e)
             {
                 Console.WriteLine(e.FormattedMessage());
+            }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"{sw.ElapsedMilliseconds} ms");
             }
         }
     }
