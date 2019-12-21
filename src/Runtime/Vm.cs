@@ -24,7 +24,7 @@ namespace Crisp.Runtime
         static void Print<T>(Stack<T> stack)
         {
             foreach (var x in stack)
-                Console.Write("[{0}]", x.ToString());
+                Console.Write("[{0}]", x?.ToString());
             Console.WriteLine();
         }
 
