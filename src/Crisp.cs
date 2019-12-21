@@ -33,12 +33,9 @@ namespace Crisp
                 var program = Parser.Parse(code);
                 var system = new Runtime.System();
                 var globals = system.CreateGlobalEnvironment();
-                var compiler = new Runtime.Vm.Compiler();
-                compiler.Compile(program);
-                compiler.Chunk.Dissassemble();
-                //var interpreter = new Interpreter(system, globals);
-                //foreach (var expr in program.Expressions)
-                //    interpreter.Evaluate(expr);
+                var interpreter = new Interpreter(system, globals);
+                foreach (var expr in program.Expressions)
+                    interpreter.Evaluate(expr);
             }
             catch (CrispException e)
             {
