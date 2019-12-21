@@ -23,7 +23,8 @@ namespace Crisp.Runtime
             foreach (var fn in functions.Functions)
             {
                 functions.SetOffset(fn, Chunk.NextOffset);
-                Compile(fn);
+                Compile(fn.Body);
+                Chunk.Emit(Op.Return);
             }
 
             // Ajust jumps and function creation to where they actually are in
@@ -45,65 +46,6 @@ namespace Crisp.Runtime
                 }
                 i += code.Count();
             }
-        }
-
-        void Compile(Function fn)
-        {
-            var lStartDiscard = labels.New();
-            var lEndDiscard = labels.New();
-
-            // Test if we have arguments to discard if A > P.
-            labels.Set(lStartDiscard, Chunk.NextOffset);
-            Chunk.Emit(Op.Dup);
-            Chunk.Emit(Op.Const, System.Create(fn.Parameters.Count));
-            Chunk.Emit(Op.LtEq);
-            Chunk.Emit(Op.JumpTruthy, lEndDiscard);
-
-            // Discard an argument and test again.
-            Chunk.Emit(Op.Switch);
-            Chunk.Emit(Op.Discard);
-            Chunk.Emit(Op.Const, System.Create(1));
-            Chunk.Emit(Op.Sub);
-            Chunk.Emit(Op.Jump, lStartDiscard);
-
-            labels.Set(lEndDiscard, Chunk.NextOffset);
-
-            if (fn.Parameters.Count > 0)
-            {
-                // A <= P.  If A < P, then we need to make some fake null
-                // arguments so A = P.
-
-                var lStartFake = labels.New();
-                var lEndFake = labels.New();
-
-                labels.Set(lStartFake, Chunk.NextOffset);
-                Chunk.Emit(Op.Dup);
-                Chunk.Emit(Op.Const, System.Create(fn.Parameters.Count));
-                Chunk.Emit(Op.GtEq);
-                Chunk.Emit(Op.JumpTruthy, lEndFake);
-
-                // We don't have enough parameters, so push a null and loop.
-                Chunk.Emit(Op.Null);
-                Chunk.Emit(Op.Switch);
-                Chunk.Emit(Op.Const, System.Create(1));
-                Chunk.Emit(Op.Add);
-                Chunk.Emit(Op.Jump, lStartFake);
-
-                labels.Set(lEndFake, Chunk.NextOffset);
-
-                // At this point A = P, so bind parameters.
-                Chunk.Emit(Op.Discard); // Discard A
-                for (int i = fn.Parameters.Count - 1; i >= 0; i--)
-                {
-                    Chunk.Emit(Op.Const, System.Create(fn.Parameters[i]));
-                    Chunk.Emit(Op.Switch);
-                    Chunk.Emit(Op.CreateVar);
-                }
-            }
-
-            // Compile the body and return.
-            Compile(fn.Body);
-            Chunk.Emit(Op.Return);
         }
 
         void Compile(IExpression expr)
@@ -145,16 +87,8 @@ namespace Crisp.Runtime
                     break;
 
                 case Call c:
-
-                    // Call stack is:
-                    // A_1, .., A_n, n, [self,] fn
-
-                    // A_1, .., A_n
                     foreach (var e in c.Arguments)
                         Compile(e);
-
-                    // n
-                    Chunk.Emit(Op.Const, System.Create(c.Arguments.Count));
 
                     switch (c.Target)
                     {
@@ -165,8 +99,7 @@ namespace Crisp.Runtime
                             Chunk.Emit(Op.Dup);
                             Compile(index.Key);
                             Chunk.Emit(Op.GetProp);
-                            
-                            Chunk.Emit(Op.CallMthd);
+                            Chunk.Emit(Op.CallMthd, c.Arguments.Count);
                             break;
 
                         case Refinement rfnt:
@@ -176,22 +109,24 @@ namespace Crisp.Runtime
                             Chunk.Emit(Op.Dup);
                             Chunk.Emit(Op.Const, System.Create(rfnt.Name));
                             Chunk.Emit(Op.GetProp);
-                            
-                            Chunk.Emit(Op.CallMthd);
+                            Chunk.Emit(Op.CallMthd, c.Arguments.Count);
                             break;
 
                         default:
                             // fn
                             Compile(c.Target);
-
-                            Chunk.Emit(Op.Call);
+                            Chunk.Emit(Op.Call, c.Arguments.Count);
                             break;
                     }
 
                     break;
 
                 case Function f:
-                    Chunk.Emit(Op.Fn, functions.Index(f));
+                    foreach (var p in f.Parameters)
+                        Chunk.Emit(Op.Const, System.Create(p.Name));
+                    Chunk.Emit(Op.Fn);
+                    Chunk.Emit(functions.Index(f));
+                    Chunk.Emit(f.Parameters.Count);
                     break;
 
                 case Identifier i:

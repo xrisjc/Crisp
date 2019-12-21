@@ -33,11 +33,13 @@ namespace Crisp.Runtime
     class ObjectFunction : CrispObject
     {
         public int Offset { get; }
+        public CrispObject[] Parameters { get; }
 
-        public ObjectFunction(CrispObject prototype, int offset)
+        public ObjectFunction(CrispObject prototype, int offset, CrispObject[] parameters)
             : base(prototype)
         {
             Offset = offset;
+            Parameters = parameters;
         }
         public override string ToString() => string.Format("<fn@{0:D8}>", Offset);
     }

@@ -38,7 +38,6 @@
         SetVar,
         StartBlock,
         Sub,
-        Switch,
         True,
         Truthy,
         Write,

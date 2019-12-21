@@ -35,7 +35,6 @@ namespace Crisp
                 var globals = system.CreateGlobalEnvironment();
                 var compiler = new Compiler();
                 compiler.Compile(program);
-                compiler.Chunk.Dissassemble();
                 Vm.Run(compiler.System, compiler.Chunk);
             }
             catch (CrispException e)

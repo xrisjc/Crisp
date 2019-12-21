@@ -41,7 +41,7 @@ namespace Crisp.Runtime
             while (!halt)
             {
                 CrispObject L, R, K, V;
-                int offset;
+                int offset, count;
 
                 //chunk.DissassembleCode(frame.Offset);
 
@@ -71,11 +71,21 @@ namespace Crisp.Runtime
                     
                     case Op.Call:
                     case Op.CallMthd:
+                        count = chunk.Code[frame.Offset++];
                         if (stack.Pop() is ObjectFunction fn)
                         {
-                            callStack.Push(frame);
-                            var env = new Environment2(globals);
                             var self = (code == Op.CallMthd) ? stack.Pop() : null;
+
+                            var args = new CrispObject[count];
+                            for (int i = count - 1; i >= 0; i--)
+                                args[i] = stack.Pop();
+
+                            var pars = fn.Parameters;
+                            var env = new Environment2(globals);
+                            for (int i = 0; i < pars.Length; i++)
+                                env.Create(pars[i], i < args.Length ? args[i] : system.Null);
+
+                            callStack.Push(frame);
                             frame = new Frame(fn.Offset, env, self);
                         }
                         else
@@ -137,9 +147,15 @@ namespace Crisp.Runtime
                         break;
                     
                     case Op.Fn:
-                        offset = chunk.Code[frame.Offset++];
-                        V = new ObjectFunction(system.PrototypeFunction, offset);
-                        stack.Push(V);
+                        {
+                            offset = chunk.Code[frame.Offset++];
+                            count = chunk.Code[frame.Offset++];
+                            var pars = new CrispObject[count];
+                            for (int i = count - 1; i >= 0; i--)
+                                pars[i] = stack.Pop();
+                            V = new ObjectFunction(system.PrototypeFunction, offset, pars);
+                            stack.Push(V);
+                        }
                         break;
                     
                     case Op.GetProp:
@@ -347,13 +363,6 @@ namespace Crisp.Runtime
                                        "Number error"),
                         };
                         stack.Push(V);
-                        break;
-
-                    case Op.Switch:
-                        R = stack.Pop();
-                        L = stack.Pop();
-                        stack.Push(R);
-                        stack.Push(L);
                         break;
                     
                     case Op.True:
