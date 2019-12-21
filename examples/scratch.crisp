@@ -1,4 +1,0 @@
-var x := 1
-x := 2
-
-var f := function (x, y, x) x*y

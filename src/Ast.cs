@@ -10,7 +10,9 @@ namespace Crisp.Ast
     class AssignmentIdentifier : IExpression
     {
         public Identifier Target { get; }
+
         public IExpression Value { get; }
+
         public AssignmentIdentifier(Identifier target, IExpression value)
         {
             Target = target;
@@ -43,6 +45,7 @@ namespace Crisp.Ast
     class Block : IExpression
     {
         public List<IExpression> Body { get; }
+
         public Block(List<IExpression> body)
         {
             Body = body;
@@ -68,7 +71,9 @@ namespace Crisp.Ast
     class Function : IExpression
     {
         public List<Identifier> Parameters { get; }
+
         public IExpression Body { get; }
+
         public Function(List<Identifier> parameters, IExpression body)
         {
             Parameters = parameters;
@@ -79,7 +84,9 @@ namespace Crisp.Ast
     class Identifier : IExpression
     {
         public Position Position { get; }
+
         public string Name { get; }
+
         public Identifier(Position position, string name)
         {
             Position = position;
@@ -90,8 +97,11 @@ namespace Crisp.Ast
     class If : IExpression
     {
         public IExpression Condition { get; }
+
         public IExpression Consequence { get; }
+
         public IExpression Alternative { get; }
+
         public If(
             IExpression condition,
             IExpression consequence,
@@ -119,6 +129,7 @@ namespace Crisp.Ast
     abstract class Literal<T>
     {
         public T Value { get; }
+
         public Literal(T value) { Value = value; }
     }
 
@@ -168,9 +179,13 @@ namespace Crisp.Ast
     class OperatorBinary : IExpression
     {
         public Position Position { get; }
+
         public OperatorBinaryTag Tag { get; }
+
         public IExpression Left { get; }
+
         public IExpression Right { get; }
+
         public OperatorBinary(Position position, OperatorBinaryTag tag, IExpression left, IExpression right)
         {
             Position = position;
@@ -190,8 +205,11 @@ namespace Crisp.Ast
     class OperatorUnary : IExpression
     {
         public Position Position { get; }
+
         public OperatorUnaryTag Op { get; }
+
         public IExpression Expression { get; }
+
         public OperatorUnary(Position position, OperatorUnaryTag op, IExpression expression)
         {
             Position = position;
@@ -203,6 +221,7 @@ namespace Crisp.Ast
     class Program
     {
         public List<IExpression> Expressions { get; }
+
         public Program(List<IExpression> expressions)
         {
             Expressions = expressions;
@@ -232,7 +251,9 @@ namespace Crisp.Ast
     class Var : IExpression
     {
         public Identifier Name { get; }
+
         public IExpression InitialValue { get; }
+
         public Var(Identifier name, IExpression initialValue)
         {
             Name = name;
@@ -243,7 +264,9 @@ namespace Crisp.Ast
     class While : IExpression
     {
         public IExpression Guard { get; }
+
         public IExpression Body { get; }
+
         public While(IExpression guard, IExpression body)
         {
             Guard = guard;
@@ -254,6 +277,7 @@ namespace Crisp.Ast
     class Write : IExpression
     {
         public List<IExpression> Arguments { get; }
+
         public Write(List<IExpression> arguments)
         {
             Arguments = arguments;

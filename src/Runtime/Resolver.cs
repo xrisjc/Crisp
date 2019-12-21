@@ -1,200 +1,149 @@
-using Crisp.Ast;
-using System.Collections.Generic;
+// using Crisp.Ast;
+// using System.Collections.Generic;
 
-namespace Crisp.Runtime
-{
-    class Resolver
-    {
-        enum State { Declared, Defined }
-
-        struct Symbol
-        {
-            public State State { get; }
-            public (int, int) Position { get; }
-            public bool IsDefined => State == State.Defined;
-            public Symbol(State state, (int, int) position)
-            {
-                State = state;
-                Position = position;
-            }
-            public Symbol(int level, int index)
-                : this(State.Declared, (level, index))
-            {
-            }
-            public Symbol Defined()
-                => new Symbol(State.Defined, Position);
-        }
+// namespace Crisp.Runtime
+// {
+//     class Resolver
+//     {
+//         enum VarState { Declared, Defined }
         
-        class Scope : Dictionary<string, Symbol>
-        {
-        }
+//         class Scope : Dictionary<string, VarState> { }
 
-        Stack<int> indexStack = new Stack<int>();
-        int nextIndex = 0;
-        List<Scope> scopes = new List<Scope>();
+//         List<Scope> scopes = new List<Scope>();
 
-        public Dictionary<Identifier, (int, int)> Positions =
-            new Dictionary<Identifier, (int, int)>();
+//         public void Resolve(Program program)
+//         {
+//             foreach (var e in program.Expressions)
+//                 Resolve(e);
+//         }
 
-        public Resolver(Program program)
-        {
-            BeginScope();
-            foreach (var e in program.Expressions)
-                Resolve(e);
-            EndScope();
-        }
+//         void Resolve(IExpression expression)
+//         {
+//             switch (expression)
+//             {
+//                 case AssignmentIdentifier ai:
+//                     Resolve(ai.Value);
+//                     ResolveLocal(ai, ai.Target.Name);
+//                     break;
 
-        void Resolve(IExpression expression)
-        {
-            switch (expression)
-            {
-                case AssignmentIdentifier ai:
-                    Resolve(ai.Value);
-                    Resolve(ai.Target);
-                    break;
+//                 case AttributeAccess aa:
+//                     Resolve(aa.Entity);
+//                     break;
 
-                case AssignmentIndex ai:
-                    Resolve(ai.Index);
-                    Resolve(ai.Value);
-                    break;
+//                 case AttributeAssignment aa:
+//                     Resolve(aa.Entity);
+//                     Resolve(aa.Value);
+//                     break;
 
-                case AssignmentRefinement ar:
-                    Resolve(ar.Refinement);
-                    Resolve(ar.Value);
-                    break;
+//                 case Block block:
+//                     foreach (var e in block.Body)
+//                         Resolve(e);
+//                     break;
 
-                case Block b:
-                    BeginScope();
-                    foreach (var e in b.Body)
-                        Resolve(e);
-                    EndScope();
-                    break;
+//                 case Call call:
+//                     foreach (var e in call.Arguments)
+//                         Resolve(e);
+//                     break;
 
-                case Call c:
-                    Resolve(c.Target);
-                    foreach (var e in c.Arguments)
-                        Resolve(e);
-                    break;
+//                 case Condition condition:
+//                     foreach (var branch in condition.Branches)
+//                     {
+//                         Resolve(branch.Condition);
+//                         Resolve(branch.Consequence);
+//                     }
+//                     break;
 
-                case Function f:
-                    BeginScope();
-                    foreach (var p in f.Parameters)
-                    {
-                        Declare(p);
-                        Define(p);
-                    }
-                    Resolve(f.Body);
-                    EndScope();
-                    break;
+//                 case Function fn:
+//                     BeginScope();
+//                     foreach (var p in fn.Parameters)
+//                     {
+//                         Declare(p.Name);
+//                         Define(p.Name);
+//                     }
+//                     EndScope();
+//                     break;
 
-                case Identifier i:
-                    Resolve(i);
-                    break;
+//                 case Identifier identifier
+//                 when PeekScope()?[identifier.Name] == VarState.Declared:
+//                     throw new RuntimeErrorException(
+//                         identifier.Position,
+//                         "Cannot read a local variable in its own initializer.");
 
-                case If i:
-                    Resolve(i.Condition);
-                    BeginScope();
-                    Resolve(i.Consequence);
-                    EndScope();
-                    BeginScope();
-                    Resolve(i.Alternative);
-                    EndScope();
-                    break;
+//                 case Identifier identifier:
+//                     ResolveLocal(identifier, identifier.Name);
+//                     break;
 
-                case OperatorBinary ob:
-                    Resolve(ob.Left);
-                    Resolve(ob.Right);
-                    break;
+//                 case MessageSend ms:
+//                     Resolve(ms.EntityExpr);
+//                     foreach (var e in ms.ArgumentExprs)
+//                         Resolve(e);
+//                     break;
 
-                case OperatorUnary ou:
-                    Resolve(ou.Expression);
-                    break;
+//                 case OperatorBinary op:
+//                     Resolve(op.Left);
+//                     Resolve(op.Right);
+//                     break;
 
-                case Refinement r:
-                    Resolve(r.Target);
-                    break;
+//                 case OperatorUnary op:
+//                     Resolve(op.Expression);
+//                     break;
 
-                case Var v:
-                    Declare(v.Name);
-                    Resolve(v.InitialValue);
-                    Define(v.Name);
-                    break;
+//                 case Var var:
+//                     Declare(var.Name.Name);
+//                     Resolve(var.InitialValue);
+//                     Define(var.Name.Name);
+//                     break;
 
-                case While @while:
-                    Resolve(@while.Guard);
-                    BeginScope();
-                    Resolve(@while.Body);
-                    EndScope();
-                    break;
+//                 case While @while:
+//                     Resolve(@while.Guard);
+//                     Resolve(@while.Body);
+//                     break;
 
-                case Write write:
-                    foreach (var expr in write.Arguments)
-                        Resolve(expr);
-                    break;
-            }
-        }
+//                 case Write write:
+//                     foreach (var expr in write.Arguments)
+//                         Resolve(expr);
+//                     break;
+//             }
+//         }
 
-        void Resolve(Identifier identifier)
-        {
-            if (Lookup(identifier) is Symbol s && s.IsDefined)
-                Positions[identifier] = s.Position;
-            else
-                throw new RuntimeErrorException(
-                    identifier.Position,
-                    $"Undefined variable <{identifier.Name}>.");
+//         void ResolveLocal(IExpression expression, string name)
+//         {
+//             for (var i = scopes.Count - 1; i >= 0; i--)
+//                 if (scopes[i].ContainsKey(name))
+//                 {
 
-        }
+//                     return;
+//                 }
+//         }
 
-        Symbol? Lookup(Identifier identifier)
-        {
-            for (var i = scopes.Count - 1; i >= 0; i--)
-                if (scopes[i].ContainsKey(identifier.Name))
-                    return scopes[i][identifier.Name];
-            
-            return null;
-        }
+//         void Declare(string name)
+//         {
+//             if (PeekScope() is Scope scope)
+//                 scope[name] = VarState.Declared;
+//         }
 
-        void Declare(Identifier identifier)
-        {
-            var scope = PeekScope();
+//         void Define(string name)
+//         {
+//             if (PeekScope() is Scope scope)
+//                 scope[name] = VarState.Defined;
+//         }
 
-            if (scope.ContainsKey(identifier.Name))
-                throw new RuntimeErrorException(
-                    identifier.Position,
-                    $"Variable `{identifier.Name}` is already declared");
-            
-            var level = scopes.Count - 1;
-            var index = nextIndex++;
-            var symbol = new Symbol(level, index);
+//         Scope? PeekScope()
+//         {
+//             if (scopes.Count == 0)
+//                 return null;
 
-            scope[identifier.Name] = symbol;
-            Positions[identifier] = symbol.Position;
-        }
+//             return scopes[scopes.Count - 1];
+//         }
 
-        void Define(Identifier identifier)
-        {
-            var scope = PeekScope();
-            var name = identifier.Name;
+//         void BeginScope()
+//         {
+//             scopes.Add(new Scope());
+//         }
 
-            scope[name] = scope[name].Defined();
-        }
-
-        Scope PeekScope()
-        {
-            return scopes[scopes.Count - 1];
-        }
-
-        void BeginScope()
-        {
-            indexStack.Push(nextIndex);
-            nextIndex = 0;
-            scopes.Add(new Scope());
-        }
-
-        void EndScope()
-        {
-            nextIndex = indexStack.Pop();
-            scopes.RemoveAt(scopes.Count - 1);
-        }
-    }
-}
+//         void EndScope()
+//         {
+//             scopes.RemoveAt(scopes.Count - 1);
+//         }
+//     }
+// }
