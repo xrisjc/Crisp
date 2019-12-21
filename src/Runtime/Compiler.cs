@@ -6,7 +6,6 @@ namespace Crisp.Runtime
     {
         Library system;
         Labels labels = new Labels();
-        Resolver resolver;
         FunctionLookup functions;
 
         public Chunk Chunk { get; } = new Chunk();
@@ -14,7 +13,6 @@ namespace Crisp.Runtime
         public Compiler(Program program, Library system)
         {
             this.system = system;
-            resolver = new Resolver(program);
             functions = new FunctionLookup(program);
             foreach (var expr in program.Expressions)
             {
