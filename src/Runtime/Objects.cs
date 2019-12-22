@@ -11,12 +11,23 @@ namespace Crisp.Runtime
 
     class CrispObject
     {
-        public CrispObject? Prototype { get; }
-        public Dictionary<CrispObject, CrispObject> Properties { get; }
+        CrispObject? prototype;
+        Dictionary<CrispObject, CrispObject> properties;
         public CrispObject(CrispObject? prototype)
         {
-            Prototype = prototype;
-            Properties = new Dictionary<CrispObject, CrispObject>();
+            this.prototype = prototype;
+            properties = new Dictionary<CrispObject, CrispObject>();
+        }
+        public virtual CrispObject? LookupProperty(CrispObject key)
+        {
+            for (CrispObject? o = this; o != null; o = o.prototype)
+                if (o.properties.TryGetValue(key, out var value))
+                    return value;
+            return null;
+        }
+        public virtual void SetProperty(CrispObject key, CrispObject value)
+        {
+            properties[key] = value;
         }
     }
 

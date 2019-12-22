@@ -46,12 +46,7 @@ namespace Crisp.Runtime
                };
 
         CrispObject LookupProperty(CrispObject obj, CrispObject key)
-        {
-            for (CrispObject? o = obj; o != null; o = o.Prototype)
-                if (o.Properties.TryGetValue(key, out var value))
-                    return value;
-            return System.Null;
-        }
+            => obj.LookupProperty(key) ?? System.Null;
 
         public CrispObject Evaluate(IExpression expression)
         {
@@ -71,7 +66,7 @@ namespace Crisp.Runtime
                         var target = Evaluate(ai.Index.Target);
                         var key = Evaluate(ai.Index.Key);
                         var value = Evaluate(ai.Value);
-                        target.Properties[key] = value;
+                        target.SetProperty(key, value);
                         result = value;
                     }
                     break;
@@ -81,7 +76,7 @@ namespace Crisp.Runtime
                         var target = Evaluate(ar.Refinement.Target);
                         var key = System.Create(ar.Refinement.Name);
                         var value = Evaluate(ar.Value);
-                        target.Properties[key] = value;
+                        target.SetProperty(key, value);
                         result = value;
                     }
                     break;
