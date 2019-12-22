@@ -303,6 +303,13 @@ namespace Crisp.Parsing
                         nameToken.Lexeme);
                     left = new Refinement(left, name);
                 }
+                else if (Match(TokenTag.With))
+                {
+                    var body = new List<IExpression>();
+                    while (!Match(TokenTag.End))
+                        body.Add(Expression());
+                    left = new With(left, body);
+                }
                 else
                     break;
             }
@@ -353,11 +360,6 @@ namespace Crisp.Parsing
                 return new Self(tokenSelf.Position);
             }
 
-            if (Match(TokenTag.LBrace))
-            {
-                return LiteralObject();
-            }
-
             if (Match(TokenTag.LParen))
             {
                 var expression = Expression();
@@ -394,21 +396,6 @@ namespace Crisp.Parsing
             Expect(TokenTag.LParen);
             var arguments = Arguments();
             return new Write(arguments);
-        }
-
-        IExpression LiteralObject()
-        {
-            var properties = new List<(Identifier, IExpression)>();
-            while (!Match(TokenTag.RBrace))
-            {
-                var keyToken = Expect(TokenTag.Identifier);
-                var key = new Identifier(keyToken.Position, keyToken.Lexeme);
-                Expect(TokenTag.Assignment);
-                var value = Expression();
-                var property = (key, value);
-                properties.Add(property);
-            }
-            return new LiteralObject(properties);
         }
 
         static string ParseString(string lexeme, Position position)

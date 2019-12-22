@@ -23,7 +23,6 @@
         Identifier,
         If,
         InequalTo,
-        LBrace,
         LBracket,
         LessThan,
         LessThanOrEqualTo,
@@ -34,7 +33,6 @@
         Null,
         Number,
         Or,
-        RBrace,
         RBracket,
         RParen,
         String,
@@ -44,6 +42,7 @@
         True,
         Var,
         While,
+        With,
         Write,
     }
 }

@@ -33,6 +33,7 @@ namespace Crisp.Parsing
                 ["true"]     = TokenTag.True,
                 ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,
+                ["with"]     = TokenTag.With,
                 ["write"]    = TokenTag.Write,
             };
 
@@ -116,8 +117,6 @@ namespace Crisp.Parsing
                 case '<' when peek == '>':  return Accept(TokenTag.InequalTo, 2);
                 case '<' when peek == '=':  return Accept(TokenTag.LessThanOrEqualTo, 2);
                 case '>' when peek == '=':  return Accept(TokenTag.GreaterThanOrEqualTo, 2);
-                case '{': return Accept(TokenTag.LBrace);
-                case '}': return Accept(TokenTag.RBrace);
                 case '[': return Accept(TokenTag.LBracket);
                 case ']': return Accept(TokenTag.RBracket);
                 case '(': return Accept(TokenTag.LParen);

@@ -140,15 +140,6 @@ namespace Crisp.Ast
 
     class LiteralNull : IExpression { }
 
-    class LiteralObject : IExpression
-    {
-        public List<(Identifier, IExpression)> Properties { get; }
-        public LiteralObject(List<(Identifier, IExpression)> properties)
-        {
-            Properties = properties;
-        }
-    }
-
     class LiteralNumber : Literal<double>, IExpression
     {
         public LiteralNumber(double value) : base(value) { }
@@ -270,6 +261,17 @@ namespace Crisp.Ast
         public While(IExpression guard, IExpression body)
         {
             Guard = guard;
+            Body = body;
+        }
+    }
+
+    class With : IExpression
+    {
+        public IExpression Target { get; }
+        public List<IExpression> Body { get; }
+        public With(IExpression target, List<IExpression> body)
+        {
+            Target = target;
             Body = body;
         }
     }

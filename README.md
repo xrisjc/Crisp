@@ -33,7 +33,7 @@ A toy programming language interpreter.
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
     multiplication -> unary ( ( "*" | "/" | "mod" ) unary )* ;
     unary -> ( ( "-" | "not" | "beget" ) unary ) | call ; 
-    call -> primary ( "(" arguments? ")" | "[" expr "]" | "." id )* ;
+    call -> primary ( "(" arguments? ")" | "[" expr "]" | "." id | "with" expr* "end" )* ;
     arguments -> expr ( "," expr )* ;
     primary -> number
              | string
@@ -45,7 +45,6 @@ A toy programming language interpreter.
              | object
              | "(" expr ")" ;
              | "write" arguments ;
-    object -> "{" ( id ":=" expr )* "}" ;
     number -> digit+ ( "." digit+ )? ;
     string -> "'" ([^'])* "'" ;
     id -> alpha ( alpha | digit )* ;

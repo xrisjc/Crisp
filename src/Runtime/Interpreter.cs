@@ -34,6 +34,9 @@ namespace Crisp.Runtime
         Interpreter PushCall(CrispObject? self)
             => new Interpreter(System, Globals, new Environment(Globals), self);
 
+        Interpreter PushWith(CrispObject self)
+            => new Interpreter(System, Globals, new Environment(Environment), self);
+
         bool IsTruthy(CrispObject obj)
             => obj switch
                {
@@ -168,12 +171,6 @@ namespace Crisp.Runtime
                     result = System.Create(number.Value);
                     break;
 
-                case LiteralObject literalObject:
-                    result = System.Create();
-                    foreach (var (key, value) in literalObject.Properties)
-                        result.Properties[System.Create(key)] = Evaluate(value);
-                    break;
-
                 case LiteralString literalString:
                     result = System.Create(literalString.Value);
                     break;
@@ -285,6 +282,16 @@ namespace Crisp.Runtime
                     while (IsTruthy(Evaluate(@while.Guard)))
                         Push().Evaluate(@while.Body);
                     result = System.Null;
+                    break;
+
+                case With with:
+                    {
+                        var self = Evaluate(with.Target);
+                        var interpreter = PushWith(self);
+                        foreach (var expr in with.Body)
+                            interpreter.Evaluate(expr);
+                        result = self;
+                    }
                     break;
 
                 case Write write:
