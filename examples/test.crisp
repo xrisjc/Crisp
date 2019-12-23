@@ -517,6 +517,34 @@ var testObjects := function (t) begin
 
     // If a key isn't in an object, then retrieving it returns null.
     t.assertEq(person.gender, null, 'object key not set')
+
+    // The is operator tests if two objects are the same object or if the
+    // right hand side object is in the left hand side object's prototype
+    // chain.  The Object, Number, String, Null, Bool, and Function names are
+    // all bound to the prototype of their respective types.
+    var IsObject := beget Object
+    var isNumber := 0
+    var isString := ''
+    var isNull := null
+    var isBool := true
+    var isFunction := function () begin end
+
+    t.assert(IsObject is Object, 'is object')
+    t.assert(isNumber is Object, 'number is object')
+    t.assert(isString is Object, 'string is object')
+    t.assert(isNull is Object, 'null is object')
+    t.assert(isBool is Object, 'bool is object')
+    t.assert(isFunction is Object, 'function is object')
+
+    t.assert(IsObject is IsObject, 'is object itself')
+    t.assert((beget IsObject) is IsObject, 'child IsObject is IsObject')
+    t.assert(isNumber is Number, 'is number')
+    t.assert(isString is String, 'is string')
+    t.assert(isNull is Null, 'is null')
+    t.assert(isBool is Bool, 'is bool')
+    t.assert(isFunction is Function, 'is function')
+
+    t.assertEq(0 is Bool, false, 'is negative result')
 end
 
 ///////////////////////////////////////////////////////////////////////////////

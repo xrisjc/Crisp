@@ -17,6 +17,7 @@ namespace Crisp.Parsing
                 [TokenTag.GreaterThan] = OperatorBinaryTag.Gt,
                 [TokenTag.GreaterThanOrEqualTo] = OperatorBinaryTag.GtEq,
                 [TokenTag.InequalTo] = OperatorBinaryTag.Neq,
+                [TokenTag.Is] = OperatorBinaryTag.Is,
                 [TokenTag.LessThan] = OperatorBinaryTag.Lt,
                 [TokenTag.LessThanOrEqualTo] = OperatorBinaryTag.LtEq,
                 [TokenTag.Mod] = OperatorBinaryTag.Mod,
@@ -223,7 +224,7 @@ namespace Crisp.Parsing
         IExpression Relation()
         {
             var left = Addition();
-            while (Match(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo) is Token token)
+            while (Match(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo, TokenTag.Is) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Addition();

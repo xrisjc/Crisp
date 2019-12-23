@@ -29,7 +29,7 @@ A toy programming language interpreter.
     logical_or -> logical_and ( "or" logical_and )* ;
     logical_and -> equality ( "and" equality )* ;
     equality -> relation ( ( "=" | "<>" ) relation )* ;
-    relation -> addition ( ( "<" | "<=" | ">" | ">=" ) addition )* ;
+    relation -> addition ( ( "<" | "<=" | ">" | ">=" | "is" ) addition )* ;
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
     multiplication -> unary ( ( "*" | "/" | "mod" ) unary )* ;
     unary -> ( ( "-" | "not" | "beget" ) unary ) | call ; 

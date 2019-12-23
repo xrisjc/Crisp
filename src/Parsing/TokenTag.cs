@@ -23,6 +23,7 @@
         Identifier,
         If,
         InequalTo,
+        Is,
         LBracket,
         LessThan,
         LessThanOrEqualTo,

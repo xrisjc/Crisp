@@ -24,6 +24,7 @@ namespace Crisp.Parsing
                 ["false"]    = TokenTag.False,
                 ["function"] = TokenTag.Function,
                 ["if"]       = TokenTag.If,
+                ["is"]       = TokenTag.Is,
                 ["not"]      = TokenTag.Not,
                 ["null"]     = TokenTag.Null,
                 ["mod"]      = TokenTag.Mod,

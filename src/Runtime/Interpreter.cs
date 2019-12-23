@@ -220,6 +220,8 @@ namespace Crisp.Runtime
                             => System.Create(left.Equals(right)),
                         OperatorBinaryTag.Neq
                             => System.Create(!left.Equals(right)),
+                        OperatorBinaryTag.Is
+                            => System.Create(left.Is(right)),
                         _
                             => throw new RuntimeErrorException(
                                    op.Position,

@@ -165,6 +165,7 @@ namespace Crisp.Ast
         Or,
         Eq,
         Neq,
+        Is,
     }
 
     class OperatorBinary : IExpression

@@ -32,6 +32,13 @@ namespace Crisp.Runtime
         {
             properties[key] = value;
         }
+        public bool Is(CrispObject obj)
+        {
+            for (CrispObject? o = this; o != null; o = o.prototype)
+                if (ReferenceEquals(o, obj))
+                    return true;
+            return false;
+        }
     }
 
     class ObjectBool : CrispObject, IEquatable<ObjectBool>
@@ -39,7 +46,7 @@ namespace Crisp.Runtime
         public bool Value { get; }
 
         public ObjectBool(CrispObject? prototype, bool value)
-            : base(null)
+            : base(prototype)
         {
             Value = value;
         }
