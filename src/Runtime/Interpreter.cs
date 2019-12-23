@@ -31,9 +31,6 @@ namespace Crisp.Runtime
         Interpreter Push()
             => new Interpreter(System, Globals, new Environment(Environment), Self);
 
-        Interpreter PushCall(CrispObject? self)
-            => new Interpreter(System, Globals, new Environment(Globals), self);
-
         Interpreter PushWith(CrispObject self)
             => new Interpreter(System, Globals, new Environment(Environment), self);
 
@@ -117,7 +114,7 @@ namespace Crisp.Runtime
                         {
                             var args = from arg in call.Arguments
                                         select Evaluate(arg);
-                            result = fn.Invoke(PushCall(self), args.ToArray());
+                            result = fn.Invoke(this, self, args.ToArray());
                         }
                         else
                         {
@@ -144,7 +141,7 @@ namespace Crisp.Runtime
                     break;
 
                 case Function function:
-                    result = System.Create(function);
+                    result = System.Create(function, Environment);
                     break;
 
                 case Identifier identifier:

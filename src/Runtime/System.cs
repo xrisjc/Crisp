@@ -47,8 +47,8 @@ namespace Crisp.Runtime
         public CrispObject Create(double value)
             => new ObjectNumber(PrototypeNumber, value);
 
-        public CrispObject Create(Function definition)
-            => new ObjectFunction(PrototypeFunction, definition);
+        public CrispObject Create(Function definition, Environment closure)
+            => new ObjectFunction(PrototypeFunction, definition, closure);
 
         public Environment CreateGlobalEnvironment()
         {

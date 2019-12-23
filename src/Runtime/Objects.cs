@@ -6,7 +6,10 @@ namespace Crisp.Runtime
 {
     interface ICallable
     {
-        CrispObject Invoke(Interpreter interpreter, CrispObject[] arguments);
+        CrispObject Invoke(
+            Interpreter interpreter,
+            CrispObject? self,
+            CrispObject[] arguments);
     }
 
     class CrispObject
@@ -49,18 +52,29 @@ namespace Crisp.Runtime
     class ObjectFunction : CrispObject, ICallable
     {
         public Function Definition { get; }
+        public Environment Closure { get; }
 
-        public ObjectFunction(CrispObject prototype, Function definition)
+        public ObjectFunction(
+            CrispObject prototype,
+            Function definition,
+            Environment closure)
             : base(prototype)
         {
             Definition = definition;
+            Closure = closure;
         }
         
         public CrispObject Invoke(
             Interpreter interpreter,
+            CrispObject? self,
             CrispObject[] arguments)
         {
-            var environment = interpreter.Environment;
+            var environment = new Environment(Closure);
+            interpreter = new Interpreter(
+                interpreter.System,
+                interpreter.Globals,
+                environment,
+                self);
             var parameters = Definition.Parameters;
             for (int i = 0; i < parameters.Count; i++)
             {
