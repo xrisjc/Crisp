@@ -1,0 +1,33 @@
+
+var sumI := function (low, high, sum) begin
+    while low <= high do begin
+        sum := sum + low
+        low := low + 1
+    end
+    sum
+end
+
+var sumR := function (low, high, sum) begin
+    if low > high then sum
+    else sumR(low + 1, high, sum + low)
+end
+
+var sumT := function (low, high, sum) begin
+    var loop := function (low, high, sum) begin
+        function () begin
+            if low > high then sum
+            else loop(low + 1, high, sum + low)
+        end
+    end
+
+    var recursion := loop(low, high, sum)
+
+    while recursion is Function do
+        recursion := recursion()
+    
+    recursion
+end
+
+var sum := sumI(1, 1000000, 0)
+
+write(sum, '\n')
