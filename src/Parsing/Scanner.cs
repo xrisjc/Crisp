@@ -34,7 +34,6 @@ namespace Crisp.Parsing
                 ["true"]     = TokenTag.True,
                 ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,
-                ["with"]     = TokenTag.With,
                 ["write"]    = TokenTag.Write,
             };
 

@@ -266,17 +266,6 @@ namespace Crisp.Ast
         }
     }
 
-    class With : IExpression
-    {
-        public IExpression Target { get; }
-        public List<IExpression> Body { get; }
-        public With(IExpression target, List<IExpression> body)
-        {
-            Target = target;
-            Body = body;
-        }
-    }
-
     class Write : IExpression
     {
         public List<IExpression> Arguments { get; }

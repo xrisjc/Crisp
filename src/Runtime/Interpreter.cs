@@ -278,16 +278,6 @@ namespace Crisp.Runtime
                     result = System.Null;
                     break;
 
-                case With with:
-                    {
-                        var self = Evaluate(with.Target);
-                        var interpreter = PushWith(self);
-                        foreach (var expr in with.Body)
-                            interpreter.Evaluate(expr);
-                        result = self;
-                    }
-                    break;
-
                 case Write write:
                     foreach (var e in write.Arguments)
                         Console.Write(

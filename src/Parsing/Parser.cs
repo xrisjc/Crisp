@@ -304,13 +304,6 @@ namespace Crisp.Parsing
                         nameToken.Lexeme);
                     left = new Refinement(left, name);
                 }
-                else if (Match(TokenTag.With))
-                {
-                    var body = new List<IExpression>();
-                    while (!Match(TokenTag.End))
-                        body.Add(Expression());
-                    left = new With(left, body);
-                }
                 else
                     break;
             }
