@@ -372,7 +372,7 @@ var testifElseWhileScopes := function (t) begin
 
 
     // While body expression introduce a new scope even if a block isn't used.
-    var toggle := beget Object
+    var toggle := Object.beget()
     toggle.state := true        
     toggle.getState := function () begin
         var result := self.state
@@ -436,7 +436,7 @@ end
 ///////////////////////////////////////////////////////////////////////////////
 
 var testLogicalAndOr := function (t) begin
-    var counter := beget Object
+    var counter := Object.beget()
     counter.n := 0
     counter.get := function () self.n := self.n + 1
 
@@ -459,13 +459,13 @@ end
 ///////////////////////////////////////////////////////////////////////////////
 
 var testObjects := function (t) begin
-    // New objects can be created with beget keyword.  beget creates a new
+    // New objects can be created with the beget method.  beget creates a new
     // object using the original object as a prototype.  The "Object" name is
     // bound to an object which is the prototype of all objects.
     //     Objects may have properties.  Properties can be described using
     // a .identifer or an [ ] indexer.
-    var person := beget Object
-    person.name := beget Object
+    var person := Object.beget()
+    person.name := Object.beget()
     person.name.first := 'John'
     person.name.last := 'Smith'
     person.age := 40
@@ -508,7 +508,7 @@ var testObjects := function (t) begin
     // right hand side object is in the left hand side object's prototype
     // chain.  The Object, Number, String, Null, Bool, and Function names are
     // all bound to the prototype of their respective types.
-    var IsObject := beget Object
+    var IsObject := Object.beget()
     var isNumber := 0
     var isString := ''
     var isNull := null
@@ -523,7 +523,7 @@ var testObjects := function (t) begin
     t.assert(isFunction is Object, 'function is object')
 
     t.assert(IsObject is IsObject, 'is object itself')
-    t.assert((beget IsObject) is IsObject, 'child IsObject is IsObject')
+    t.assert(IsObject.beget() is IsObject, 'child IsObject is IsObject')
     t.assert(isNumber is Number, 'is number')
     t.assert(isString is String, 'is string')
     t.assert(isNull is Null, 'is null')
@@ -539,12 +539,13 @@ end
 // Code to manage running tests.
 ///////////////////////////////////////////////////////////////////////////////
 
-var Test := beget Object
+var Test := Object.beget()
     
 Test.init := function (showPassedTest) begin
     self.nTests := 0
     self.nErrors := 0
     self.showPassedTest := showPassedTest
+    self
 end
 
 Test.displaySummary := function () begin
@@ -582,8 +583,7 @@ Test.assertEq := function (actual, expected, message) begin
 end
 
 begin
-    var test := beget Test
-    test.init(true)
+    var test := Test.beget().init(true)
 
     testLiterals(test)
     testOperators(test)

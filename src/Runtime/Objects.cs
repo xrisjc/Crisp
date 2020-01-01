@@ -39,6 +39,7 @@ namespace Crisp.Runtime
                     return true;
             return false;
         }
+        public CrispObject Beget() => new CrispObject(this);
     }
 
     class ObjectBool : CrispObject, IEquatable<ObjectBool>
