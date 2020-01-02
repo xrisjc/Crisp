@@ -39,16 +39,23 @@ namespace Crisp.Runtime
                     return true;
             return false;
         }
-        public CrispObject Beget() => new CrispObject(this);
+        public virtual CrispObject Beget() => new CrispObject(this);
     }
 
-    class CrispList : CrispObject
+    class ObjectList : CrispObject
     {
         public List<CrispObject> Items { get; } = new List<CrispObject>();
-        public CrispList(CrispObject? prototype)
+        public ObjectList(CrispObject? prototype)
             : base(prototype)
         {
         }
+
+        public CrispObject Add(IEnumerable<CrispObject> items)
+        {
+            Items.AddRange(items);
+            return this;
+        }
+
         public override CrispObject? LookupProperty(CrispObject key)
         {
             if (AsIndex(key) is int index)
@@ -76,11 +83,16 @@ namespace Crisp.Runtime
                     var index = (int)floor;
                     // TODO: Do we really want this?
                     if (index >= 0 && index < Items.Count)
-                        return null;
+                        return index;
                 }
             }
 
             return null;
+        }
+
+        public override string ToString()
+        {
+            return string.Join(", ", Items);
         }
     }
 

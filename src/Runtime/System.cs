@@ -63,6 +63,16 @@ namespace Crisp.Runtime
             }
 
             Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
+
+            Method(PrototypeList, "new", (interpreter, self, arguments) =>
+                (self != null) ? new ObjectList(PrototypeList) : interpreter.System.Null);
+            Method(PrototypeList, "add", (interpreter, self, arguments) =>
+                self switch
+                {
+                    ObjectList list => list.Add(arguments),
+                    // This happens if not called as a method.
+                    _ => interpreter.System.Null,
+                });
         }
 
         public CrispObject Create()
@@ -89,6 +99,7 @@ namespace Crisp.Runtime
             env.Create("Object"  , PrototypeObject);
             env.Create("Bool"    , PrototypeBool);
             env.Create("Function", PrototypeFunction);
+            env.Create("List"    , PrototypeList);
             env.Create("Null"    , PrototypeNull);
             env.Create("Number"  , PrototypeNumber);
             env.Create("String"  , PrototypeString);
