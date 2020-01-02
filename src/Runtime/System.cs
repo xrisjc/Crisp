@@ -7,6 +7,7 @@ namespace Crisp.Runtime
         public CrispObject PrototypeObject { get; }
         public CrispObject PrototypeBool { get; }
         public CrispObject PrototypeFunction { get; }
+        public CrispObject PrototypeList { get; }
         public CrispObject PrototypeNull { get; }
         public CrispObject PrototypeNumber { get; }
         public CrispObject PrototypeString { get; }
@@ -19,6 +20,7 @@ namespace Crisp.Runtime
             PrototypeObject   = new CrispObject(null);
             PrototypeBool     = new CrispObject(PrototypeObject);
             PrototypeFunction = new CrispObject(PrototypeObject);
+            PrototypeList     = new CrispObject(PrototypeObject);
             PrototypeNull     = new CrispObject(PrototypeObject);
             PrototypeNumber   = new CrispObject(PrototypeObject);
             PrototypeString   = new CrispObject(PrototypeObject);

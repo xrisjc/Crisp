@@ -41,6 +41,48 @@ namespace Crisp.Runtime
         }
     }
 
+    class CrispList : CrispObject
+    {
+        public List<CrispObject> Items { get; } = new List<CrispObject>();
+        public CrispList(CrispObject? prototype)
+            : base(prototype)
+        {
+        }
+        public override CrispObject? LookupProperty(CrispObject key)
+        {
+            if (AsIndex(key) is int index)
+            {
+                return Items[index];
+            }
+            
+            return base.LookupProperty(key);
+        }
+        public override void SetProperty(CrispObject key, CrispObject value)
+        {
+            if (AsIndex(key) is int index)
+                Items[index] = value;
+            else
+                base.SetProperty(key, value);
+        }
+        
+        int? AsIndex(CrispObject obj)
+        {
+            if (obj is ObjectNumber num)
+            {
+                var floor = Math.Floor(num.Value);
+                if (floor == Math.Ceiling(num.Value))
+                {
+                    var index = (int)floor;
+                    // TODO: Do we really want this?
+                    if (index >= 0 && index < Items.Count)
+                        return null;
+                }
+            }
+
+            return null;
+        }
+    }
+
     class ObjectBool : CrispObject, IEquatable<ObjectBool>
     {
         public bool Value { get; }
