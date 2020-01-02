@@ -150,6 +150,15 @@ namespace Crisp.Ast
         public LiteralString(string value) : base(value) { }
     }
 
+    class LiteralList : IExpression
+    {
+        public List<IExpression> Items { get; set; }
+        public LiteralList(List<IExpression> items)
+        {
+            Items = items;
+        }
+    }
+
     enum OperatorBinaryTag
     {
         Add,

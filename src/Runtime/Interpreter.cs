@@ -167,6 +167,14 @@ namespace Crisp.Runtime
                     result = System.Create(literalString.Value);
                     break;
 
+                case LiteralList literalList:
+                    {
+                        var items = from expr in literalList.Items
+                                    select Evaluate(expr);
+                        result = System.Create(items.ToList());
+                    }
+                    break;
+
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
                     result = System.Create(
                                 IsTruthy(Evaluate(op.Left)) &&

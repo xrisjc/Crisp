@@ -44,10 +44,11 @@ namespace Crisp.Runtime
 
     class ObjectList : CrispObject
     {
-        public List<CrispObject> Items { get; } = new List<CrispObject>();
-        public ObjectList(CrispObject? prototype)
+        public List<CrispObject> Items { get; }
+        public ObjectList(CrispObject? prototype, List<CrispObject> items)
             : base(prototype)
         {
+            Items = items;
         }
 
         public CrispObject Add(IEnumerable<CrispObject> items)
@@ -81,7 +82,7 @@ namespace Crisp.Runtime
                 if (floor == Math.Ceiling(num.Value))
                 {
                     var index = (int)floor;
-                    // TODO: Do we really want this?
+                    // TODO: Have a runtime error if we're out of bounds.
                     if (index >= 0 && index < Items.Count)
                         return index;
                 }

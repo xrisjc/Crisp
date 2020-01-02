@@ -1,4 +1,5 @@
 ﻿using Crisp.Ast;
+using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
@@ -64,15 +65,26 @@ namespace Crisp.Runtime
 
             Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
 
-            Method(PrototypeList, "new", (interpreter, self, arguments) =>
-                (self != null) ? new ObjectList(PrototypeList) : interpreter.System.Null);
-            Method(PrototypeList, "add", (interpreter, self, arguments) =>
-                self switch
-                {
-                    ObjectList list => list.Add(arguments),
-                    // This happens if not called as a method.
-                    _ => interpreter.System.Null,
-                });
+            Method(
+                PrototypeList,
+                "add",
+                (interpreter, self, arguments) =>
+                    self switch
+                    {
+                        ObjectList list => list.Add(arguments),
+                        // This happens if not called as a method.
+                        _ => interpreter.System.Null,
+                    });
+            Method(
+                PrototypeList,
+                "length",
+                (interpreter, self, arguments) =>
+                    self switch
+                    {
+                        ObjectList list => interpreter.System.Create(list.Items.Count),
+                        // This happens if not called as a method.
+                        _ => interpreter.System.Null,
+                    });
         }
 
         public CrispObject Create()
@@ -89,6 +101,9 @@ namespace Crisp.Runtime
         
         public CrispObject Create(double value)
             => new ObjectNumber(PrototypeNumber, value);
+
+        public CrispObject Create(List<CrispObject> items)
+            => new ObjectList(PrototypeList, items);
 
         public CrispObject Create(Function definition, Environment closure)
             => new ObjectFunction(PrototypeFunction, definition, closure);

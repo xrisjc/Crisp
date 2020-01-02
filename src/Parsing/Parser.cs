@@ -280,7 +280,7 @@ namespace Crisp.Parsing
             while (true)
             {
                 if (Match(TokenTag.LParen) is Token tokenCall)
-                    left = new Call(tokenCall.Position, left, Arguments());
+                    left = new Call(tokenCall.Position, left, Arguments(TokenTag.RParen));
                 else if (Match(TokenTag.LBracket) is Token tokenIndex)
                 {
                     var at = Expression();
@@ -345,6 +345,12 @@ namespace Crisp.Parsing
                 return new Self(tokenSelf.Position);
             }
 
+            if (Match(TokenTag.LBracket))
+            {
+                var items = Arguments(endToken: TokenTag.RBracket);
+                return new LiteralList(items);
+            }
+
             if (Match(TokenTag.LParen))
             {
                 var expression = Expression();
@@ -360,10 +366,10 @@ namespace Crisp.Parsing
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
         }
 
-        List<IExpression> Arguments()
+        List<IExpression> Arguments(TokenTag endToken)
         {
             var arguments = new List<IExpression>();
-            if (!Match(TokenTag.RParen))
+            if (!Match(endToken))
             {
                 do
                 {
@@ -371,7 +377,7 @@ namespace Crisp.Parsing
                     arguments.Add(argument);
                 }
                 while (Match(TokenTag.Comma));
-                Expect(TokenTag.RParen);
+                Expect(endToken);
             }
             return arguments;
         }
@@ -379,7 +385,7 @@ namespace Crisp.Parsing
         IExpression Write()
         {
             Expect(TokenTag.LParen);
-            var arguments = Arguments();
+            var arguments = Arguments(TokenTag.RParen);
             return new Write(arguments);
         }
 

@@ -1,0 +1,25 @@
+// Recursion vs iteration.
+
+var max := 100
+
+
+List.new := function () []
+
+var list := List.new()
+
+
+var i := 0
+
+// Loop to add to list.
+while i < max do begin
+    list.add(10 * i)
+    i := i + 1
+end
+
+// Loop to print list.
+i := 0
+while i < list.length() do begin
+    write(i, ' = ', list[i], '\n')
+    i := i + 1
+end
+

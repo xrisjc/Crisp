@@ -42,9 +42,10 @@ A toy programming language interpreter.
              | id
              | "null"
              | "self"
-             | object
+             | "[" listItems? "]"
              | "(" expr ")" ;
              | "write" arguments ;
+    listItems -> expr ( "," expr )* ;
     number -> digit+ ( "." digit+ )? ;
     string -> "'" ([^'])* "'" ;
     id -> alpha ( alpha | digit )* ;
