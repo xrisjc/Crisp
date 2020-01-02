@@ -234,8 +234,6 @@ namespace Crisp.Runtime
                     left = Evaluate(op.Expression);
                     result = op.Op switch
                     {
-                        OperatorUnaryTag.Beget
-                            => System.Beget(left),
                         OperatorUnaryTag.Not
                             => System.Create(!IsTruthy(left)),
                         OperatorUnaryTag.Neg when left is ObjectNumber n
@@ -276,16 +274,6 @@ namespace Crisp.Runtime
                     while (IsTruthy(Evaluate(@while.Guard)))
                         Push().Evaluate(@while.Body);
                     result = System.Null;
-                    break;
-
-                case With with:
-                    {
-                        var self = Evaluate(with.Target);
-                        var interpreter = PushWith(self);
-                        foreach (var expr in with.Body)
-                            interpreter.Evaluate(expr);
-                        result = self;
-                    }
                     break;
 
                 case Write write:

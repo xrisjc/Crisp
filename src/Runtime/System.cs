@@ -4,6 +4,31 @@ namespace Crisp.Runtime
 {
     class System
     {
+        delegate CrispObject Invokeable(Interpreter interpreter, CrispObject? self, CrispObject[] arguments);
+
+        class SystemFunction : CrispObject, ICallable
+        {
+            Invokeable definition;
+            public SystemFunction(CrispObject prototype, Invokeable definition)
+                : base(prototype)
+            {
+                this.definition = definition;
+            }
+            public CrispObject Invoke(Interpreter interpreter, CrispObject? self, CrispObject[] arguments)
+            {
+                return definition(interpreter, self, arguments);
+            }
+        }
+
+        class Beget : CrispObject, ICallable
+        {
+            public Beget(CrispObject prototype) : base(prototype) { }
+            public CrispObject Invoke(Interpreter interpreter, CrispObject? self, CrispObject[] arguments)
+            {
+                return self?.Beget() ?? interpreter.System.Null;
+            }
+        }
+
         public CrispObject PrototypeObject { get; }
         public CrispObject PrototypeBool { get; }
         public CrispObject PrototypeFunction { get; }
@@ -29,10 +54,16 @@ namespace Crisp.Runtime
 
             True = new ObjectBool(PrototypeBool, true);
             False = new ObjectBool(PrototypeBool, false);
-        }
+            
+            void Method(CrispObject obj, string name, Invokeable definition)
+            {
+                var key = Create(name);
+                var value = new SystemFunction(PrototypeFunction, definition);
+                obj.SetProperty(key, value);
+            }
 
-        public CrispObject Beget(CrispObject obj)
-            => new CrispObject(obj);
+            Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
+        }
 
         public CrispObject Create()
             => new CrispObject(PrototypeObject);

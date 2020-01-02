@@ -6,7 +6,6 @@
         Add,
         And,
         Assignment,
-        Beget,
         Begin,
         Comma,
         Divide,
@@ -43,7 +42,6 @@
         True,
         Var,
         While,
-        With,
         Write,
     }
 }

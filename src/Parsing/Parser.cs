@@ -271,15 +271,6 @@ namespace Crisp.Parsing
                 return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);
             }
 
-            if (Match(TokenTag.Beget) is Token tokenBeget)
-            {
-                var expression = Unary();
-                return new OperatorUnary(
-                    tokenBeget.Position,
-                    OperatorUnaryTag.Beget,
-                    expression);
-            }
-
             return Call();
         }
 
@@ -303,13 +294,6 @@ namespace Crisp.Parsing
                         nameToken.Position,
                         nameToken.Lexeme);
                     left = new Refinement(left, name);
-                }
-                else if (Match(TokenTag.With))
-                {
-                    var body = new List<IExpression>();
-                    while (!Match(TokenTag.End))
-                        body.Add(Expression());
-                    left = new With(left, body);
                 }
                 else
                     break;

@@ -372,15 +372,14 @@ var testifElseWhileScopes := function (t) begin
 
 
     // While body expression introduce a new scope even if a block isn't used.
-    var toggle := beget Object with
-        self.state := true
-        
-        self.getState := function () begin
-            var result := self.state
-            self.state := not self.state
-            result
-        end
+    var toggle := Object.beget()
+    toggle.state := true        
+    toggle.getState := function () begin
+        var result := self.state
+        self.state := not self.state
+        result
     end
+
     var y := 1
     while toggle.getState() do
         var y := 100
@@ -437,10 +436,9 @@ end
 ///////////////////////////////////////////////////////////////////////////////
 
 var testLogicalAndOr := function (t) begin
-    var counter := beget Object with
-        self.n := 0
-        self.get := function () self.n := self.n + 1
-    end
+    var counter := Object.beget()
+    counter.n := 0
+    counter.get := function () self.n := self.n + 1
 
     // The 'and' operator short circuits in the expected way.
     t.assertEq(false and counter.get() = 1, false, 'and short circuits #1')
@@ -461,28 +459,16 @@ end
 ///////////////////////////////////////////////////////////////////////////////
 
 var testObjects := function (t) begin
-    // New objects can be created with beget keyword.  beget creates a new
+    // New objects can be created with the beget method.  beget creates a new
     // object using the original object as a prototype.  The "Object" name is
     // bound to an object which is the prototype of all objects.
-    //     The with operator executes a block of statements where the self
-    // keyword is bound to the object left of the with.  The result of the
-    // with operator is the object to the left of the with.  Any kind of 
-    // expression can be in an with body.
-    //     Using beget and with in one expression, you can create and set up
-    // an object in one go.  But, beget and with can be used seperately too.
-    var person := beget Object with
-        var firstName := 'John'
-
-        self.name := beget Object
-        
-        self.name with
-            // Self now refers to the inner object self.name.
-            self.first := firstName
-            self.last := 'Smith'
-        end
-
-        self.age := 40
-    end
+    //     Objects may have properties.  Properties can be described using
+    // a .identifer or an [ ] indexer.
+    var person := Object.beget()
+    person.name := Object.beget()
+    person.name.first := 'John'
+    person.name.last := 'Smith'
+    person.age := 40
 
     // Object properties can be retrieved with the index operator.  The
     // property name must be passed in as a string.
@@ -522,7 +508,7 @@ var testObjects := function (t) begin
     // right hand side object is in the left hand side object's prototype
     // chain.  The Object, Number, String, Null, Bool, and Function names are
     // all bound to the prototype of their respective types.
-    var IsObject := beget Object
+    var IsObject := Object.beget()
     var isNumber := 0
     var isString := ''
     var isNull := null
@@ -537,7 +523,7 @@ var testObjects := function (t) begin
     t.assert(isFunction is Object, 'function is object')
 
     t.assert(IsObject is IsObject, 'is object itself')
-    t.assert((beget IsObject) is IsObject, 'child IsObject is IsObject')
+    t.assert(IsObject.beget() is IsObject, 'child IsObject is IsObject')
     t.assert(isNumber is Number, 'is number')
     t.assert(isString is String, 'is string')
     t.assert(isNull is Null, 'is null')
@@ -545,59 +531,59 @@ var testObjects := function (t) begin
     t.assert(isFunction is Function, 'is function')
 
     t.assertEq(0 is Bool, false, 'is negative result')
+
+    // TODO: Add tests for self keyword.
 end
 
 ///////////////////////////////////////////////////////////////////////////////
 // Code to manage running tests.
 ///////////////////////////////////////////////////////////////////////////////
 
-var Test := beget Object with
+var Test := Object.beget()
     
-    self.new := function (showPassedTest) begin
-        beget self with
-            self.nTests := 0
-            self.nErrors := 0
-            self.showPassedTest := showPassedTest
-        end
-    end
+Test.init := function (showPassedTest) begin
+    self.nTests := 0
+    self.nErrors := 0
+    self.showPassedTest := showPassedTest
+    self
+end
 
-    self.displaySummary := function () begin
-        write('\n', self.nTests - self.nErrors, ' out of ', self.nTests, ' tests passed.\n')
-        write('There are ', self.nErrors, ' errors. ')
-        write(if self.nErrors = 0 then ':-)' else 'D-:', '\n')
-    end
+Test.displaySummary := function () begin
+    write('\n', self.nTests - self.nErrors, ' out of ', self.nTests, ' tests passed.\n')
+    write('There are ', self.nErrors, ' errors. ')
+    write(if self.nErrors = 0 then ':-)' else 'D-:', '\n')
+end
 
-    self.pass := function (message) begin
-        self.nTests := self.nTests + 1
-        write('[OK] "', message, '"\n')
-    end
-    
-    self.fail := function (message) begin
-        self.nTests := self.nTests + 1
+Test.pass := function (message) begin
+    self.nTests := self.nTests + 1
+    write('[OK] "', message, '"\n')
+end
+
+Test.fail := function (message) begin
+    self.nTests := self.nTests + 1
+    self.nErrors := self.nErrors + 1
+    write('[FAILED] "', message, '"\n')
+end
+
+Test.assert := function (condition, message) begin
+    if not condition then
+        self.fail(message)
+    else if self.showPassedTest then
+        self.pass(message)
+end
+
+Test.assertEq := function (actual, expected, message) begin
+    self.nTests := self.nTests + 1
+    if actual <> expected then begin
+        write('[FAILED] "', message, '": expected <', expected, '> got <',
+            actual, '>\n')
         self.nErrors := self.nErrors + 1
-        write('[FAILED] "', message, '"\n')
-    end
-
-    self.assert := function (condition, message) begin
-        if not condition then
-            self.fail(message)
-        else if self.showPassedTest then
-            self.pass(message)
-    end
-
-    self.assertEq := function (actual, expected, message) begin
-        self.nTests := self.nTests + 1
-        if actual <> expected then begin
-            write('[FAILED] "', message, '": expected <', expected, '> got <',
-                actual, '>\n')
-            self.nErrors := self.nErrors + 1
-        end else if self.showPassedTest then
-            write('[OK] "', message, '"\n')
-    end
+    end else if self.showPassedTest then
+        write('[OK] "', message, '"\n')
 end
 
 begin
-    var test := Test.new(true)
+    var test := Test.beget().init(true)
 
     testLiterals(test)
     testOperators(test)

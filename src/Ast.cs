@@ -189,7 +189,6 @@ namespace Crisp.Ast
 
     enum OperatorUnaryTag
     {
-        Beget,
         Neg,
         Not,
     }
@@ -262,17 +261,6 @@ namespace Crisp.Ast
         public While(IExpression guard, IExpression body)
         {
             Guard = guard;
-            Body = body;
-        }
-    }
-
-    class With : IExpression
-    {
-        public IExpression Target { get; }
-        public List<IExpression> Body { get; }
-        public With(IExpression target, List<IExpression> body)
-        {
-            Target = target;
             Body = body;
         }
     }
