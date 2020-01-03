@@ -85,6 +85,53 @@ namespace Crisp.Runtime
                         // This happens if not called as a method.
                         _ => interpreter.System.Null,
                     });
+            Method(
+                PrototypeList,
+                "getIterator",
+                (interpreter, self, arguments) =>
+                {
+                    switch (self)
+                    {
+                        case ObjectList list:
+                            var items = list.Items;
+                            var index = 0;
+
+                            var itr = new CrispObject(PrototypeObject);
+
+                            Method(
+                                itr,
+                                "next",
+                                (interpreter, self, arguments) =>
+                                {
+                                    // TODO... do we need to test if self is
+                                    // set, i.e. is it called as a method?
+                                    index++;
+                                    var hasMore = index < items.Count;
+                                    return interpreter.System.Create(hasMore);
+                                });
+
+                            Method(
+                                itr,
+                                "current",
+                                (interpreter, self, arguments) =>
+                                {
+                                    // TODO... do we need to test if self is
+                                    // set, i.e. is it called as a method?
+
+                                    if (index < items.Count)
+                                        return items[index];
+                                    else
+                                        return interpreter.System.Null;
+                                });
+
+                            return itr;
+                        
+                        // Somehow this function wasn't called as a method on
+                        // a ObjectList.
+                        default:
+                            return interpreter.System.Null;
+                    }
+                });
         }
 
         public CrispObject Create()

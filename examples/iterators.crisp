@@ -1,0 +1,17 @@
+var list := [1, 2, false, 'hello, world']
+
+// Iterator
+//   next() that returns bool (finished or not)
+//   current() that return current item
+
+var itr := list.getIterator()
+
+while itr.next() do begin
+    write(itr.current(), '\n')
+end
+
+// For loop that supports looping through iterator automatically.
+
+//for item in list do
+//    write(item, '\n')
+
