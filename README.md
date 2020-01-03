@@ -10,6 +10,7 @@ A toy programming language interpreter.
           | function
           | if
           | while
+          | for
           | block
           | assignment ;
 
@@ -24,6 +25,7 @@ A toy programming language interpreter.
     if -> "if" expr "then" expr ("else" expr)? ;
 
     while -> "while" expr "do" expr ;
+    for -> "for" id "in" expr "do" expr ;
 
     assignment -> logical_or ( ":=" expr )* ;
     logical_or -> logical_and ( "or" logical_and )* ;
