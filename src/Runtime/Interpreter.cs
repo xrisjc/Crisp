@@ -284,6 +284,87 @@ namespace Crisp.Runtime
                     result = System.Null;
                     break;
 
+                case For @for:
+                    {
+                        // Create new scope for the for loop variable.
+                        var interpreter = Push();
+
+                        var collection = Evaluate(@for.Collection);
+
+                        // Test if it has a getIterator function.
+                        var getIterator = collection.LookupProperty(
+                            System.Create("getIterator"));
+
+                        // Is getIterator a callable?
+                        if (getIterator is ICallable getIteratorCallable)
+                        {
+                            var emptyArgs = new CrispObject[0];
+                            
+                            // Get the iterator.
+                            var itr = getIteratorCallable.Invoke(
+                                interpreter, collection, emptyArgs);
+
+                            // Getting the next and current functions on the
+                            // iterator object.
+                            var nextKey = System.Create("next");
+                            var currentKey = System.Create("current");
+                            var next = itr.LookupProperty(nextKey);
+                            var current = itr.LookupProperty(currentKey);
+
+                            // Test if next and current are callable objects.
+                            if (next is ICallable nextCallable &&
+                                current is ICallable currentCallable)
+                            {
+                                // Create our loop variable in the inner scope
+                                // environment.
+                                interpreter.Environment.Create(
+                                    @for.Variable.Name,
+                                    System.Null);
+
+                                // Actually do our loop.
+                                while (true)
+                                {
+                                    // Move to next item in iterator.
+                                    var hasMore = 
+                                        nextCallable.Invoke(
+                                            interpreter, itr, emptyArgs);
+
+                                    // Is the iterator done yet?
+                                    if (!IsTruthy(hasMore)) break;
+
+                                    // We're not done, so update the loop
+                                    // variable.
+
+                                    var currentValue =
+                                        currentCallable.Invoke(
+                                            interpreter, itr, emptyArgs);
+
+                                    interpreter.Environment.Set(
+                                        @for.Variable.Name,
+                                        currentValue);
+
+                                    // Now evaluate the loop body.  Each loop
+                                    // body is also an inner scope.
+                                    var bodyInterpreter = interpreter.Push();
+                                    bodyInterpreter.Evaluate(@for.Body);
+                                }
+                            }
+                            else
+                            {
+                                // TODO: Runtime error, either next or 
+                                // current are not callable objects!
+                            }
+                        }
+                        else
+                        {
+                            // TODO: Runtime error, getIterator isn't a
+                            // callable.
+                        }
+
+                    }
+                    result = System.Null;
+                    break;
+
                 case Write write:
                     foreach (var e in write.Arguments)
                         Console.Write(

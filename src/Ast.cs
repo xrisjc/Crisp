@@ -68,6 +68,22 @@ namespace Crisp.Ast
         }
     }
 
+    class For : IExpression
+    {
+        public Identifier Variable { get; }
+        public IExpression Collection { get; }
+        public IExpression Body { get; }
+        public For(
+            Identifier variable,
+            IExpression collection,
+            IExpression body)
+        {
+            Variable = variable;
+            Collection = collection;
+            Body = body;
+        }
+    }
+
     class Function : IExpression
     {
         public List<Identifier> Parameters { get; }
