@@ -5,7 +5,10 @@ namespace Crisp.Runtime
 {
     class System
     {
-        delegate CrispObject Invokeable(Interpreter interpreter, CrispObject? self, CrispObject[] arguments);
+        delegate CrispObject? Invokeable(
+            Interpreter interpreter,
+            CrispObject? self,
+            CrispObject[] arguments);
 
         class SystemFunction : CrispObject, ICallable
         {
@@ -15,9 +18,12 @@ namespace Crisp.Runtime
             {
                 this.definition = definition;
             }
-            public CrispObject Invoke(Interpreter interpreter, CrispObject? self, CrispObject[] arguments)
+            public CrispObject Invoke(
+                Interpreter interpreter,
+                CrispObject? self,
+                CrispObject[] arguments)
             {
-                return definition(interpreter, self, arguments);
+                return definition(interpreter, self, arguments) ?? interpreter.System.Null;
             }
         }
 
@@ -52,86 +58,12 @@ namespace Crisp.Runtime
             PrototypeString   = new CrispObject(PrototypeObject);
 
             Null = new ObjectNull(PrototypeNull);
-
             True = new ObjectBool(PrototypeBool, true);
             False = new ObjectBool(PrototypeBool, false);
-            
-            void Method(CrispObject obj, string name, Invokeable definition)
-            {
-                var key = Create(name);
-                var value = new SystemFunction(PrototypeFunction, definition);
-                obj.SetProperty(key, value);
-            }
 
-            Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
+            Method(PrototypeObject, "beget", (i, s, a) => s?.Beget());
 
-            Method(
-                PrototypeList,
-                "add",
-                (interpreter, self, arguments) =>
-                    self switch
-                    {
-                        ObjectList list => list.Add(arguments),
-                        // This happens if not called as a method.
-                        _ => interpreter.System.Null,
-                    });
-            Method(
-                PrototypeList,
-                "length",
-                (interpreter, self, arguments) =>
-                    self switch
-                    {
-                        ObjectList list => interpreter.System.Create(list.Items.Count),
-                        // This happens if not called as a method.
-                        _ => interpreter.System.Null,
-                    });
-            Method(
-                PrototypeList,
-                "getIterator",
-                (interpreter, self, arguments) =>
-                {
-                    switch (self)
-                    {
-                        case ObjectList list:
-                            var items = list.Items;
-                            var index = 0;
-
-                            var itr = new CrispObject(PrototypeObject);
-
-                            Method(
-                                itr,
-                                "next",
-                                (interpreter, self, arguments) =>
-                                {
-                                    // TODO... do we need to test if self is
-                                    // set, i.e. is it called as a method?
-                                    index++;
-                                    var hasMore = index < items.Count;
-                                    return interpreter.System.Create(hasMore);
-                                });
-
-                            Method(
-                                itr,
-                                "current",
-                                (interpreter, self, arguments) =>
-                                {
-                                    // TODO... do we need to test if self is
-                                    // set, i.e. is it called as a method?
-
-                                    if (index < items.Count)
-                                        return items[index];
-                                    else
-                                        return interpreter.System.Null;
-                                });
-
-                            return itr;
-                        
-                        // Somehow this function wasn't called as a method on
-                        // a ObjectList.
-                        default:
-                            return interpreter.System.Null;
-                    }
-                });
+            SetupPrototypeList();
         }
 
         public CrispObject Create()
@@ -166,6 +98,79 @@ namespace Crisp.Runtime
             env.Create("Number"  , PrototypeNumber);
             env.Create("String"  , PrototypeString);
             return env;
+        }
+
+        void SetupPrototypeList()
+        {
+            CrispObject? Add(Interpreter i, CrispObject? s, CrispObject[] a)
+                => (s as ObjectList)?.Add(a);
+
+            CrispObject? Length(Interpreter i, CrispObject? s, CrispObject[] a)
+                => s switch
+                   {
+                       ObjectList l => i.System.Create(l.Items.Count),
+                       _ => i.System.Null,
+                   };
+
+            CrispObject? GetIterator(
+                Interpreter i,
+                CrispObject? self,
+                CrispObject[] a)
+            {
+                switch (self)
+                {
+                    case ObjectList list:
+                        var items = list.Items;
+                        var index = -1;
+
+                        var itr = new CrispObject(PrototypeObject);
+
+                        Method(
+                            itr,
+                            "next",
+                            (interpreter, self, arguments) =>
+                            {
+                                // TODO... do we need to test if self is
+                                // set, i.e. is it called as a method?
+                                index++;
+                                var hasMore = index < items.Count;
+                                return interpreter.System.Create(hasMore);
+                            });
+
+                        Method(
+                            itr,
+                            "current",
+                            (interpreter, self, arguments) =>
+                            {
+                                // TODO... do we need to test if self is
+                                // set, i.e. is it called as a method?
+
+                                if (0 <= index && index < items.Count)
+                                    return items[index];
+                                else
+                                    return interpreter.System.Null;
+                            });
+
+                        return itr;
+                    
+                    // Somehow this function wasn't called as a method on
+                    // a ObjectList.
+                    default:
+                        return i.System.Null;
+                }
+            }
+
+
+            Method(PrototypeList, "add", Add);
+            Method(PrototypeList, "length", Length);
+            Method(PrototypeList, "getIterator", GetIterator);
+        }
+
+        void Method(CrispObject obj, string name, Invokeable definition)
+        {
+            var key = Create(name);
+            var value = new SystemFunction(PrototypeFunction, definition);
+            obj.SetProperty(key, value);
         }
     }
 }

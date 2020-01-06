@@ -70,16 +70,19 @@ namespace Crisp.Ast
 
     class For : IExpression
     {
+        public Position Position { get; }
         public Identifier Variable { get; }
-        public IExpression Collection { get; }
+        public IExpression Iterable { get; }
         public IExpression Body { get; }
         public For(
+            Position position,
             Identifier variable,
-            IExpression collection,
+            IExpression iterable,
             IExpression body)
         {
+            Position = position;
             Variable = variable;
-            Collection = collection;
+            Iterable = iterable;
             Body = body;
         }
     }

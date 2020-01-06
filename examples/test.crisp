@@ -536,6 +536,79 @@ var testObjects := function (t) begin
 end
 
 ///////////////////////////////////////////////////////////////////////////////
+// Iterable objects and iterators.
+///////////////////////////////////////////////////////////////////////////////
+
+var testIterable := function (t) begin
+    // Objects can be made to be iterable if they have a method named
+    // `getIterator` that returns an iterator object.  The iterator object
+    // must have two methods: `next` and `current`.  The for loop expects an
+    // iterable object and will uses the interface described above.
+    var iterable := Object.beget()
+    iterable.getIterator := function () begin
+        var itr := Object.beget()
+        itr.value := 0
+        itr.current := function () self.value
+        itr.next := function () begin
+            self.value := self.value + 1
+            self.value <= 10
+        end
+        itr
+    end
+
+    var sum := 0
+    for x in iterable do
+        sum := sum + x
+    
+    t.assertEq(sum, 55, 'iterable')
+
+    // The for loop works like the following code.
+    sum := 0
+    var itr := iterable.getIterator()
+    while itr.next() do
+        sum := sum + itr.current()
+    t.assertEq(sum, 55, 'manual iterable')
+end
+
+///////////////////////////////////////////////////////////////////////////////
+// Lists
+///////////////////////////////////////////////////////////////////////////////
+
+var testLists := function (t) begin
+    // List objects are dynamically sized arrays.  They are created a literal
+    // syntax and are indexed in the usual way starting at zero.
+    var emptyList := []
+    var list := [3*2, 'hello', false, null, Object.beget(), function (x) x]
+
+    t.assertEq(list[0], 6, 'list indexing #1')
+    t.assertEq(list[2], false, 'list indexing #2')
+    t.assertEq(list[5](100), 100, 'list indexing #3')
+
+    list[3] := true
+    t.assertEq(list[3], true, 'list update')
+
+    // Lists have `length` and `add` methods.
+    t.assertEq(emptyList.length(), 0, 'length of empty list')
+    t.assertEq(list.length(), 6, 'length of non-empty list')
+    
+    list.add('new item')
+    t.assertEq(list.length(), 7, 'length of non-empty list #2')
+    t.assertEq(list[6], 'new item', 'list indexing #4')
+
+    // Lists are all iterable objects and can be used in for .. in loops.
+    var sum := 0
+    for x in [] do
+        sum := sum + x
+    t.assertEq(sum, 0, 'iterable list #1')
+
+    for x in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] do begin
+        sum := sum + x
+    end
+    t.assertEq(sum, 55, 'iterable list #2')
+
+end
+
+///////////////////////////////////////////////////////////////////////////////
 // Code to manage running tests.
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -595,6 +668,8 @@ begin
     testFunctions(test)
     testLogicalAndOr(test)
     testObjects(test)
+    testIterable(test)
+    testLists(test)
 
     test.displaySummary()
 end

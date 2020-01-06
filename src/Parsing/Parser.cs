@@ -125,17 +125,23 @@ namespace Crisp.Parsing
         IExpression For()
         {
             var variableToken = Expect(TokenTag.Identifier);
-            var variable = new Identifier(variableToken.Position, variableToken.Lexeme);
+            var variable = new Identifier(
+                variableToken.Position,
+                variableToken.Lexeme);
 
-            Expect(TokenTag.In);
+            // Use the position of the `in` token as the position of the `for`
+            // loop because all the runtime errors involve the iterable object
+            // not supporting the iterable interface.
+            var inToken = Expect(TokenTag.In);
+            var position = inToken.Position;
 
-            var collection = Expression();
+            var iterable = Expression();
 
             Expect(TokenTag.Do);
 
             var body = Expression();
 
-            return new For(variable, collection, body);
+            return new For(position, variable, iterable, body);
         }
 
         Block Block()

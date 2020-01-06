@@ -289,10 +289,10 @@ namespace Crisp.Runtime
                         // Create new scope for the for loop variable.
                         var interpreter = Push();
 
-                        var collection = Evaluate(@for.Collection);
+                        var iterable = Evaluate(@for.Iterable);
 
                         // Test if it has a getIterator function.
-                        var getIterator = collection.LookupProperty(
+                        var getIterator = iterable.LookupProperty(
                             System.Create("getIterator"));
 
                         // Is getIterator a callable?
@@ -302,7 +302,7 @@ namespace Crisp.Runtime
                             
                             // Get the iterator.
                             var itr = getIteratorCallable.Invoke(
-                                interpreter, collection, emptyArgs);
+                                interpreter, iterable, emptyArgs);
 
                             // Getting the next and current functions on the
                             // iterator object.
@@ -349,17 +349,13 @@ namespace Crisp.Runtime
                                     bodyInterpreter.Evaluate(@for.Body);
                                 }
                             }
-                            else
-                            {
-                                // TODO: Runtime error, either next or 
-                                // current are not callable objects!
-                            }
+                            else throw new RuntimeErrorException(
+                                @for.Position,
+                                "Object returned by `getIterator` does follow the iterable interface.");
                         }
-                        else
-                        {
-                            // TODO: Runtime error, getIterator isn't a
-                            // callable.
-                        }
+                        else throw new RuntimeErrorException(
+                            @for.Position,
+                            "Object in `for` loop does not follow the iterable interface.");
 
                     }
                     result = System.Null;
