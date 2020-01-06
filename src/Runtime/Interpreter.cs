@@ -34,14 +34,6 @@ namespace Crisp.Runtime
         Interpreter PushWith(CrispObject self)
             => new Interpreter(System, Globals, new Environment(Environment), self);
 
-        bool IsTruthy(CrispObject obj)
-            => obj switch
-               {
-                   ObjectBool x => x.Value,
-                   ObjectNull _ => false,
-                   _ => true,
-               };
-
         CrispObject LookupProperty(CrispObject obj, CrispObject key)
             => obj.LookupProperty(key) ?? System.Null;
 
@@ -126,7 +118,7 @@ namespace Crisp.Runtime
 
         public CrispObject Visit(If @if)
         {
-            if (IsTruthy(Evaluate(@if.Condition)))
+            if (Evaluate(@if.Condition).IsTruthy())
                 return Push().Evaluate(@if.Consequence);
             else
                 return Push().Evaluate(@if.Alternative);
@@ -171,13 +163,13 @@ namespace Crisp.Runtime
         {
             if (op.Tag == OperatorBinaryTag.And)
                 return System.Create(
-                        IsTruthy(Evaluate(op.Left)) &&
-                        IsTruthy(Evaluate(op.Right)));
+                        Evaluate(op.Left).IsTruthy() &&
+                        Evaluate(op.Right).IsTruthy());
             
             if (op.Tag == OperatorBinaryTag.Or)
                 return System.Create(
-                            IsTruthy(Evaluate(op.Left)) ||
-                            IsTruthy(Evaluate(op.Right)));
+                        Evaluate(op.Left).IsTruthy() ||
+                        Evaluate(op.Right).IsTruthy());
 
             var left = Evaluate(op.Left);
             var right = Evaluate(op.Right);
@@ -235,7 +227,7 @@ namespace Crisp.Runtime
             return op.Op switch
             {
                 OperatorUnaryTag.Not
-                    => System.Create(!IsTruthy(left)),
+                    => System.Create(!left.IsTruthy()),
                 OperatorUnaryTag.Neg when left is ObjectNumber n
                     => System.Create(-n.Value),
                 _
@@ -274,7 +266,7 @@ namespace Crisp.Runtime
 
         public CrispObject Visit(While @while)
         {
-            while (IsTruthy(Evaluate(@while.Guard)))
+            while (Evaluate(@while.Guard).IsTruthy())
                 Push().Evaluate(@while.Body);
             return System.Null;
         }
@@ -325,7 +317,7 @@ namespace Crisp.Runtime
                                 interpreter, itr, emptyArgs);
 
                         // Is the iterator done yet?
-                        if (!IsTruthy(hasMore)) break;
+                        if (!hasMore.IsTruthy()) break;
 
                         // We're not done, so update the loop
                         // variable.
@@ -358,14 +350,7 @@ namespace Crisp.Runtime
         public CrispObject Visit(Write write)
         {
             foreach (var e in write.Arguments)
-                Console.Write(
-                    Evaluate(e) switch
-                    {
-                        ObjectBool x => x.Value ? "true" : "false",
-                        ObjectNumber x => x.Value.ToString(),
-                        ObjectString x => x.Value,
-                        CrispObject x => x.ToString(),
-                    });
+                Console.Write(Evaluate(e));
             return System.Null;
         }
     }

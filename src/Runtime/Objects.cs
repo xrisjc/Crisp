@@ -40,6 +40,7 @@ namespace Crisp.Runtime
             return false;
         }
         public virtual CrispObject Beget() => new CrispObject(this);
+        public virtual bool IsTruthy() => true;
     }
 
     class ObjectList : CrispObject
@@ -106,6 +107,7 @@ namespace Crisp.Runtime
         {
             Value = value;
         }
+        public override bool IsTruthy() => Value;
         public override string ToString() => Value ? "true" : "false";
         public override bool Equals(object? obj) => Equals(obj as ObjectBool);
         public bool Equals(ObjectBool? other) => other != null && Value == other.Value;
@@ -159,6 +161,7 @@ namespace Crisp.Runtime
     class ObjectNull : CrispObject, IEquatable<ObjectNull>
     {
         public ObjectNull(CrispObject prototype) : base(prototype) { }
+        public override bool IsTruthy() => false;
         public override string ToString() => "null";
         public override bool Equals(object? obj) => Equals(obj as ObjectNull);
         public bool Equals(ObjectNull? other) => other != null;
