@@ -173,46 +173,44 @@ namespace Crisp.Runtime
 
             var left = Evaluate(op.Left);
             var right = Evaluate(op.Right);
-            return op.Tag switch
+            return (op.Tag, left, right) switch
             {
-                OperatorBinaryTag.Add when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                (OperatorBinaryTag.Add, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value + r.Value),
                 
-                OperatorBinaryTag.Sub when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                (OperatorBinaryTag.Sub, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value - r.Value),
                 
-                OperatorBinaryTag.Mul when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                (OperatorBinaryTag.Mul, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value * r.Value),
                 
-                OperatorBinaryTag.Div when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                (OperatorBinaryTag.Div, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value / r.Value),
                 
-                OperatorBinaryTag.Mod when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                (OperatorBinaryTag.Mod, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value % r.Value),
                 
-                OperatorBinaryTag.Lt when left is ObjectNumber l && 
-                                            right is ObjectNumber r
+                (OperatorBinaryTag.Lt, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value < r.Value),
-                OperatorBinaryTag.LtEq when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                
+                (OperatorBinaryTag.LtEq, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value <= r.Value),
-                OperatorBinaryTag.Gt when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                
+                (OperatorBinaryTag.Gt, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value > r.Value),
-                OperatorBinaryTag.GtEq when left is ObjectNumber l &&
-                                            right is ObjectNumber r
+                
+                (OperatorBinaryTag.GtEq, ObjectNumber l, ObjectNumber r)
                     => System.Create(l.Value >= r.Value),
-                OperatorBinaryTag.Eq
-                    => System.Create(left.Equals(right)),
-                OperatorBinaryTag.Neq
-                    => System.Create(!left.Equals(right)),
-                OperatorBinaryTag.Is
-                    => System.Create(left.Is(right)),
+
+                (OperatorBinaryTag.Eq, CrispObject l, CrispObject r)
+                    => System.Create(l.Equals(r)),
+                
+                (OperatorBinaryTag.Neq, CrispObject l, CrispObject r)
+                    => System.Create(!l.Equals(r)),
+
+                (OperatorBinaryTag.Is, CrispObject l, CrispObject r)
+                    => System.Create(l.Is(r)),
+                
                 _
                     => throw new RuntimeErrorException(
                             op.Position,
@@ -223,17 +221,18 @@ namespace Crisp.Runtime
 
         public CrispObject Visit(OperatorUnary op)
         {
-            var left = Evaluate(op.Expression);
-            return op.Op switch
+            return (op.Op, Evaluate(op.Expression)) switch
             {
-                OperatorUnaryTag.Not
-                    => System.Create(!left.IsTruthy()),
-                OperatorUnaryTag.Neg when left is ObjectNumber n
+                (OperatorUnaryTag.Not, CrispObject obj)
+                    => System.Create(!obj.IsTruthy()),
+                
+                (OperatorUnaryTag.Neg, ObjectNumber n)
                     => System.Create(-n.Value),
-                _
+                
+                (_, CrispObject obj)
                     => throw new RuntimeErrorException(
                             op.Position,
-                            $"Operator {op.Op} cannot be applied to values <{left}>"),
+                            $"Operator {op.Op} cannot be applied to values `{obj}`"),
             };
         }
 
