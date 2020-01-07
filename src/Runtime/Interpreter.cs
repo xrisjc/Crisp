@@ -102,11 +102,11 @@ namespace Crisp.Runtime
                     break;
             }
 
-            if (value is ICallable fn)
+            if (value is ObjectCallable callable)
             {
                 var args = from arg in call.Arguments
                             select Evaluate(arg);
-                return fn.Invoke(this, self, args.ToArray());
+                return callable.Call(this, self, args.ToArray());
             }
             else
             {
@@ -132,7 +132,36 @@ namespace Crisp.Runtime
         }
 
         public CrispObject Visit(Function function)
-            => System.Create(function, Environment);
+        {
+            var closure = Environment;
+
+            Callable callable = (Interpreter interpreter, CrispObject? self, CrispObject[] arguments) =>
+            {
+                var environment = new Environment(closure);
+                interpreter = new Interpreter(
+                    interpreter.System,
+                    interpreter.Globals,
+                    environment,
+                    self);
+                var parameters = function.Parameters;
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    CrispObject value;
+                    if (i < arguments.Length)
+                        value = arguments[i];
+                    else
+                        value = interpreter.System.Null;
+                    
+                    if (!environment.Create(parameters[i].Name, value))
+                        throw new RuntimeErrorException(
+                            parameters[i].Position,
+                            $"Parameter {parameters[i].Name} already bound.");
+                }
+                return interpreter.Evaluate(function.Body);
+            };
+
+            return System.Create(callable);
+        }
 
         public CrispObject Visit(Identifier identifier)
             => Environment.Get(identifier.Name) ??
@@ -282,12 +311,12 @@ namespace Crisp.Runtime
                 System.Create("getIterator"));
 
             // Is getIterator a callable?
-            if (getIterator is ICallable getIteratorCallable)
+            if (getIterator is ObjectCallable getIteratorCallable)
             {
                 var emptyArgs = new CrispObject[0];
                 
                 // Get the iterator.
-                var itr = getIteratorCallable.Invoke(
+                var itr = getIteratorCallable.Call(
                     interpreter, iterable, emptyArgs);
 
                 // Getting the next and current functions on the
@@ -298,8 +327,8 @@ namespace Crisp.Runtime
                 var current = itr.LookupProperty(currentKey);
 
                 // Test if next and current are callable objects.
-                if (next is ICallable nextCallable &&
-                    current is ICallable currentCallable)
+                if (next is ObjectCallable nextCallable &&
+                    current is ObjectCallable currentCallable)
                 {
                     // Create our loop variable in the inner scope
                     // environment.
@@ -312,7 +341,7 @@ namespace Crisp.Runtime
                     {
                         // Move to next item in iterator.
                         var hasMore = 
-                            nextCallable.Invoke(
+                            nextCallable.Call(
                                 interpreter, itr, emptyArgs);
 
                         // Is the iterator done yet?
@@ -322,7 +351,7 @@ namespace Crisp.Runtime
                         // variable.
 
                         var currentValue =
-                            currentCallable.Invoke(
+                            currentCallable.Call(
                                 interpreter, itr, emptyArgs);
 
                         interpreter.Environment.Set(

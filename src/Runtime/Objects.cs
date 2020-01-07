@@ -4,14 +4,6 @@ using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
-    interface ICallable
-    {
-        CrispObject Invoke(
-            Interpreter interpreter,
-            CrispObject? self,
-            CrispObject[] arguments);
-    }
-
     class CrispObject
     {
         CrispObject? prototype;
@@ -114,48 +106,18 @@ namespace Crisp.Runtime
         public override int GetHashCode() => Value.GetHashCode();
     }
 
-    class ObjectFunction : CrispObject, ICallable
-    {
-        public Function Definition { get; }
-        public Environment Closure { get; }
+    delegate CrispObject Callable(Interpreter interpreter, CrispObject? self, CrispObject[] arguments);
 
-        public ObjectFunction(
-            CrispObject prototype,
-            Function definition,
-            Environment closure)
+    class ObjectCallable : CrispObject
+    {
+        Callable callable;
+        public ObjectCallable(CrispObject prototype, Callable callable)
             : base(prototype)
         {
-            Definition = definition;
-            Closure = closure;
+            this.callable = callable;
         }
-        
-        public CrispObject Invoke(
-            Interpreter interpreter,
-            CrispObject? self,
-            CrispObject[] arguments)
-        {
-            var environment = new Environment(Closure);
-            interpreter = new Interpreter(
-                interpreter.System,
-                interpreter.Globals,
-                environment,
-                self);
-            var parameters = Definition.Parameters;
-            for (int i = 0; i < parameters.Count; i++)
-            {
-                CrispObject value;
-                if (i < arguments.Length)
-                    value = arguments[i];
-                else
-                    value = interpreter.System.Null;
-                
-                if (!environment.Create(parameters[i].Name, value))
-                    throw new RuntimeErrorException(
-                        parameters[i].Position,
-                        $"Parameter {parameters[i].Name} already bound.");
-            }
-            return interpreter.Evaluate(Definition.Body);
-        }
+        public CrispObject Call(Interpreter interpreter, CrispObject? self, CrispObject[] arguments)
+            => callable(interpreter, self, arguments);
     }
 
     class ObjectNull : CrispObject, IEquatable<ObjectNull>

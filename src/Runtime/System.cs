@@ -5,28 +5,6 @@ namespace Crisp.Runtime
 {
     class System
     {
-        delegate CrispObject? Invokeable(
-            Interpreter interpreter,
-            CrispObject? self,
-            CrispObject[] arguments);
-
-        class SystemFunction : CrispObject, ICallable
-        {
-            Invokeable definition;
-            public SystemFunction(CrispObject prototype, Invokeable definition)
-                : base(prototype)
-            {
-                this.definition = definition;
-            }
-            public CrispObject Invoke(
-                Interpreter interpreter,
-                CrispObject? self,
-                CrispObject[] arguments)
-            {
-                return definition(interpreter, self, arguments) ?? interpreter.System.Null;
-            }
-        }
-
         public CrispObject PrototypeObject { get; }
         public CrispObject PrototypeBool { get; }
         public CrispObject PrototypeFunction { get; }
@@ -52,7 +30,7 @@ namespace Crisp.Runtime
             True = new ObjectBool(PrototypeBool, true);
             False = new ObjectBool(PrototypeBool, false);
 
-            Method(PrototypeObject, "beget", (i, s, a) => s?.Beget());
+            Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
 
             SetupPrototypeList();
         }
@@ -71,9 +49,9 @@ namespace Crisp.Runtime
 
         public CrispObject Create(List<CrispObject> items)
             => new ObjectList(PrototypeList, items);
-
-        public CrispObject Create(Function definition, Environment closure)
-            => new ObjectFunction(PrototypeFunction, definition, closure);
+        
+        public CrispObject Create(Callable callable)
+            => new ObjectCallable(PrototypeFunction, callable);
 
         public Environment CreateGlobalEnvironment()
         {
@@ -90,17 +68,17 @@ namespace Crisp.Runtime
 
         void SetupPrototypeList()
         {
-            CrispObject? Add(Interpreter i, CrispObject? s, CrispObject[] a)
-                => (s as ObjectList)?.Add(a);
+            CrispObject Add(Interpreter i, CrispObject? s, CrispObject[] a)
+                => (s as ObjectList)?.Add(a) ?? i.System.Null;
 
-            CrispObject? Length(Interpreter i, CrispObject? s, CrispObject[] a)
+            CrispObject Length(Interpreter i, CrispObject? s, CrispObject[] a)
                 => s switch
                    {
                        ObjectList l => i.System.Create(l.Items.Count),
                        _ => i.System.Null,
                    };
 
-            CrispObject? GetIterator(
+            CrispObject GetIterator(
                 Interpreter i,
                 CrispObject? self,
                 CrispObject[] a)
@@ -154,11 +132,9 @@ namespace Crisp.Runtime
             Method(PrototypeList, "getIterator", GetIterator);
         }
 
-        void Method(CrispObject obj, string name, Invokeable definition)
+        void Method(CrispObject obj, string name, Callable callable)
         {
-            var key = Create(name);
-            var value = new SystemFunction(PrototypeFunction, definition);
-            obj.SetProperty(key, value);
+            obj.SetProperty(Create(name), Create(callable));
         }
     }
 }
