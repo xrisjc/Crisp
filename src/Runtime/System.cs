@@ -27,15 +27,6 @@ namespace Crisp.Runtime
             }
         }
 
-        class Beget : CrispObject, ICallable
-        {
-            public Beget(CrispObject prototype) : base(prototype) { }
-            public CrispObject Invoke(Interpreter interpreter, CrispObject? self, CrispObject[] arguments)
-            {
-                return self?.Beget() ?? interpreter.System.Null;
-            }
-        }
-
         public CrispObject PrototypeObject { get; }
         public CrispObject PrototypeBool { get; }
         public CrispObject PrototypeFunction { get; }
@@ -65,9 +56,6 @@ namespace Crisp.Runtime
 
             SetupPrototypeList();
         }
-
-        public CrispObject Create()
-            => new CrispObject(PrototypeObject);
 
         public CrispObject Create(bool value)
             => value ? True : False;
