@@ -337,73 +337,39 @@ namespace Crisp.Runtime
 
         public Obj Visit(For @for)
         {
-            // Create new scope for the for loop variable.
-            var interpreter = Push();
+            Callable? LookupMethod(Obj obj, string methodName)
+            {
+                var key = System.Create(methodName);
+                var value = obj.LookupProperty(key);
+                return value?.Value as Callable;
+            }
 
             var iterable = Evaluate(@for.Iterable);
 
-            // Test if it has a getIterator function.
-            var getIterator = iterable.LookupProperty(
-                System.Create("getIterator"));
+            Callable? getIterator = LookupMethod(iterable, "getIterator");
+            if (getIterator == null)
+                throw new RuntimeErrorException(
+                    @for.Position,
+                    "Object in `for` loop does not follow the iterable interface.");
 
-            // Is getIterator a callable?
-            if (getIterator?.Value is Callable getIteratorCallable)
-            {
-                var emptyArgs = new Obj[0];
-                
-                // Get the iterator.
-                var itr = getIteratorCallable(interpreter, iterable, emptyArgs);
-
-                // Getting the next and current functions on the
-                // iterator object.
-                var nextKey = System.Create("next");
-                var currentKey = System.Create("current");
-                var next = itr.LookupProperty(nextKey);
-                var current = itr.LookupProperty(currentKey);
-
-                // Test if next and current are callable objects.
-                if (next?.Value is Callable nextCallable &&
-                    current?.Value is Callable currentCallable)
-                {
-                    // Create our loop variable in the inner scope
-                    // environment.
-                    interpreter.Environment.Create(
-                        @for.Variable.Name,
-                        System.Null);
-
-                    // Actually do our loop.
-                    while (true)
-                    {
-                        // Move to next item in iterator.
-                        var hasMore = 
-                            nextCallable(interpreter, itr, emptyArgs);
-
-                        // Is the iterator done yet?
-                        if (!IsTruthy(hasMore)) break;
-
-                        // We're not done, so update the loop
-                        // variable.
-
-                        var currentValue =
-                            currentCallable(interpreter, itr, emptyArgs);
-
-                        interpreter.Environment.Set(
-                            @for.Variable.Name,
-                            currentValue);
-
-                        // Now evaluate the loop body.  Each loop
-                        // body is also an inner scope.
-                        var bodyInterpreter = interpreter.Push();
-                        bodyInterpreter.Evaluate(@for.Body);
-                    }
-                }
-                else throw new RuntimeErrorException(
+            var emptyArgs = new Obj[0];                
+            var itr = getIterator(this, iterable, emptyArgs);
+            var next = LookupMethod(itr, "next");
+            var current = LookupMethod(itr, "current");
+            if (next == null || current == null)
+                throw new RuntimeErrorException(
                     @for.Position,
                     "Object returned by `getIterator` does follow the iterable interface.");
+
+            while (IsTruthy(next(this, itr, emptyArgs)))
+            {
+                var interpreter = Push();
+                interpreter.Environment.Create(
+                    @for.Variable.Name,
+                    current(interpreter, itr, emptyArgs));
+
+                interpreter.Evaluate(@for.Body);
             }
-            else throw new RuntimeErrorException(
-                @for.Position,
-                "Object in `for` loop does not follow the iterable interface.");
 
             return System.Null;
         }
