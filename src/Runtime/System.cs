@@ -5,53 +5,47 @@ namespace Crisp.Runtime
 {
     class System
     {
-        public CrispObject PrototypeObject { get; }
-        public CrispObject PrototypeBool { get; }
-        public CrispObject PrototypeFunction { get; }
-        public CrispObject PrototypeList { get; }
-        public CrispObject PrototypeNull { get; }
-        public CrispObject PrototypeNumber { get; }
-        public CrispObject PrototypeString { get; }
-        public CrispObject Null { get; }
-        public CrispObject True { get; }
-        public CrispObject False { get; }        
+        public Obj PrototypeObject { get; }
+        public Obj PrototypeBool { get; }
+        public Obj PrototypeFunction { get; }
+        public Obj PrototypeList { get; }
+        public Obj PrototypeNull { get; }
+        public Obj PrototypeNumber { get; }
+        public Obj PrototypeString { get; }
+        public Obj Null { get; }
+        public Obj True { get; }
+        public Obj False { get; }        
 
         public System()
         {
-            PrototypeObject   = new CrispObject(null);
-            PrototypeBool     = new CrispObject(PrototypeObject);
-            PrototypeFunction = new CrispObject(PrototypeObject);
-            PrototypeList     = new CrispObject(PrototypeObject);
-            PrototypeNull     = new CrispObject(PrototypeObject);
-            PrototypeNumber   = new CrispObject(PrototypeObject);
-            PrototypeString   = new CrispObject(PrototypeObject);
+            PrototypeObject   = new Obj(null);
+            PrototypeBool     = new Obj(PrototypeObject);
+            PrototypeFunction = new Obj(PrototypeObject);
+            PrototypeList     = new Obj(PrototypeObject);
+            PrototypeNull     = new Obj(PrototypeObject);
+            PrototypeNumber   = new Obj(PrototypeObject);
+            PrototypeString   = new Obj(PrototypeObject);
 
-            Null = new ObjectNull(PrototypeNull);
-            True = new ObjectBool(PrototypeBool, true);
-            False = new ObjectBool(PrototypeBool, false);
+            Null = new Obj(PrototypeNull, new Null());
+            True = new Obj(PrototypeBool, true);
+            False = new Obj(PrototypeBool, false);
 
             Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
 
             SetupPrototypeList();
         }
 
-        public CrispObject Create(bool value)
-            => value ? True : False;
+        public Obj Create(bool value) => value ? True : False;
         
-        public CrispObject Create(string value)
-            => new ObjectString(PrototypeString, value);
+        public Obj Create(string value) => new Obj(PrototypeString, value);
         
-        public CrispObject Create(Identifier identifier)
-            => Create(identifier.Name);
+        public Obj Create(Identifier identifier) => Create(identifier.Name);
         
-        public CrispObject Create(double value)
-            => new ObjectNumber(PrototypeNumber, value);
+        public Obj Create(double value) => new Obj(PrototypeNumber, value);
 
-        public CrispObject Create(List<CrispObject> items)
-            => new ObjectList(PrototypeList, items);
+        public Obj Create(List<Obj> items) => new Obj(PrototypeList, items);
         
-        public CrispObject Create(Callable callable)
-            => new ObjectCallable(PrototypeFunction, callable);
+        public Obj Create(Callable callable) => new Obj(PrototypeFunction, callable);
 
         public Environment CreateGlobalEnvironment()
         {
@@ -68,59 +62,48 @@ namespace Crisp.Runtime
 
         void SetupPrototypeList()
         {
-            CrispObject Add(Interpreter i, CrispObject? s, CrispObject[] a)
-                => (s as ObjectList)?.Add(a) ?? i.System.Null;
-
-            CrispObject Length(Interpreter i, CrispObject? s, CrispObject[] a)
-                => s switch
-                   {
-                       ObjectList l => i.System.Create(l.Items.Count),
-                       _ => i.System.Null,
-                   };
-
-            CrispObject GetIterator(
-                Interpreter i,
-                CrispObject? self,
-                CrispObject[] a)
+            Obj Add(Interpreter i, Obj? s, Obj[] a)
             {
-                switch (self)
+                switch (s?.Value)
                 {
-                    case ObjectList list:
-                        var items = list.Items;
-                        var index = -1;
+                    case List<Obj> list:
+                        list.AddRange(a);
+                        return s;
+                    default:
+                        return i.System.Null;
+                }
+            }
 
-                        var itr = new CrispObject(PrototypeObject);
+            Obj Length(Interpreter i, Obj? s, Obj[] a)
+                => s?.Value switch
+                {
+                    List<Obj> list => i.System.Create(list.Count),
+                    _ => i.System.Null,
+                };
+
+            Obj GetIterator(Interpreter i, Obj? self, Obj[] a)
+            {
+                switch (self?.Value)
+                {
+                    case List<Obj> list:
+                        var itr = PrototypeObject.Beget();
+                        var index = -1;
 
                         Method(
                             itr,
                             "next",
-                            (interpreter, self, arguments) =>
-                            {
-                                // TODO... do we need to test if self is
-                                // set, i.e. is it called as a method?
-                                index++;
-                                var hasMore = index < items.Count;
-                                return interpreter.System.Create(hasMore);
-                            });
+                            (i, s, a) => i.System.Create(++index < list.Count));
 
                         Method(
                             itr,
                             "current",
-                            (interpreter, self, arguments) =>
-                            {
-                                // TODO... do we need to test if self is
-                                // set, i.e. is it called as a method?
-
-                                if (0 <= index && index < items.Count)
-                                    return items[index];
-                                else
-                                    return interpreter.System.Null;
-                            });
+                            (i, s, a) =>
+                                (0 <= index && index < list.Count)
+                                    ? list[index]
+                                    : i.System.Null);
 
                         return itr;
                     
-                    // Somehow this function wasn't called as a method on
-                    // a ObjectList.
                     default:
                         return i.System.Null;
                 }
@@ -132,7 +115,7 @@ namespace Crisp.Runtime
             Method(PrototypeList, "getIterator", GetIterator);
         }
 
-        void Method(CrispObject obj, string name, Callable callable)
+        void Method(Obj obj, string name, Callable callable)
         {
             obj.SetProperty(Create(name), Create(callable));
         }

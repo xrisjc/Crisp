@@ -1,21 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Crisp.Ast;
 
 namespace Crisp.Runtime
 {
-    class Interpreter : IExpressionVisitor<CrispObject>
+    class Interpreter : IExpressionVisitor<Obj>
     {
         public System System { get; }
         public Environment Globals { get; }
         public Environment Environment { get; }
-        public CrispObject? Self { get; }
+        public Obj? Self { get; }
 
         public Interpreter(
             System system,
             Environment globals,
             Environment environment,
-            CrispObject? self)
+            Obj? self)
         {
             System = system;
             Globals = globals;
@@ -31,16 +32,53 @@ namespace Crisp.Runtime
         Interpreter Push()
             => new Interpreter(System, Globals, new Environment(Environment), Self);
 
-        Interpreter PushWith(CrispObject self)
+        Interpreter PushWith(Obj self)
             => new Interpreter(System, Globals, new Environment(Environment), self);
 
-        CrispObject LookupProperty(CrispObject obj, CrispObject key)
-            => obj.LookupProperty(key) ?? System.Null;
+        static int? AsIndex(Obj obj)
+        {
+            if (obj.Value is double n)
+            {
+                var floor = Math.Floor(n);
+                if (floor == Math.Ceiling(n))
+                {
+                    var index = (int)floor;
+                    return index;
+                }
+            }
+            return null;
+        }
 
-        public CrispObject Evaluate(IExpression expression)
+        Obj LookupProperty(Obj obj, Obj key)
+        {
+            if (obj.Value is List<Obj> list && AsIndex(key) is int index)
+            {
+                // TODO: Bounds check.
+                return list[index];
+            }
+            
+            return obj.LookupProperty(key) ?? System.Null;
+        }
+
+        void SetProperty(Obj obj, Obj key, Obj value)
+        {
+            if (obj.Value is List<Obj> list && AsIndex(key) is int index)
+            {
+                // TODO: Bounds check.
+                list[index] = value;
+                return;
+            }
+
+            obj.SetProperty(key, value);
+        }
+
+        bool IsTruthy(Obj obj)
+            => !obj.Equals(System.False) && !obj.Equals(System.Null);
+
+        public Obj Evaluate(IExpression expression)
             => expression.Accept(this);
 
-        public CrispObject Visit(AssignmentIdentifier ai)
+        public Obj Visit(AssignmentIdentifier ai)
         {
             var result = Evaluate(ai.Value);
             if (!Environment.Set(ai.Target.Name, result))
@@ -50,25 +88,25 @@ namespace Crisp.Runtime
             return result;
         }
 
-        public CrispObject Visit(AssignmentIndex ai)
+        public Obj Visit(AssignmentIndex ai)
         {
             var target = Evaluate(ai.Index.Target);
             var key = Evaluate(ai.Index.Key);
             var value = Evaluate(ai.Value);
-            target.SetProperty(key, value);
+            SetProperty(target, key, value);
             return value;
         }
 
-        public CrispObject Visit(AssignmentRefinement ar)
+        public Obj Visit(AssignmentRefinement ar)
         {
             var target = Evaluate(ar.Refinement.Target);
             var key = System.Create(ar.Refinement.Name);
             var value = Evaluate(ar.Value);
-            target.SetProperty(key, value);
+            SetProperty(target, key, value);
             return value;
         }
 
-        public CrispObject Visit(Block block)
+        public Obj Visit(Block block)
         {
             var result = System.Null;
             {
@@ -79,11 +117,10 @@ namespace Crisp.Runtime
             return result;
         }
 
-        public CrispObject Visit(Call call)
+        public Obj Visit(Call call)
         {
-            CrispObject? self;
-            CrispObject key;
-            CrispObject value;
+            Obj? self;
+            Obj key, value;
             switch (call.Target)
             {
                 case Ast.Index index:
@@ -102,11 +139,11 @@ namespace Crisp.Runtime
                     break;
             }
 
-            if (value is ObjectCallable callable)
+            if (value.Value is Callable callable)
             {
                 var args = from arg in call.Arguments
                             select Evaluate(arg);
-                return callable.Call(this, self, args.ToArray());
+                return callable(this, self, args.ToArray());
             }
             else
             {
@@ -116,26 +153,26 @@ namespace Crisp.Runtime
             }
         }
 
-        public CrispObject Visit(If @if)
+        public Obj Visit(If @if)
         {
-            if (Evaluate(@if.Condition).IsTruthy())
+            if (IsTruthy(Evaluate(@if.Condition)))
                 return Push().Evaluate(@if.Consequence);
             else
                 return Push().Evaluate(@if.Alternative);
         }
 
-        public CrispObject Visit(Ast.Index index)
+        public Obj Visit(Ast.Index index)
         {
             var obj = Evaluate(index.Target);
             var key = Evaluate(index.Key);
             return LookupProperty(obj, key);
         }
 
-        public CrispObject Visit(Function function)
+        public Obj Visit(Function function)
         {
             var closure = Environment;
 
-            Callable callable = (Interpreter interpreter, CrispObject? self, CrispObject[] arguments) =>
+            Callable callable = (Interpreter interpreter, Obj? self, Obj[] arguments) =>
             {
                 var environment = new Environment(closure);
                 interpreter = new Interpreter(
@@ -146,7 +183,7 @@ namespace Crisp.Runtime
                 var parameters = function.Parameters;
                 for (int i = 0; i < parameters.Count; i++)
                 {
-                    CrispObject value;
+                    Obj value;
                     if (i < arguments.Length)
                         value = arguments[i];
                     else
@@ -163,83 +200,81 @@ namespace Crisp.Runtime
             return System.Create(callable);
         }
 
-        public CrispObject Visit(Identifier identifier)
+        public Obj Visit(Identifier identifier)
             => Environment.Get(identifier.Name) ??
                     throw new RuntimeErrorException(
                         identifier.Position,
                         $"Identifier <{identifier.Name}> unbound");
 
-        public CrispObject Visit(LiteralBool literalBool)
+        public Obj Visit(LiteralBool literalBool)
             => System.Create(literalBool.Value);
 
-        public CrispObject Visit(LiteralNull ln)
+        public Obj Visit(LiteralNull ln)
             => System.Null;
 
-        public CrispObject Visit(LiteralNumber number)
+        public Obj Visit(LiteralNumber number)
             => System.Create(number.Value);
 
-        public CrispObject Visit(LiteralString literalString)
+        public Obj Visit(LiteralString literalString)
             => System.Create(literalString.Value);
 
-        public CrispObject Visit(LiteralList literalList)
+        public Obj Visit(LiteralList literalList)
         {
             var items = from expr in literalList.Items
                         select Evaluate(expr);
             return System.Create(items.ToList());
         }
 
-        public CrispObject Visit(OperatorBinary op)
+        public Obj Visit(OperatorBinary op)
         {
             if (op.Tag == OperatorBinaryTag.And)
                 return System.Create(
-                        Evaluate(op.Left).IsTruthy() &&
-                        Evaluate(op.Right).IsTruthy());
+                        IsTruthy(Evaluate(op.Left)) &&
+                        IsTruthy(Evaluate(op.Right)));
             
             if (op.Tag == OperatorBinaryTag.Or)
                 return System.Create(
-                        Evaluate(op.Left).IsTruthy() ||
-                        Evaluate(op.Right).IsTruthy());
+                        IsTruthy(Evaluate(op.Left)) ||
+                        IsTruthy(Evaluate(op.Right)));
 
             var left = Evaluate(op.Left);
             var right = Evaluate(op.Right);
-            return (op.Tag, left, right) switch
+
+            if (op.Tag == OperatorBinaryTag.Is)
+                return System.Create(left.Is(right));
+            else if (op.Tag == OperatorBinaryTag.Eq)
+                return System.Create(left.Equals(right));
+            else if (op.Tag == OperatorBinaryTag.Neq)
+                return System.Create(!left.Equals(right));
+
+            return (op.Tag, left.Value, right.Value) switch
             {
-                (OperatorBinaryTag.Add, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value + r.Value),
+                (OperatorBinaryTag.Add, double l, double r)
+                    => System.Create(l + r),
                 
-                (OperatorBinaryTag.Sub, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value - r.Value),
+                (OperatorBinaryTag.Sub, double l, double r)
+                    => System.Create(l - r),
                 
-                (OperatorBinaryTag.Mul, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value * r.Value),
+                (OperatorBinaryTag.Mul, double l, double r)
+                    => System.Create(l * r),
                 
-                (OperatorBinaryTag.Div, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value / r.Value),
+                (OperatorBinaryTag.Div, double l, double r)
+                    => System.Create(l / r),
                 
-                (OperatorBinaryTag.Mod, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value % r.Value),
+                (OperatorBinaryTag.Mod, double l, double r)
+                    => System.Create(l % r),
                 
-                (OperatorBinaryTag.Lt, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value < r.Value),
+                (OperatorBinaryTag.Lt, double l, double r)
+                    => System.Create(l < r),
                 
-                (OperatorBinaryTag.LtEq, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value <= r.Value),
+                (OperatorBinaryTag.LtEq, double l, double r)
+                    => System.Create(l <= r),
                 
-                (OperatorBinaryTag.Gt, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value > r.Value),
+                (OperatorBinaryTag.Gt, double l, double r)
+                    => System.Create(l > r),
                 
-                (OperatorBinaryTag.GtEq, ObjectNumber l, ObjectNumber r)
-                    => System.Create(l.Value >= r.Value),
-
-                (OperatorBinaryTag.Eq, CrispObject l, CrispObject r)
-                    => System.Create(l.Equals(r)),
-                
-                (OperatorBinaryTag.Neq, CrispObject l, CrispObject r)
-                    => System.Create(!l.Equals(r)),
-
-                (OperatorBinaryTag.Is, CrispObject l, CrispObject r)
-                    => System.Create(l.Is(r)),
-                
+                (OperatorBinaryTag.GtEq, double l, double r)
+                    => System.Create(l >= r),
                 _
                     => throw new RuntimeErrorException(
                             op.Position,
@@ -248,31 +283,32 @@ namespace Crisp.Runtime
             };
         }
 
-        public CrispObject Visit(OperatorUnary op)
+        public Obj Visit(OperatorUnary op)
         {
-            return (op.Op, Evaluate(op.Expression)) switch
+            var obj = Evaluate(op.Expression);
+
+            if (op.Op == OperatorUnaryTag.Not)
+                return System.Create(!IsTruthy(obj));
+
+            return (op.Op, obj.Value) switch
             {
-                (OperatorUnaryTag.Not, CrispObject obj)
-                    => System.Create(!obj.IsTruthy()),
-                
-                (OperatorUnaryTag.Neg, ObjectNumber n)
-                    => System.Create(-n.Value),
-                
-                (_, CrispObject obj)
+                (OperatorUnaryTag.Neg, double n)
+                    => System.Create(-n),
+                _
                     => throw new RuntimeErrorException(
                             op.Position,
                             $"Operator {op.Op} cannot be applied to values `{obj}`"),
             };
         }
 
-        public CrispObject Visit(Refinement rfnt)
+        public Obj Visit(Refinement rfnt)
         {
             var obj = Evaluate(rfnt.Target);
             var key = System.Create(rfnt.Name);
             return LookupProperty(obj, key);
         }
 
-        public CrispObject Visit(Self self)
+        public Obj Visit(Self self)
         {
             if (Self != null)
                 return Self;
@@ -282,7 +318,7 @@ namespace Crisp.Runtime
                     "self is not defined in this context");
         }
 
-        public CrispObject Visit(Var var)
+        public Obj Visit(Var var)
         {
             var result = Evaluate(var.InitialValue);
             if (!Environment.Create(var.Name.Name, result))
@@ -292,14 +328,14 @@ namespace Crisp.Runtime
             return result;
         }
 
-        public CrispObject Visit(While @while)
+        public Obj Visit(While @while)
         {
-            while (Evaluate(@while.Guard).IsTruthy())
+            while (IsTruthy(Evaluate(@while.Guard)))
                 Push().Evaluate(@while.Body);
             return System.Null;
         }
 
-        public CrispObject Visit(For @for)
+        public Obj Visit(For @for)
         {
             // Create new scope for the for loop variable.
             var interpreter = Push();
@@ -311,13 +347,12 @@ namespace Crisp.Runtime
                 System.Create("getIterator"));
 
             // Is getIterator a callable?
-            if (getIterator is ObjectCallable getIteratorCallable)
+            if (getIterator?.Value is Callable getIteratorCallable)
             {
-                var emptyArgs = new CrispObject[0];
+                var emptyArgs = new Obj[0];
                 
                 // Get the iterator.
-                var itr = getIteratorCallable.Call(
-                    interpreter, iterable, emptyArgs);
+                var itr = getIteratorCallable(interpreter, iterable, emptyArgs);
 
                 // Getting the next and current functions on the
                 // iterator object.
@@ -327,8 +362,8 @@ namespace Crisp.Runtime
                 var current = itr.LookupProperty(currentKey);
 
                 // Test if next and current are callable objects.
-                if (next is ObjectCallable nextCallable &&
-                    current is ObjectCallable currentCallable)
+                if (next?.Value is Callable nextCallable &&
+                    current?.Value is Callable currentCallable)
                 {
                     // Create our loop variable in the inner scope
                     // environment.
@@ -341,18 +376,16 @@ namespace Crisp.Runtime
                     {
                         // Move to next item in iterator.
                         var hasMore = 
-                            nextCallable.Call(
-                                interpreter, itr, emptyArgs);
+                            nextCallable(interpreter, itr, emptyArgs);
 
                         // Is the iterator done yet?
-                        if (!hasMore.IsTruthy()) break;
+                        if (!IsTruthy(hasMore)) break;
 
                         // We're not done, so update the loop
                         // variable.
 
                         var currentValue =
-                            currentCallable.Call(
-                                interpreter, itr, emptyArgs);
+                            currentCallable(interpreter, itr, emptyArgs);
 
                         interpreter.Environment.Set(
                             @for.Variable.Name,
@@ -375,7 +408,7 @@ namespace Crisp.Runtime
             return System.Null;
         }
 
-        public CrispObject Visit(Write write)
+        public Obj Visit(Write write)
         {
             foreach (var e in write.Arguments)
                 Console.Write(Evaluate(e));
