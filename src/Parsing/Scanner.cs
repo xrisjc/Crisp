@@ -24,7 +24,6 @@ namespace Crisp.Parsing
                 ["in"]       = TokenTag.In,
                 ["is"]       = TokenTag.Is,
                 ["null"]     = TokenTag.Null,
-                ["mod"]      = TokenTag.Mod,
                 ["self"]     = TokenTag.Self,
                 ["then"]     = TokenTag.Then,
                 ["true"]     = TokenTag.True,
@@ -131,7 +130,7 @@ namespace Crisp.Parsing
                 case '>': return Accept(TokenTag.GreaterThan);
                 case '.': return Accept(TokenTag.Dot);
                 case '!': return Accept(TokenTag.Bang);
-                
+                case '%': return Accept(TokenTag.Mod);
 
                 case '\"':
                     {

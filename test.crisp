@@ -53,7 +53,7 @@ var testOperators = function (t) {
     t.assertEq(1.0 + 2.5,  3.5, "addition")
     t.assertEq(5.5 - 2.0,  3.5, "subtraction")
     t.assertEq(2.5 * 3.0,  7.5, "multiplication")
-    t.assertEq(12.5 mod 5.0, 2.5, "modulo")
+    t.assertEq(12.5 % 5.0, 2.5, "modulo")
     t.assertEq(15.0 / 5.0, 3.0, "division #1")
     t.assertEq(1.0 / 2.0,  0.5, "division #2")
     t.assertEq(-0.5, 0.5-1.0, "negation")
@@ -62,7 +62,7 @@ var testOperators = function (t) {
     t.assertEq(1 + 2 * 3,  7, "addition and multiplication")
     t.assertEq(10 - 2 * 3, 4, "subtraction and multiplication")
     t.assertEq(1 + 15 / 3, 6, "addition and division")
-    t.assertEq(1 + 8 mod 3,  3, "addition and modulo")
+    t.assertEq(1 + 8 % 3,  3, "addition and modulo")
     t.assertEq(-2 + 4, 2, "leading negatives")
 
     // But, grouping with parenthesis will change order of evaluation, as you
@@ -400,7 +400,7 @@ var nothing = function () { }
 var square = function (x) x * x
 
 var divides = function (m, n) {
-    var remainder = n mod m
+    var remainder = n % m
     remainder == 0
 }
 
