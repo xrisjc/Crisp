@@ -14,7 +14,7 @@ A toy programming language interpreter.
           | block
           | assignment ;
 
-    var -> "var" id ":=" expr ;
+    var -> "var" id "=" expr ;
 
     function -> "function" params expr ;
     params -> "(" id_list? ")" ;
@@ -27,10 +27,10 @@ A toy programming language interpreter.
     while -> "while" expr "do" expr ;
     for -> "for" id "in" expr "do" expr ;
 
-    assignment -> logical_or ( ":=" expr )* ;
-    logical_or -> logical_and ( "or" logical_and )* ;
-    logical_and -> equality ( "and" equality )* ;
-    equality -> relation ( ( "=" | "<>" ) relation )* ;
+    assignment -> logical_or ( "=" expr )* ;
+    logical_or -> logical_and ( "||" logical_and )* ;
+    logical_and -> equality ( "&&" equality )* ;
+    equality -> relation ( ( "==" | "!=" ) relation )* ;
     relation -> addition ( ( "<" | "<=" | ">" | ">=" | "is" ) addition )* ;
     addition -> multiplication ( ( "+" | "-" ) multiplication )* ;
     multiplication -> unary ( ( "*" | "/" | "mod" ) unary )* ;

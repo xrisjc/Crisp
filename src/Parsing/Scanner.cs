@@ -111,8 +111,8 @@ namespace Crisp.Parsing
             switch (current)
             {
                 case null: return Accept(TokenTag.EndOfInput, 0);
-                case ':' when peek == '=': return Accept(TokenTag.Assignment, 2);
-                case '<' when peek == '>': return Accept(TokenTag.InequalTo, 2);
+                case '=' when peek == '=': return Accept(TokenTag.Equals, 2);
+                case '!' when peek == '=': return Accept(TokenTag.InequalTo, 2);
                 case '<' when peek == '=': return Accept(TokenTag.LessThanOrEqualTo, 2);
                 case '>' when peek == '=': return Accept(TokenTag.GreaterThanOrEqualTo, 2);
                 case '&' when peek == '&': return Accept(TokenTag.And, 2);
@@ -122,7 +122,7 @@ namespace Crisp.Parsing
                 case '(': return Accept(TokenTag.LParen);
                 case ')': return Accept(TokenTag.RParen);
                 case ',': return Accept(TokenTag.Comma);
-                case '=': return Accept(TokenTag.Equals);
+                case '=': return Accept(TokenTag.Assignment);
                 case '+': return Accept(TokenTag.Add);
                 case '-': return Accept(TokenTag.Subtract);
                 case '*': return Accept(TokenTag.Multiply);
