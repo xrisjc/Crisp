@@ -15,7 +15,6 @@ namespace Crisp.Parsing
         Dictionary<string, TokenTag> keywords =
             new Dictionary<string, TokenTag>
             {
-                ["and"]      = TokenTag.And,
                 ["begin"]    = TokenTag.Begin,
                 ["do"]       = TokenTag.Do,
                 ["else"]     = TokenTag.Else,
@@ -26,10 +25,8 @@ namespace Crisp.Parsing
                 ["if"]       = TokenTag.If,
                 ["in"]       = TokenTag.In,
                 ["is"]       = TokenTag.Is,
-                ["not"]      = TokenTag.Not,
                 ["null"]     = TokenTag.Null,
                 ["mod"]      = TokenTag.Mod,
-                ["or"]       = TokenTag.Or,
                 ["self"]     = TokenTag.Self,
                 ["then"]     = TokenTag.Then,
                 ["true"]     = TokenTag.True,
@@ -114,10 +111,12 @@ namespace Crisp.Parsing
             switch (current)
             {
                 case null: return Accept(TokenTag.EndOfInput, 0);
-                case ':' when peek == '=':  return Accept(TokenTag.Assignment, 2);
-                case '<' when peek == '>':  return Accept(TokenTag.InequalTo, 2);
-                case '<' when peek == '=':  return Accept(TokenTag.LessThanOrEqualTo, 2);
-                case '>' when peek == '=':  return Accept(TokenTag.GreaterThanOrEqualTo, 2);
+                case ':' when peek == '=': return Accept(TokenTag.Assignment, 2);
+                case '<' when peek == '>': return Accept(TokenTag.InequalTo, 2);
+                case '<' when peek == '=': return Accept(TokenTag.LessThanOrEqualTo, 2);
+                case '>' when peek == '=': return Accept(TokenTag.GreaterThanOrEqualTo, 2);
+                case '&' when peek == '&': return Accept(TokenTag.And, 2);
+                case '|' when peek == '|': return Accept(TokenTag.Or, 2);
                 case '[': return Accept(TokenTag.LBracket);
                 case ']': return Accept(TokenTag.RBracket);
                 case '(': return Accept(TokenTag.LParen);
@@ -131,6 +130,8 @@ namespace Crisp.Parsing
                 case '<': return Accept(TokenTag.LessThan);
                 case '>': return Accept(TokenTag.GreaterThan);
                 case '.': return Accept(TokenTag.Dot);
+                case '!': return Accept(TokenTag.Bang);
+                
 
                 case '\'':
                     {

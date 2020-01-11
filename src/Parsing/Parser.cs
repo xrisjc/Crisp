@@ -292,7 +292,7 @@ namespace Crisp.Parsing
                 return new OperatorUnary(tokenSubtract.Position, OperatorUnaryTag.Neg, expression);
             }
 
-            if (Match(TokenTag.Not) is Token tokenNot)
+            if (Match(TokenTag.Bang) is Token tokenNot)
             {
                 var expression = Unary();
                 return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);

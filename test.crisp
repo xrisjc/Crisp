@@ -158,7 +158,7 @@ var testOperators := function (t) begin
     t.assert(2 >= 1 = 1 <= 2, 'Equal / relational precedence #4')
 
     // The logical operators are the usual &&, ||, and ! for and, or, and not.
-//    t.assertEq(true  && true,  true,  'And #1')
+    t.assertEq(true  && true,  true,  'And #1')
     t.assertEq(true  && false, false, 'And #2')
     t.assertEq(false && true,  false, 'And #3')
     t.assertEq(false && false, false, 'And #4')
@@ -170,20 +170,20 @@ var testOperators := function (t) begin
 
     t.assertEq(!true, false, 'Not #1')
     t.assertEq(!false, true, 'Not #2')
-    t.assertEq(!false or true, true, 'Leading not')
+    t.assertEq(!false || true, true, 'Leading not')
 
-    // Logical and has lower precedence than equality and inequality.
+    // && has lower precedence than equality and inequality.
     t.assert(1 <> 2 && 2 = 2, 'and precedence #1')
-    t.assert(2 = 2  && 1 <> 2, 'and precedence #2')
+    t.assert(2 = 2 && 1 <> 2, 'and precedence #2')
 
-    // 'or' is lower in precedence than 'and'.
+    // || is lower in precedence than &&.
     t.assertEq(true || false && false, true, 'or precedence #1')
     t.assertEq((true || false) && false, false, 'or precedence #1')
 
     // All values have a truth value.  false and null are false, everything else
     // is considered true.
     t.assertEq(!null, true, 'Null considered false #1')
-    t.assertEq(null && true, true, 'Null considered false #2')
+    t.assertEq(null || true, true, 'Null considered false #2')
     t.assertEq(null && true, false, 'Null considered false #3')
     t.assertEq(!1, false, 'Objects considered true.')
 end
