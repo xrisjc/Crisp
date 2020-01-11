@@ -15,7 +15,6 @@ namespace Crisp.Parsing
         Dictionary<string, TokenTag> keywords =
             new Dictionary<string, TokenTag>
             {
-                ["do"]       = TokenTag.Do,
                 ["else"]     = TokenTag.Else,
                 ["false"]    = TokenTag.False,
                 ["for"]      = TokenTag.For,
@@ -25,7 +24,6 @@ namespace Crisp.Parsing
                 ["is"]       = TokenTag.Is,
                 ["null"]     = TokenTag.Null,
                 ["self"]     = TokenTag.Self,
-                ["then"]     = TokenTag.Then,
                 ["true"]     = TokenTag.True,
                 ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,

@@ -153,12 +153,18 @@ namespace Crisp.Runtime
             }
         }
 
-        public Obj Visit(If @if)
+        public Obj Visit(Conditional c)
         {
-            if (IsTruthy(Evaluate(@if.Condition)))
-                return Push().Evaluate(@if.Consequence);
-            else
-                return Push().Evaluate(@if.Alternative);
+            foreach (var (condition, consequence) in c.Branches)
+            {
+                if (IsTruthy(Evaluate(condition)))
+                    return Evaluate(consequence);
+            }
+
+            if (c.ElseBlock != null)
+                return Evaluate(c.ElseBlock);
+
+            return System.Null;
         }
 
         public Obj Visit(Ast.Index index)
@@ -331,7 +337,7 @@ namespace Crisp.Runtime
         public Obj Visit(While @while)
         {
             while (IsTruthy(Evaluate(@while.Guard)))
-                Push().Evaluate(@while.Body);
+                Evaluate(@while.Body);
             return System.Null;
         }
 

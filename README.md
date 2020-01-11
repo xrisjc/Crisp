@@ -16,16 +16,15 @@ A toy programming language interpreter.
 
     var -> "var" id "=" expr ;
 
-    function -> "function" params expr ;
+    block -> "{" expr_sequence "}" ;
+
+    function -> "function" params block ;
     params -> "(" id_list? ")" ;
     id_list -> id ( "," id )* ;
 
-    block -> "{" expr_sequence "}" ;
-
-    if -> "if" expr "then" expr ("else" expr)? ;
-
-    while -> "while" expr "do" expr ;
-    for -> "for" id "in" expr "do" expr ;
+    if -> "if" expr block ( "else" "if" expr block )* ("else" block)? ;
+    while -> "while" expr block ;
+    for -> "for" id "in" expr block ;
 
     assignment -> logical_or ( "=" expr )* ;
     logical_or -> logical_and ( "||" logical_and )* ;

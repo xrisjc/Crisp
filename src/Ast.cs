@@ -15,10 +15,10 @@ namespace Crisp.Ast
         T Visit(AssignmentRefinement ar);
         T Visit(Block b);
         T Visit(Call c);
+        T Visit(Conditional c);
         T Visit(For f);
         T Visit(Function f);
         T Visit(Identifier i);
-        T Visit(If i);
         T Visit(Index i);
         T Visit(LiteralBool lb);
         T Visit(LiteralNull ln);
@@ -97,17 +97,29 @@ namespace Crisp.Ast
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
+    class Conditional : IExpression
+    {
+        public List<(IExpression, Block)> Branches { get; }
+        public Block? ElseBlock { get; }
+        public Conditional(List<(IExpression, Block)> branches, Block? elseBlock)
+        {
+            Branches = branches;
+            ElseBlock = elseBlock;
+        }
+        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
+    }
+
     class For : IExpression
     {
         public Position Position { get; }
         public Identifier Variable { get; }
         public IExpression Iterable { get; }
-        public IExpression Body { get; }
+        public Block Body { get; }
         public For(
             Position position,
             Identifier variable,
             IExpression iterable,
-            IExpression body)
+            Block body)
         {
             Position = position;
             Variable = variable;
@@ -120,8 +132,8 @@ namespace Crisp.Ast
     class Function : IExpression
     {
         public List<Identifier> Parameters { get; }
-        public IExpression Body { get; }
-        public Function(List<Identifier> parameters, IExpression body)
+        public Block Body { get; }
+        public Function(List<Identifier> parameters, Block body)
         {
             Parameters = parameters;
             Body = body;
@@ -137,23 +149,6 @@ namespace Crisp.Ast
         {
             Position = position;
             Name = name;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
-    class If : IExpression
-    {
-        public IExpression Condition { get; }
-        public IExpression Consequence { get; }
-        public IExpression Alternative { get; }
-        public If(
-            IExpression condition,
-            IExpression consequence,
-            IExpression alternative)
-        {
-            Condition = condition;
-            Consequence = consequence;
-            Alternative = alternative;
         }
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
@@ -311,8 +306,8 @@ namespace Crisp.Ast
     class While : IExpression
     {
         public IExpression Guard { get; }
-        public IExpression Body { get; }
-        public While(IExpression guard, IExpression body)
+        public Block Body { get; }
+        public While(IExpression guard, Block body)
         {
             Guard = guard;
             Body = body;

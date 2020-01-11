@@ -101,24 +101,39 @@ namespace Crisp.Parsing
         Function Function()
         {
             var parameters = Parameters();
-            var body = Expression();
+            var body = ExpectBlock();
             return new Function(parameters, body);
         }
 
         IExpression If()
         {
-            var condition = Expression();
-            Expect(TokenTag.Then);
-            var consequence = Expression();
-            var alternative = Match(TokenTag.Else) ? Expression() : new LiteralNull();
-            return new If(condition, consequence, alternative);
+            (IExpression, Block) Branch()
+            {
+                var condition = Expression();
+                var consequence = ExpectBlock();
+                return (condition, consequence);
+            }
+
+            var branches = new List<(IExpression, Block)>();
+
+            branches.Add(Branch());
+
+            while (Current.Tag == TokenTag.Else && Peek.Tag == TokenTag.If)
+            {
+                NextToken();
+                NextToken();
+                branches.Add(Branch());
+            }
+
+            var elseBlock = Match(TokenTag.Else) ? ExpectBlock() : null;
+
+            return new Conditional(branches, elseBlock);
         }
 
         IExpression While()
         {
             var guard = Expression();
-            Expect(TokenTag.Do);
-            var body = Expression();
+            var body = ExpectBlock();
             return new While(guard, body);
         }
 
@@ -137,11 +152,15 @@ namespace Crisp.Parsing
 
             var iterable = Expression();
 
-            Expect(TokenTag.Do);
-
-            var body = Expression();
+            var body = ExpectBlock();
 
             return new For(position, variable, iterable, body);
+        }
+
+        Block ExpectBlock()
+        {
+            Expect(TokenTag.LBrace);
+            return Block();
         }
 
         Block Block()
