@@ -20,7 +20,7 @@ A toy programming language interpreter.
     params -> "(" id_list? ")" ;
     id_list -> id ( "," id )* ;
 
-    block -> "begin" expr_sequence "end" ;
+    block -> "{" expr_sequence "}" ;
 
     if -> "if" expr "then" expr ("else" expr)? ;
 

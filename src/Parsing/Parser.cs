@@ -78,7 +78,7 @@ namespace Crisp.Parsing
                 return For();
             }
 
-            if (Match(TokenTag.Begin))
+            if (Match(TokenTag.LBrace))
             {
                 return Block();
             }
@@ -147,7 +147,7 @@ namespace Crisp.Parsing
         Block Block()
         {
             var body = new List<IExpression>();
-            while (!Match(TokenTag.End))
+            while (!Match(TokenTag.RBrace))
             {
                 var expr = Expression();
                 body.Add(expr);
