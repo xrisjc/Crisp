@@ -49,7 +49,7 @@ A toy programming language interpreter.
              | "write" arguments ;
     listItems -> expr ( "," expr )* ;
     number -> digit+ ( "." digit+ )? ;
-    string -> "'" ([^'])* "'" ;
+    string -> "\"" ([^"])* "\"" ;
     id -> alpha ( alpha | digit )* ;
     alpha -> 'a' .. 'z' | 'A' .. 'Z' | '_' ;
     digit -> '0' .. '9' ;

@@ -133,11 +133,11 @@ namespace Crisp.Parsing
                 case '!': return Accept(TokenTag.Bang);
                 
 
-                case '\'':
+                case '\"':
                     {
                         Mark();
                         Next();
-                        while (current.HasValue && current != '\'')
+                        while (current.HasValue && current != '\"')
                         {
                             Next();
                         }

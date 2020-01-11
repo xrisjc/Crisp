@@ -419,7 +419,11 @@ namespace Crisp.Parsing
         static string ParseString(string lexeme, Position position)
         {
             // Assume the scanner provides us with a string that starts and
-            // ends with single quote.
+            // ends with double quotes.
+
+            bool IsEscapeCode(char c) => c == 'n' || c == '\\';
+            char Escape(char code) => code switch { 'n' => '\n', char c => c };
+
 
             var sb = new StringBuilder();
             var state = 's';
@@ -432,18 +436,13 @@ namespace Crisp.Parsing
                         state = 'e';
                         break;
 
-                    case '\\' when state == 'e':
-                        sb.Append('\\');
-                        state = 's';
-                        break;
-
-                    case 'n' when state == 'e':
-                        sb.Append('\n');
-                        state = 's';
-                        break;
-
                     case char c when state == 's':
                         sb.Append(c);
+                        break;
+
+                    case char c when IsEscapeCode(c) && state == 'e':
+                        sb.Append(Escape(c));
+                        state = 's';
                         break;
 
                     case char c when state == 'e':
