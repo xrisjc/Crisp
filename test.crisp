@@ -21,7 +21,7 @@
 // Basic Literals
 ///////////////////////////////////////////////////////////////////////////////
 
-var testLiterals = function (t) {
+var testLiterals = fn (t) {
     // Crisp has the literal expressions you would expect.
 
     // Strings are delimited by single quotes. The are the .NET string type
@@ -46,7 +46,7 @@ var testLiterals = function (t) {
 // Operators
 ///////////////////////////////////////////////////////////////////////////////
 
-var testOperators = function (t) {
+var testOperators = fn (t) {
     // After literals, more complex expressions can be created with operators.
 
     // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `mod`.
@@ -192,7 +192,7 @@ var testOperators = function (t) {
 // Variables Blocks
 ///////////////////////////////////////////////////////////////////////////////
 
-var testVariablesAndBlocks = function (t) {
+var testVariablesAndBlocks = fn (t) {
 
     // Variables are declared with the keyword "var" and the assignment operator:
     // "=".  A variable must be declared before it is used or else there will be
@@ -248,7 +248,7 @@ var testVariablesAndBlocks = function (t) {
 // Variables declared in the top scope are global variables.
 var globalVar = 1234
 
-var testGlobalVariables = function (t) {
+var testGlobalVariables = fn (t) {
     var localVar = 4321
     t.assertEq(globalVar + localVar, 5555, "global variable")
 }
@@ -257,7 +257,7 @@ var testGlobalVariables = function (t) {
 // Branching
 ///////////////////////////////////////////////////////////////////////////////
 
-var testBranching = function (t) {
+var testBranching = fn (t) {
     // The usual if / else is present.  The syntax is
     //     "if" expr block ( "else" "if" expr block )* ("else" block)?
     //
@@ -318,7 +318,7 @@ var testBranching = function (t) {
 // Looping
 ///////////////////////////////////////////////////////////////////////////////
 
-var testLooping = function (t) {
+var testLooping = fn (t) {
 
     // The usual while loop is present.  The syntax is
     //     while <condition> <block>
@@ -361,21 +361,21 @@ var testLooping = function (t) {
 // "invocation" operator.  Functions must be assigned to a variable if you want
 // to call them.
 
-var nothing = function () { }
+var nothing = fn () { }
 
-var square = function (x) { x * x }
+var square = fn (x) { x * x }
 
-var divides = function (m, n) {
+var divides = fn (m, n) {
     var remainder = n % m
     remainder == 0
 }
 
-var factorial = function (n) {
+var factorial = fn (n) {
     if n == 1 { 1 }
     else { n * factorial(n - 1) }
 }
 
-var testFunctions = function (t) {
+var testFunctions = fn (t) {
     t.assertEq(nothing(), null, "Empty function")
     t.assertEq(square(3), 9, "Function declaration")
     t.assertEq(divides(5, 35), true, "Named functions")
@@ -387,7 +387,7 @@ var testFunctions = function (t) {
     {
         var a = "outer"
         {
-            var getA = function () { a }
+            var getA = fn () { a }
             t.assertEq(getA(), "outer", "Closure test #1")
             var a = "inner"
             t.assertEq(getA(), "inner", "Closure test #2")
@@ -399,10 +399,10 @@ var testFunctions = function (t) {
 // More Logical
 ///////////////////////////////////////////////////////////////////////////////
 
-var testLogicalAndOr = function (t) {
+var testLogicalAndOr = fn (t) {
     var counter = Object.beget()
     counter.n = 0
-    counter.get = function () { self.n = self.n + 1 }
+    counter.get = fn () { self.n = self.n + 1 }
 
     // The "and" operator short circuits in the expected way.
     t.assertEq(false && counter.get() == 1, false, "and short circuits #1")
@@ -422,7 +422,7 @@ var testLogicalAndOr = function (t) {
 // Objects
 ///////////////////////////////////////////////////////////////////////////////
 
-var testObjects = function (t) {
+var testObjects = fn (t) {
     // New objects can be created with the beget method.  beget creates a new
     // object using the original object as a prototype.  The "Object" name is
     // bound to an object which is the prototype of all objects.
@@ -459,13 +459,13 @@ var testObjects = function (t) {
     // are maps / dictionaries / associative arrays.  You can also
     // add properties to objects other than user defined ones.
     person[false] = 2.5
-    var f = function (x) { 2 * x }
+    var f = fn (x) { 2 * x }
     f.description = "a function that doubles"
     t.assertEq(person[false], 2.5, "Index operator bool key")
     t.assertEq(f.description, "a function that doubles", "Property on a function")
     t.assertEq(f(2), 4, "Function call that has a property")
 
-    // If a key isn"t in an object, then retrieving it returns null.
+    // If a key isn't in an object, then retrieving it returns null.
     t.assertEq(person.gender, null, "object key not set")
 
     // The is operator tests if two objects are the same object or if the
@@ -477,7 +477,7 @@ var testObjects = function (t) {
     var isString = ""
     var isNull = null
     var isBool = true
-    var isFunction = function () { }
+    var isFunction = fn () { }
 
     t.assert(IsObject is Object, "is object")
     t.assert(isNumber is Object, "number is object")
@@ -501,17 +501,17 @@ var testObjects = function (t) {
 // Iterable objects and iterators.
 ///////////////////////////////////////////////////////////////////////////////
 
-var testIterable = function (t) {
+var testIterable = fn (t) {
     // Objects can be made to be iterable if they have a method named
     // `getIterator` that returns an iterator object.  The iterator object
     // must have two methods: `next` and `current`.  The for loop expects an
     // iterable object and will uses the interface described above.
     var iterable = Object.beget()
-    iterable.getIterator = function () {
+    iterable.getIterator = fn () {
         var itr = Object.beget()
         itr.value = 0
-        itr.current = function () { self.value }
-        itr.next = function () {
+        itr.current = fn () { self.value }
+        itr.next = fn () {
             self.value = self.value + 1
             self.value <= 10
         }
@@ -538,11 +538,11 @@ var testIterable = function (t) {
 // Lists
 ///////////////////////////////////////////////////////////////////////////////
 
-var testLists = function (t) {
+var testLists = fn (t) {
     // List objects are dynamically sized arrays.  They are created a literal
     // syntax and are indexed in the usual way starting at zero.
     var emptyList = []
-    var list = [3*2, "hello", false, null, Object.beget(), function (x) { x }]
+    var list = [3*2, "hello", false, null, Object.beget(), fn (x) { x }]
 
     t.assertEq(list[0], 6, "list indexing #1")
     t.assertEq(list[2], false, "list indexing #2")
@@ -585,31 +585,31 @@ var testLists = function (t) {
 
 var Test = Object.beget()
     
-Test.init = function (showPassedTest) {
+Test.init = fn (showPassedTest) {
     self.nTests = 0
     self.nErrors = 0
     self.showPassedTest = showPassedTest
     self
 }
 
-Test.displaySummary = function () {
+Test.displaySummary = fn () {
     write("\n", self.nTests - self.nErrors, " out of ", self.nTests, " tests passed.\n")
     write("There are ", self.nErrors, " errors. ")
     write(if self.nErrors == 0 { ":-)" } else { "D-:" }, "\n")
 }
 
-Test.pass = function (message) {
+Test.pass = fn (message) {
     self.nTests = self.nTests + 1
     write("[OK] `", message, "`\n")
 }
 
-Test.fail = function (message) {
+Test.fail = fn (message) {
     self.nTests = self.nTests + 1
     self.nErrors = self.nErrors + 1
     write("[FAILED] `", message, "`\n")
 }
 
-Test.assert = function (condition, message) {
+Test.assert = fn (condition, message) {
     if !condition {
         self.fail(message)
     } else if self.showPassedTest {
@@ -617,7 +617,7 @@ Test.assert = function (condition, message) {
 	}
 }
 
-Test.assertEq = function (actual, expected, message) {
+Test.assertEq = fn (actual, expected, message) {
     self.nTests = self.nTests + 1
     if actual != expected {
         write("[FAILED] ", message, ": expected `", expected, "` got `",

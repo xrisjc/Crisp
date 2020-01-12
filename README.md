@@ -18,7 +18,7 @@ A toy programming language interpreter.
 
     block -> "{" expr_sequence "}" ;
 
-    function -> "function" params block ;
+    function -> "fn" params block ;
     params -> "(" id_list? ")" ;
     id_list -> id ( "," id )* ;
 

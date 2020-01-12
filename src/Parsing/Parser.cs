@@ -58,7 +58,7 @@ namespace Crisp.Parsing
                 return Var();
             }
 
-            if (Match(TokenTag.Function))
+            if (Match(TokenTag.Fn))
             {
                 return Function();
             }
