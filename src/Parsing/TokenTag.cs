@@ -27,6 +27,7 @@
         LBracket,
         LessThan,
         LessThanOrEqualTo,
+        Let,
         LParen,
         Mod,
         Multiply,
@@ -40,7 +41,6 @@
         Self,
         Subtract,
         True,
-        Var,
         While,
         Write,
     }

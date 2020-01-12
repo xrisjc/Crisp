@@ -53,9 +53,9 @@ namespace Crisp.Parsing
 
         IExpression Expression()
         {
-            if (Match(TokenTag.Var))
+            if (Match(TokenTag.Let))
             {
-                return Var();
+                return Let();
             }
 
             if (Match(TokenTag.Fn))
@@ -86,14 +86,14 @@ namespace Crisp.Parsing
             return Assignment();
         }
 
-        IExpression Var()
+        IExpression Let()
         {
             var name = Expect(TokenTag.Identifier);
 
             Expect(TokenTag.Assignment);
             var initialValue = Expression();
 
-            return new Var(
+            return new Let(
                 new Identifier(name.Position, name.Lexeme),
                 initialValue);
         }

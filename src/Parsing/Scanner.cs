@@ -22,10 +22,10 @@ namespace Crisp.Parsing
                 ["if"]       = TokenTag.If,
                 ["in"]       = TokenTag.In,
                 ["is"]       = TokenTag.Is,
+                ["let"]      = TokenTag.Let,
                 ["null"]     = TokenTag.Null,
                 ["self"]     = TokenTag.Self,
                 ["true"]     = TokenTag.True,
-                ["var"]      = TokenTag.Var,
                 ["while"]    = TokenTag.While,
                 ["write"]    = TokenTag.Write,
             };

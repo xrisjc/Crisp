@@ -6,7 +6,7 @@ A toy programming language interpreter.
     program -> expr_sequence ;
     expr_sequence -> expr* ;
 
-    expr -> var
+    expr -> let
           | function
           | if
           | while
@@ -14,7 +14,7 @@ A toy programming language interpreter.
           | block
           | assignment ;
 
-    var -> "var" id "=" expr ;
+    let -> "let" id "=" expr ;
 
     block -> "{" expr_sequence "}" ;
 

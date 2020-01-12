@@ -324,13 +324,13 @@ namespace Crisp.Runtime
                     "self is not defined in this context");
         }
 
-        public Obj Visit(Var var)
+        public Obj Visit(Let let)
         {
-            var result = Evaluate(var.InitialValue);
-            if (!Environment.Create(var.Name.Name, result))
+            var result = Evaluate(let.InitialValue);
+            if (!Environment.Create(let.Name.Name, result))
                 throw new RuntimeErrorException(
-                    var.Name.Position,
-                    $"Identifier <{var.Name.Name}> is already bound");
+                    let.Name.Position,
+                    $"Identifier <{let.Name.Name}> is already bound");
             return result;
         }
 

@@ -20,6 +20,7 @@ namespace Crisp.Ast
         T Visit(Function f);
         T Visit(Identifier i);
         T Visit(Index i);
+        T Visit(Let v);
         T Visit(LiteralBool lb);
         T Visit(LiteralNull ln);
         T Visit(LiteralNumber ln);
@@ -29,7 +30,6 @@ namespace Crisp.Ast
         T Visit(OperatorUnary ou);
         T Visit(Refinement r);
         T Visit(Self s);
-        T Visit(Var v);
         T Visit(While w);
         T Visit(Write w);
     }
@@ -291,11 +291,11 @@ namespace Crisp.Ast
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
-    class Var : IExpression
+    class Let : IExpression
     {
         public Identifier Name { get; }
         public IExpression InitialValue { get; }
-        public Var(Identifier name, IExpression initialValue)
+        public Let(Identifier name, IExpression initialValue)
         {
             Name = name;
             InitialValue = initialValue;
