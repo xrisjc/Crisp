@@ -1,0 +1,21 @@
+List.getIterator = fn () {
+    let list = self
+    let index = -1
+
+    let itr = Object.beget()
+
+    itr.next = fn () {
+        index = index + 1
+        index < list.length()
+    }
+
+    itr.current = fn () {
+        if 0 <= index && index < list.length() {
+            list[index]
+        } else {
+            null
+        }
+    }
+
+    itr
+}

@@ -64,15 +64,7 @@ namespace Crisp.Runtime
             Obj Beget(Interpreter i, Obj? s, Obj[] a)
                 => s?.Beget() ?? i.System.Null;
 
-            Obj Assign(Interpreter i, Obj? s, Obj[] a)
-            {
-                foreach (var source in a)
-                    s?.Assign(source);
-                return s ?? i.System.Null;
-            }
-
             Method(PrototypeObject, "beget", Beget);
-            Method(PrototypeObject, "assign", Assign);
         }
 
         void SetupPrototypeList()
@@ -96,38 +88,9 @@ namespace Crisp.Runtime
                     _ => i.System.Null,
                 };
 
-            Obj GetIterator(Interpreter i, Obj? self, Obj[] a)
-            {
-                switch (self?.Value)
-                {
-                    case List<Obj> list:
-                        var itr = PrototypeObject.Beget();
-                        var index = -1;
-
-                        Method(
-                            itr,
-                            "next",
-                            (i, s, a) => i.System.Create(++index < list.Count));
-
-                        Method(
-                            itr,
-                            "current",
-                            (i, s, a) =>
-                                (0 <= index && index < list.Count)
-                                    ? list[index]
-                                    : i.System.Null);
-
-                        return itr;
-                    
-                    default:
-                        return i.System.Null;
-                }
-            }
-
 
             Method(PrototypeList, "add", Add);
             Method(PrototypeList, "length", Length);
-            Method(PrototypeList, "getIterator", GetIterator);
         }
 
         void Method(Obj obj, string name, Callable callable)
