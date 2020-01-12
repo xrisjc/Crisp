@@ -1,6 +1,8 @@
-﻿using Crisp.Parsing;
+﻿using Crisp.Ast;
+using Crisp.Parsing;
 using Crisp.Runtime;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Crisp
@@ -23,9 +25,28 @@ namespace Crisp
             }
         }
 
+        static void Load(string filename, Interpreter interpreter)
+        {
+            var code = File.ReadAllText(filename);
+            var program = Parser.Parse(code);
+            foreach (var expr in program.Expressions)
+                interpreter.Evaluate(expr);
+        }
+
+        static Interpreter InitInterpreter()
+        {
+            var system = new Runtime.System();
+            var globals = system.CreateGlobalEnvironment();
+            var interpreter = new Interpreter(system, globals);
+
+            Load("core.crisp", interpreter);
+
+            return interpreter;
+        }
+
         public static void Repl(TextReader reader, TextWriter writer)
         {
-            static string? Prompt(TextReader reader, TextWriter writer)
+            string? Prompt()
             {
                 writer.Write("> ");
                 return reader.ReadLine();
@@ -50,37 +71,22 @@ namespace Crisp
                 };
             }
 
-            static void Evaluate(
-                string code,
-                Runtime.System system,
-                Runtime.Environment globals,
-                TextWriter writer)
+            bool RunCommand((string, string) command, Interpreter interpreter)
             {
-                try
-                {
-                    var program = Parser.Parse(code);
-                    var result = system.Null;
-                    var interpreter = new Interpreter(system, globals);
-                    foreach (var expr in program.Expressions)
-                        writer.WriteLine(interpreter.Evaluate(expr));
-                }
-                catch (CrispException e)
-                {
-                    writer.WriteLine(e.FormattedMessage());
-                }
-            }
-
-            var system = new Runtime.System();
-            var globals = system.CreateGlobalEnvironment();
-
-            while (true)
-            {
-                var input = Prompt(reader, writer) ?? "";
-                var command = ParseInput(input);
                 switch (command)
                 {
                     case ("eval", string code):
-                        Evaluate(code, system, globals, writer);
+                        try
+                        {
+                            var program = Parser.Parse(code);
+                            var result = interpreter.System.Null;
+                            foreach (var expr in program.Expressions)
+                                writer.WriteLine(interpreter.Evaluate(expr));
+                        }
+                        catch (CrispException e)
+                        {
+                            writer.WriteLine(e.FormattedMessage());
+                        }
                         break;
 
                     case ("unknown", _):
@@ -88,24 +94,29 @@ namespace Crisp
                         break;
 
                     case ("quit", _):
-                        goto QuitRepl;
+                        return true;
                 }
+
+                return false;
             }
 
-            QuitRepl: writer.WriteLine("goodbye");
+            var interpreter = InitInterpreter();
+            var done = false;
+            while (!done)
+            {
+                var input = Prompt() ?? "";
+                var command = ParseInput(input);
+                done = RunCommand(command, interpreter);
+            }
+            writer.WriteLine("goodbye");
         }
 
         static void RunFile(string filename)
         {
             try
             {
-                var code = File.ReadAllText(filename);
-                var program = Parser.Parse(code);
-                var system = new Runtime.System();
-                var globals = system.CreateGlobalEnvironment();
-                var interpreter = new Interpreter(system, globals);
-                foreach (var expr in program.Expressions)
-                    interpreter.Evaluate(expr);
+                var interpreter = InitInterpreter();
+                Load(filename, interpreter);
             }
             catch (CrispException e)
             {

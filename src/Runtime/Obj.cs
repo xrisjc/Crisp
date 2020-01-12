@@ -17,7 +17,7 @@ namespace Crisp.Runtime
             Value = value;
         }
 
-        public virtual Obj? LookupProperty(Obj key)
+        public Obj? LookupProperty(Obj key)
         {
             for (Obj? o = this; o != null; o = o.prototype)
                 if (o.properties.TryGetValue(key, out var value))
@@ -38,7 +38,13 @@ namespace Crisp.Runtime
             return false;
         }
 
-        public virtual Obj Beget() => new Obj(this);
+        public Obj Beget() => new Obj(this);
+
+        public void Assign(Obj source)
+        {
+            foreach (var key in source.properties.Keys)
+                properties[key] = source.properties[key];
+        }
 
         public override string? ToString()
         {

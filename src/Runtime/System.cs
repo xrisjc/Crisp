@@ -30,8 +30,7 @@ namespace Crisp.Runtime
             True = new Obj(PrototypeBool, true);
             False = new Obj(PrototypeBool, false);
 
-            Method(PrototypeObject, "beget", (i, s, a) => s?.Beget() ?? i.System.Null);
-
+            SetupPrototypeObject();
             SetupPrototypeList();
         }
 
@@ -58,6 +57,22 @@ namespace Crisp.Runtime
             env.Create("Number"  , PrototypeNumber);
             env.Create("String"  , PrototypeString);
             return env;
+        }
+
+        void SetupPrototypeObject()
+        {
+            Obj Beget(Interpreter i, Obj? s, Obj[] a)
+                => s?.Beget() ?? i.System.Null;
+
+            Obj Assign(Interpreter i, Obj? s, Obj[] a)
+            {
+                foreach (var source in a)
+                    s?.Assign(source);
+                return s ?? i.System.Null;
+            }
+
+            Method(PrototypeObject, "beget", Beget);
+            Method(PrototypeObject, "assign", Assign);
         }
 
         void SetupPrototypeList()
