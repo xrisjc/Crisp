@@ -5,16 +5,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 //
-// As you might have guessed, // starts a comment.  As per usual, comments are
-// ignored and end when a new line character is reached.
+// As you might have guessed, // starts a comment.  Comments are ignored and
+// end when a new line character is reached.
 //
 // All other whitespace is ignored, so your free to format code as you see
 // fit.
 //
 
 //
-// Crisp is a dynamic language with Pascal-like syntax where everything is
-// an expression and all values are objects.
+// Crisp is a dynamic language with where everything is an expression and all
+// values are objects.
 //
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,18 +22,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 let testLiterals = fn (t) {
-    // Crisp has the literal expressions you would expect.
+    // Crisp has literal expressions for numbers, strings, and Boolean values.
 
-    // Strings are delimited by single quotes. The are the .NET string type
+    // Strings are delimited by double quotes. They are the .NET string type
     // internally.
     t.assertEq("hi", "hi", "string literal")
 
-    // Number values are 64 bit floating point numbers.
+    // All number values are .NET double (64 bit float) internally.
     t.assertEq(123, 123, "integer number literal")
     t.assertEq(1.5, 1.5, "fractional number literal")
 
     // Boolean values are given by keywords true and false representing the
-    // obvious values.  The are represented by the bool type internally.
+    // obvious values.  They are the .NET bool type internally.
     t.assert(true, "true literal")
     t.assertEq(false, false, "false literal")
 
@@ -47,9 +47,9 @@ let testLiterals = fn (t) {
 ///////////////////////////////////////////////////////////////////////////////
 
 let testOperators = fn (t) {
-    // After literals, more complex expressions can be created with operators.
+    // More complex expressions can be created with operators.
 
-    // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `mod`.
+    // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `%`.
     t.assertEq(1.0 + 2.5,  3.5, "addition")
     t.assertEq(5.5 - 2.0,  3.5, "subtraction")
     t.assertEq(2.5 * 3.0,  7.5, "multiplication")
@@ -65,13 +65,11 @@ let testOperators = fn (t) {
     t.assertEq(1 + 8 % 3,  3, "addition and modulo")
     t.assertEq(-2 + 4, 2, "leading negatives")
 
-    // But, grouping with parenthesis will change order of evaluation, as you
-    // would expected.
+    // Grouping with parenthesis will change order of evaluation.
     t.assertEq((1 + 2) * 3,   9, "addition grouped and multiplication")
     t.assertEq((10 - 2) * 3, 24, "subtraction grouped and multiplication")
 
     // All relation operators evaluate to a boolean value.
-    // The equal operator is a single =.
     t.assertEq(1 == 1,          true, "int equality true")
     t.assertEq(1 == 2,         false, "int equality false")
     t.assertEq(1.5 == 1.5,      true, "float equality true")
@@ -213,9 +211,9 @@ let testVariablesAndBlocks = fn (t) {
 
     //
     // "{" and "}" delimit a block.  Within a block multiple expressions can
-    // be listed.  Each expression is evaluated in the order they are found.  All
-    // expression values are ignored, except the last one.  The last expression
-    // is the result of the the last expression.  The ignored expressions usually
+    // be listed.  Each expression is evaluated in the order they are found. 
+    // All expression values are ignored, except the last one.  The last
+    // expression is the result of the block.  The ignored expressions usually
     // will be useful for their side effects.
     //
     // Crisp has no token to mark the end of an expression, not even new lines.
@@ -223,7 +221,7 @@ let testVariablesAndBlocks = fn (t) {
     // current expression.  In the example below we have the expression 5*6 with
     // the next token 2.  Since 2 is not a token that can be used to extend the
     // 5*6 expression, the expression parsing stops.  For the last expression a
-    // similar things happens with the end token.  It can"t be used to continue
+    // similar things happens with the end token.  It can't be used to continue
     // the 1+2 expression.
     //
     t.assertEq( { 5*6  1+2 } , 3, "Block expression return value")
@@ -231,7 +229,7 @@ let testVariablesAndBlocks = fn (t) {
     // Blocks can contain one expression.
     t.assertEq( { 2+3 }, 5, "Single expression block.")
   
-    // Empty blocks do nothing but return null.
+    // Empty blocks return null.
     t.assertEq( { } , null, "Empty block")
   
     // blocks also introduce a new scope for variable declarations.  You can 
@@ -323,9 +321,9 @@ let testLooping = fn (t) {
     // The usual while loop is present.  The syntax is
     //     while <condition> <block>
     // 
-    // Repeatedly evaluates the block expression as while the condition
-    // expression is truthy.  Like if / else, condition and body can be any
-    // valid kind of expression.
+    // The block expression is repeatedly as while the condition expression is
+    // truthy.  Like if / else, the condition can be any valid kind of
+    // expression.
     // 
     {
         let sum = 0
@@ -347,7 +345,8 @@ let testLooping = fn (t) {
         t.assertEq(n, 100, "Never executing while loop")
     }
 
-    // A while always evaluates to null.
+    // A while always evaluates to null, as they are used for their side
+    // effects.
     t.assertEq(while false { 0 }, null, "While evals to null")
 }
 
@@ -356,10 +355,10 @@ let testLooping = fn (t) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // The syntax for a function definition is
-//   function (<comma separated parameters>) <block>
+//   fn (<comma separated parameters>) <block>
 // The value of the function is value of the body.  As is usual, () is the
 // "invocation" operator.  Functions must be assigned to a variable if you want
-// to call them.
+// to call them in other expressions.
 
 let nothing = fn () { }
 
@@ -404,13 +403,13 @@ let testLogicalAndOr = fn (t) {
     counter.n = 0
     counter.get = fn () { self.n = self.n + 1 }
 
-    // The "and" operator short circuits in the expected way.
+    // The "&&" operator short circuits in the expected way.
     t.assertEq(false && counter.get() == 1, false, "and short circuits #1")
     t.assertEq(counter.get(), 1, "and short circuits #2")
     t.assertEq(true && counter.get() == 2, true, "and short circuits #3")
     t.assertEq(counter.get(), 3, "and short circuits #4")
 
-    // The "or" operator short circuits in the expected way.
+    // The "||" operator short circuits in the expected way.
     counter.n = 0
     t.assertEq(true || counter.get() == 1, true, "or short circuits #1")
     t.assertEq(counter.get(), 1, "or short circuits #2")
@@ -426,13 +425,13 @@ let testObjects = fn (t) {
     // New objects can be created with the beget method.  beget creates a new
     // object using the original object as a prototype.  The "Object" name is
     // bound to an object which is the prototype of all objects.
-    //     Objects may have properties.  Properties can be described using
+    //     Objects may have properties.  Properties values can be defined using
     // a .identifer or an [ ] indexer.
     let person = Object.beget()
     person.name = Object.beget()
     person.name.first = "John"
-    person.name.last = "Smith"
-    person.age = 40
+    person.name["last"] = "Smith"
+    person["age"] = 40
 
     // Object properties can be retrieved with the index operator.  The
     // property name must be passed in as a string.
@@ -455,7 +454,7 @@ let testObjects = fn (t) {
     t.assertEq(person.name.title, "Dr.", "Dot operator #2")
 
     // In fact the key to an object property can be any other object, but
-    // then you"re stuck with using the index operator.  That is objects
+    // then you're stuck with using the index operator.  That is objects
     // are maps / dictionaries / associative arrays.  You can also
     // add properties to objects other than user defined ones.
     person[false] = 2.5
@@ -468,8 +467,8 @@ let testObjects = fn (t) {
     // If a key isn't in an object, then retrieving it returns null.
     t.assertEq(person.gender, null, "object key not set")
 
-    // The is operator tests if two objects are the same object or if the
-    // right hand side object is in the left hand side object"s prototype
+    // The "is" operator tests if two objects are the same object or if the
+    // right hand side object is in the left hand side object's prototype
     // chain.  The Object, Number, String, Null, Bool, and Function names are
     // all bound to the prototype of their respective types.
     let IsObject = Object.beget()
