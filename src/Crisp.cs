@@ -39,8 +39,6 @@ namespace Crisp
             var globals = system.CreateGlobalEnvironment();
             var interpreter = new Interpreter(system, globals);
 
-            Load("core.crisp", interpreter);
-
             return interpreter;
         }
 
