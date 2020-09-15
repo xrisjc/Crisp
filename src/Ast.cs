@@ -15,6 +15,7 @@ namespace Crisp.Ast
         T Visit(AssignmentRefinement ar);
         T Visit(Block b);
         T Visit(Call c);
+        T Visit(Create c);
         T Visit(Conditional c);
         T Visit(For f);
         T Visit(Function f);
@@ -93,6 +94,16 @@ namespace Crisp.Ast
             Position = position;
             Target = target;
             Arguments = arguments;
+        }
+        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
+    }
+
+    class Create : IExpression
+    {
+        public IExpression Prototype { get; }
+        public Create(IExpression prototype)
+        {
+            Prototype = prototype;
         }
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }

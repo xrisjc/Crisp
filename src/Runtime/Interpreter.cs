@@ -153,6 +153,12 @@ namespace Crisp.Runtime
             }
         }
 
+        public Obj Visit(Create c)
+        {
+            var prototype = Evaluate(c.Prototype);
+            return new Obj(prototype);
+        }
+
         public Obj Visit(Conditional c)
         {
             foreach (var (condition, consequence) in c.Branches)

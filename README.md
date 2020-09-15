@@ -45,7 +45,8 @@ A toy programming language interpreter.
              | "self"
              | "[" listItems? "]"
              | "(" expr ")" ;
-             | "write" arguments ;
+             | "write" arguments
+             | "#" expr ;
     listItems -> expr ( "," expr )* ;
     number -> digit+ ( "." digit+ )? ;
     string -> "\"" ([^"])* "\"" ;

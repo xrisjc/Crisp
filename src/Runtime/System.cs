@@ -30,7 +30,6 @@ namespace Crisp.Runtime
             True = new Obj(PrototypeBool, true);
             False = new Obj(PrototypeBool, false);
 
-            SetupPrototypeObject();
             SetupPrototypeList();
         }
 
@@ -57,14 +56,6 @@ namespace Crisp.Runtime
             env.Create("Number"  , PrototypeNumber);
             env.Create("String"  , PrototypeString);
             return env;
-        }
-
-        void SetupPrototypeObject()
-        {
-            Obj Beget(Interpreter i, Obj? s, Obj[] a)
-                => s?.Beget() ?? i.System.Null;
-
-            Method(PrototypeObject, "beget", Beget);
         }
 
         void SetupPrototypeList()
@@ -97,7 +88,7 @@ namespace Crisp.Runtime
                 }
                 var index = -1;
 
-                var itr = PrototypeObject.Beget();
+                var itr = new Obj(PrototypeObject);
 
                 Method(itr, "next", (iNext, sNext, aNext) =>
                 {

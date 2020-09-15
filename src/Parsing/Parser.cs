@@ -409,6 +409,12 @@ namespace Crisp.Parsing
                 return Write();
             }
 
+            if (Match(TokenTag.Create))
+            {
+                var prototype = Expression();
+                return new Create(prototype);
+            }
+
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
         }
 

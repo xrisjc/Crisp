@@ -8,6 +8,7 @@
         Assignment,
         Bang,
         Comma,
+        Create,
         Divide,
         Dot,
         Else,

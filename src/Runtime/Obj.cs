@@ -38,8 +38,6 @@ namespace Crisp.Runtime
             return false;
         }
 
-        public Obj Beget() => new Obj(this);
-
         public void Assign(Obj source)
         {
             foreach (var key in source.properties.Keys)

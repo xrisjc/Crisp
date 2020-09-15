@@ -129,6 +129,7 @@ namespace Crisp.Parsing
                 case '.': return Accept(TokenTag.Dot);
                 case '!': return Accept(TokenTag.Bang);
                 case '%': return Accept(TokenTag.Mod);
+                case '#': return Accept(TokenTag.Create);
 
                 case '\"':
                     {

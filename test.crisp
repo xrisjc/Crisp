@@ -399,7 +399,7 @@ let testFunctions = fn (t) {
 ///////////////////////////////////////////////////////////////////////////////
 
 let testLogicalAndOr = fn (t) {
-    let counter = Object.beget()
+    let counter = #Object
     counter.n = 0
     counter.get = fn () { self.n = self.n + 1 }
 
@@ -422,13 +422,13 @@ let testLogicalAndOr = fn (t) {
 ///////////////////////////////////////////////////////////////////////////////
 
 let testObjects = fn (t) {
-    // New objects can be created with the beget method.  beget creates a new
+    // New objects can be created with the # operator.  # creates a new
     // object using the original object as a prototype.  The "Object" name is
     // bound to an object which is the prototype of all objects.
     //     Objects may have properties.  Properties values can be defined using
     // a .identifer or an [ ] indexer.
-    let person = Object.beget()
-    person.name = Object.beget()
+    let person = #Object
+    person.name = #Object
     person.name.first = "John"
     person.name["last"] = "Smith"
     person["age"] = 40
@@ -471,7 +471,7 @@ let testObjects = fn (t) {
     // right hand side object is in the left hand side object's prototype
     // chain.  The Object, Number, String, Null, Bool, and Function names are
     // all bound to the prototype of their respective types.
-    let IsObject = Object.beget()
+    let IsObject = #Object
     let isNumber = 0
     let isString = ""
     let isNull = null
@@ -486,7 +486,7 @@ let testObjects = fn (t) {
     t.assert(isFunction is Object, "function is object")
 
     t.assert(IsObject is IsObject, "is object itself")
-    t.assert(IsObject.beget() is IsObject, "child IsObject is IsObject")
+    t.assert(#IsObject is IsObject, "child IsObject is IsObject")
     t.assert(isNumber is Number, "is number")
     t.assert(isString is String, "is string")
     t.assert(isNull is Null, "is null")
@@ -505,9 +505,9 @@ let testIterable = fn (t) {
     // `getIterator` that returns an iterator object.  The iterator object
     // must have two methods: `next` and `current`.  The for loop expects an
     // iterable object and will uses the interface described above.
-    let iterable = Object.beget()
+    let iterable = #Object
     iterable.getIterator = fn () {
-        let itr = Object.beget()
+        let itr = #Object
         itr.value = 0
         itr.current = fn () { self.value }
         itr.next = fn () {
@@ -541,7 +541,7 @@ let testLists = fn (t) {
     // List objects are dynamically sized arrays.  They are created a literal
     // syntax and are indexed in the usual way starting at zero.
     let emptyList = []
-    let list = [3*2, "hello", false, null, Object.beget(), fn (x) { x }]
+    let list = [3*2, "hello", false, null, #Object, fn (x) { x }]
 
     t.assertEq(list[0], 6, "list indexing #1")
     t.assertEq(list[2], false, "list indexing #2")
@@ -582,7 +582,7 @@ let testLists = fn (t) {
 // Code to manage running tests.
 ///////////////////////////////////////////////////////////////////////////////
 
-let Test = Object.beget()
+let Test = #Object
     
 Test.init = fn (showPassedTest) {
     self.nTests = 0
@@ -628,7 +628,7 @@ Test.assertEq = fn (actual, expected, message) {
 }
 
 {
-    let test = Test.beget().init(true)
+    let test = #Test.init(true)
 
     testLiterals(test)
     testOperators(test)
