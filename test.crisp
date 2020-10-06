@@ -399,22 +399,24 @@ let testFunctions = fn (t) {
 ///////////////////////////////////////////////////////////////////////////////
 
 let testLogicalAndOr = fn (t) {
-    let counter = #Object
-    counter.n = 0
-    counter.get = fn () { self.n = self.n + 1 }
+    let createCounter = fn () {
+        let n = 0
+        fn () { n = n + 1}
+    }
+    let counter = createCounter()
 
     // The "&&" operator short circuits in the expected way.
-    t.assertEq(false && counter.get() == 1, false, "and short circuits #1")
-    t.assertEq(counter.get(), 1, "and short circuits #2")
-    t.assertEq(true && counter.get() == 2, true, "and short circuits #3")
-    t.assertEq(counter.get(), 3, "and short circuits #4")
+    t.assertEq(false && counter() == 1, false, "and short circuits #1")
+    t.assertEq(counter(), 1, "and short circuits #2")
+    t.assertEq(true && counter() == 2, true, "and short circuits #3")
+    t.assertEq(counter(), 3, "and short circuits #4")
 
     // The "||" operator short circuits in the expected way.
-    counter.n = 0
-    t.assertEq(true || counter.get() == 1, true, "or short circuits #1")
-    t.assertEq(counter.get(), 1, "or short circuits #2")
-    t.assertEq(false || counter.get() == 2, true, "or short circuits #3")
-    t.assertEq(counter.get(), 3, "or short circuits #4")
+    counter = createCounter()
+    t.assertEq(true || counter() == 1, true, "or short circuits #1")
+    t.assertEq(counter(), 1, "or short circuits #2")
+    t.assertEq(false || counter() == 2, true, "or short circuits #3")
+    t.assertEq(counter(), 3, "or short circuits #4")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
