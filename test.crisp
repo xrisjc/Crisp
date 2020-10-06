@@ -499,43 +499,6 @@ let testObjects = fn (t) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Iterable objects and iterators.
-///////////////////////////////////////////////////////////////////////////////
-
-let testIterable = fn (t) {
-    // Objects can be made to be iterable if they have a method named
-    // `getIterator` that returns an iterator object.  The iterator object
-    // must have two methods: `next` and `current`.  The for loop expects an
-    // iterable object and will uses the interface described above.
-    let iterable = #Object
-    iterable.getIterator = fn () {
-        let itr = #Object
-        itr.value = 0
-        itr.current = fn () { self.value }
-        itr.next = fn () {
-            self.value = self.value + 1
-            self.value <= 10
-        }
-        itr
-    }
-
-    let sum = 0
-    for x in iterable {
-        sum = sum + x
-	}
-    
-    t.assertEq(sum, 55, "iterable")
-
-    // The for loop works like the following code.
-    sum = 0
-    let itr = iterable.getIterator()
-    while itr.next() {
-        sum = sum + itr.current()
-	}
-    t.assertEq(sum, 55, "manual iterable")
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Lists
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -559,25 +522,6 @@ let testLists = fn (t) {
     list.add("new item")
     t.assertEq(list.length(), 7, "length of non-empty list #2")
     t.assertEq(list[6], "new item", "list indexing #4")
-
-    // Lists are all iterable objects and can be used in for .. in loops.
-    let sum = 0
-    for x in [] {
-        sum = sum + x
-	}
-    t.assertEq(sum, 0, "iterable list #1")
-
-    for x in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] {
-        sum = sum + x
-    }
-    t.assertEq(sum, 55, "iterable list #2")
-
-    let itr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].getIterator()
-    sum = 0
-    while itr.next() {
-        sum = sum + itr.current()
-	}
-    t.assertEq(sum, 55, "manual itr through a list")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -641,7 +585,6 @@ Test.assertEq = fn (actual, expected, message) {
     testFunctions(test)
     testLogicalAndOr(test)
     testObjects(test)
-    testIterable(test)
     testLists(test)
 
     test.displaySummary()

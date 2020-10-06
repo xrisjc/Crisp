@@ -17,7 +17,6 @@ namespace Crisp.Ast
         T Visit(Call c);
         T Visit(Create c);
         T Visit(Conditional c);
-        T Visit(For f);
         T Visit(Function f);
         T Visit(Identifier i);
         T Visit(Index i);
@@ -116,26 +115,6 @@ namespace Crisp.Ast
         {
             Branches = branches;
             ElseBlock = elseBlock;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
-    class For : IExpression
-    {
-        public Position Position { get; }
-        public Identifier Variable { get; }
-        public IExpression Iterable { get; }
-        public Block Body { get; }
-        public For(
-            Position position,
-            Identifier variable,
-            IExpression iterable,
-            Block body)
-        {
-            Position = position;
-            Variable = variable;
-            Iterable = iterable;
-            Body = body;
         }
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }

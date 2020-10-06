@@ -347,45 +347,6 @@ namespace Crisp.Runtime
             return System.Null;
         }
 
-        public Obj Visit(For @for)
-        {
-            Callable? LookupMethod(Obj obj, string methodName)
-            {
-                var key = System.Create(methodName);
-                var value = obj.LookupProperty(key);
-                return value?.Value as Callable;
-            }
-
-            var iterable = Evaluate(@for.Iterable);
-
-            Callable? getIterator = LookupMethod(iterable, "getIterator");
-            if (getIterator == null)
-                throw new RuntimeErrorException(
-                    @for.Position,
-                    "Object in `for` loop does not follow the iterable interface.");
-
-            var emptyArgs = new Obj[0];                
-            var itr = getIterator(this, iterable, emptyArgs);
-            var next = LookupMethod(itr, "next");
-            var current = LookupMethod(itr, "current");
-            if (next == null || current == null)
-                throw new RuntimeErrorException(
-                    @for.Position,
-                    "Object returned by `getIterator` does follow the iterable interface.");
-
-            while (IsTruthy(next(this, itr, emptyArgs)))
-            {
-                var interpreter = Push();
-                interpreter.Environment.Create(
-                    @for.Variable.Name,
-                    current(interpreter, itr, emptyArgs));
-
-                interpreter.Evaluate(@for.Body);
-            }
-
-            return System.Null;
-        }
-
         public Obj Visit(Write write)
         {
             foreach (var e in write.Arguments)

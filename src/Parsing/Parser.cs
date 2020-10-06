@@ -73,11 +73,6 @@ namespace Crisp.Parsing
                 return While();
             }
 
-            if (Match(TokenTag.For))
-            {
-                return For();
-            }
-
             if (Match(TokenTag.LBrace))
             {
                 return Block();
@@ -135,26 +130,6 @@ namespace Crisp.Parsing
             var guard = Expression();
             var body = ExpectBlock();
             return new While(guard, body);
-        }
-
-        IExpression For()
-        {
-            var variableToken = Expect(TokenTag.Identifier);
-            var variable = new Identifier(
-                variableToken.Position,
-                variableToken.Lexeme);
-
-            // Use the position of the `in` token as the position of the `for`
-            // loop because all the runtime errors involve the iterable object
-            // not supporting the iterable interface.
-            var inToken = Expect(TokenTag.In);
-            var position = inToken.Position;
-
-            var iterable = Expression();
-
-            var body = ExpectBlock();
-
-            return new For(position, variable, iterable, body);
         }
 
         Block ExpectBlock()

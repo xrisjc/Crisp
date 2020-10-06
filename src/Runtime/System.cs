@@ -79,43 +79,8 @@ namespace Crisp.Runtime
                     _ => i.System.Null,
                 };
 
-            Obj GetIterator(Interpreter i, Obj? s, Obj[] a)
-            {
-                var items = s?.Value as List<Obj>;
-                if (items == null)
-                {
-                    return Null;
-                }
-                var index = -1;
-
-                var itr = new Obj(PrototypeObject);
-
-                Method(itr, "next", (iNext, sNext, aNext) =>
-                {
-                    index++;
-                    var hasNext = index < items.Count;
-                    return Create(hasNext);
-                });
-
-                Method(itr, "current", (iCur, sCur, aCur) =>
-                {
-                    if (0 <= index && index < items.Count)
-                    {
-                        return items[index];
-                    }
-                    else
-                    {
-                        return Null;
-                    }
-                });
-
-                return itr;
-            }
-
-
             Method(PrototypeList, "add", Add);
             Method(PrototypeList, "length", Length);
-            Method(PrototypeList, "getIterator", GetIterator);
         }
 
         void Method(Obj obj, string name, Callable callable)

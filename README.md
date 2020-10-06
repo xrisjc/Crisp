@@ -24,7 +24,6 @@ A toy programming language interpreter.
 
     if -> "if" expr block ( "else" "if" expr block )* ("else" block)? ;
     while -> "while" expr block ;
-    for -> "for" id "in" expr block ;
 
     assignment -> logical_or ( "=" expr )* ;
     logical_or -> logical_and ( "||" logical_and )* ;
