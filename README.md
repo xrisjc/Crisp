@@ -41,7 +41,6 @@ A toy programming language interpreter.
              | "false"
              | id
              | "null"
-             | "self"
              | "[" listItems? "]"
              | "(" expr ")" ;
              | "write" arguments

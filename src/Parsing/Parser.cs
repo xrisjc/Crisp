@@ -17,7 +17,6 @@ namespace Crisp.Parsing
                 [TokenTag.GreaterThan] = OperatorBinaryTag.Gt,
                 [TokenTag.GreaterThanOrEqualTo] = OperatorBinaryTag.GtEq,
                 [TokenTag.InequalTo] = OperatorBinaryTag.Neq,
-                [TokenTag.Is] = OperatorBinaryTag.Is,
                 [TokenTag.LessThan] = OperatorBinaryTag.Lt,
                 [TokenTag.LessThanOrEqualTo] = OperatorBinaryTag.LtEq,
                 [TokenTag.Mod] = OperatorBinaryTag.Mod,
@@ -186,18 +185,6 @@ namespace Crisp.Parsing
                     return new AssignmentIdentifier(identifier, right);
                 }
 
-                if (left is Index index)
-                {
-                    var right = Expression();
-                    return new AssignmentIndex(index, right);
-                }
-
-                if (left is Refinement refinement)
-                {
-                    var right = Expression();
-                    return new AssignmentRefinement(refinement, right);
-                }
-
                 throw new SyntaxErrorException(
                     "Left hand side of assignment must be assignable,",
                     assignmentToken.Position);
@@ -245,7 +232,7 @@ namespace Crisp.Parsing
         IExpression Relation()
         {
             var left = Addition();
-            while (Match(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo, TokenTag.Is) is Token token)
+            while (Match(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
                 var right = Addition();
@@ -302,20 +289,6 @@ namespace Crisp.Parsing
             {
                 if (Match(TokenTag.LParen) is Token tokenCall)
                     left = new Call(tokenCall.Position, left, Arguments(TokenTag.RParen));
-                else if (Match(TokenTag.LBracket) is Token tokenIndex)
-                {
-                    var at = Expression();
-                    Expect(TokenTag.RBracket);
-                    left = new Index(tokenIndex.Position, left, at);
-                }
-                else if (Match(TokenTag.Dot))
-                {
-                    var nameToken = Expect(TokenTag.Identifier);
-                    var name = new Identifier(
-                        nameToken.Position,
-                        nameToken.Lexeme);
-                    left = new Refinement(left, name);
-                }
                 else
                     break;
             }
@@ -361,17 +334,6 @@ namespace Crisp.Parsing
                 return new LiteralNull();
             }
 
-            if (Match(TokenTag.Self) is Token tokenSelf)
-            {
-                return new Self(tokenSelf.Position);
-            }
-
-            if (Match(TokenTag.LBracket))
-            {
-                var items = Arguments(endToken: TokenTag.RBracket);
-                return new LiteralList(items);
-            }
-
             if (Match(TokenTag.LParen))
             {
                 var expression = Expression();
@@ -382,12 +344,6 @@ namespace Crisp.Parsing
             if (Match(TokenTag.Write))
             {
                 return Write();
-            }
-
-            if (Match(TokenTag.Create))
-            {
-                var prototype = Expression();
-                return new Create(prototype);
             }
 
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);

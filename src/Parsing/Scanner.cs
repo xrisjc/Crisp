@@ -19,10 +19,8 @@ namespace Crisp.Parsing
                 ["false"]    = TokenTag.False,
                 ["fn"]       = TokenTag.Fn,
                 ["if"]       = TokenTag.If,
-                ["is"]       = TokenTag.Is,
                 ["let"]      = TokenTag.Let,
                 ["null"]     = TokenTag.Null,
-                ["self"]     = TokenTag.Self,
                 ["true"]     = TokenTag.True,
                 ["while"]    = TokenTag.While,
                 ["write"]    = TokenTag.Write,
@@ -112,8 +110,6 @@ namespace Crisp.Parsing
                 case '|' when peek == '|': return Accept(TokenTag.Or, 2);
                 case '{': return Accept(TokenTag.LBrace);
                 case '}': return Accept(TokenTag.RBrace);
-                case '[': return Accept(TokenTag.LBracket);
-                case ']': return Accept(TokenTag.RBracket);
                 case '(': return Accept(TokenTag.LParen);
                 case ')': return Accept(TokenTag.RParen);
                 case ',': return Accept(TokenTag.Comma);
@@ -124,10 +120,8 @@ namespace Crisp.Parsing
                 case '/': return Accept(TokenTag.Divide);
                 case '<': return Accept(TokenTag.LessThan);
                 case '>': return Accept(TokenTag.GreaterThan);
-                case '.': return Accept(TokenTag.Dot);
                 case '!': return Accept(TokenTag.Bang);
                 case '%': return Accept(TokenTag.Mod);
-                case '#': return Accept(TokenTag.Create);
 
                 case '\"':
                     {

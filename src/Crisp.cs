@@ -1,8 +1,6 @@
-﻿using Crisp.Ast;
-using Crisp.Parsing;
+﻿using Crisp.Parsing;
 using Crisp.Runtime;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Crisp
@@ -35,10 +33,8 @@ namespace Crisp
 
         static Interpreter InitInterpreter()
         {
-            var system = new Runtime.System();
-            var globals = system.CreateGlobalEnvironment();
-            var interpreter = new Interpreter(system, globals);
-
+            var globals = new Runtime.Environment();
+            var interpreter = new Interpreter(globals);
             return interpreter;
         }
 
@@ -77,7 +73,7 @@ namespace Crisp
                         try
                         {
                             var program = Parser.Parse(code);
-                            var result = interpreter.System.Null;
+                            var result = new Null();
                             foreach (var expr in program.Expressions)
                                 writer.WriteLine(interpreter.Evaluate(expr));
                         }

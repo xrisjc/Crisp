@@ -11,25 +11,18 @@ namespace Crisp.Ast
     interface IExpressionVisitor<T>
     {
         T Visit(AssignmentIdentifier ai);
-        T Visit(AssignmentIndex ai);
-        T Visit(AssignmentRefinement ar);
         T Visit(Block b);
         T Visit(Call c);
-        T Visit(Create c);
         T Visit(Conditional c);
         T Visit(Function f);
         T Visit(Identifier i);
-        T Visit(Index i);
         T Visit(Let v);
         T Visit(LiteralBool lb);
         T Visit(LiteralNull ln);
         T Visit(LiteralNumber ln);
         T Visit(LiteralString ls);
-        T Visit(LiteralList ll);
         T Visit(OperatorBinary ob);
         T Visit(OperatorUnary ou);
-        T Visit(Refinement r);
-        T Visit(Self s);
         T Visit(While w);
         T Visit(Write w);
     }
@@ -41,30 +34,6 @@ namespace Crisp.Ast
         public AssignmentIdentifier(Identifier target, IExpression value)
         {
             Target = target;
-            Value = value;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
-    class AssignmentIndex : IExpression
-    {
-        public Index Index { get; }
-        public IExpression Value { get; }
-        public AssignmentIndex(Index index, IExpression value)
-        {
-            Index = index;
-            Value = value;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
-    class AssignmentRefinement : IExpression
-    {
-        public Refinement Refinement { get; }
-        public IExpression Value { get; }
-        public AssignmentRefinement(Refinement refinement, IExpression value)
-        {
-            Refinement = refinement;
             Value = value;
         }
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
@@ -93,16 +62,6 @@ namespace Crisp.Ast
             Position = position;
             Target = target;
             Arguments = arguments;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
-    class Create : IExpression
-    {
-        public IExpression Prototype { get; }
-        public Create(IExpression prototype)
-        {
-            Prototype = prototype;
         }
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
@@ -143,20 +102,6 @@ namespace Crisp.Ast
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
-    class Index : IExpression
-    {
-        public Position Position { get; }
-        public IExpression Target { get; }
-        public IExpression Key { get; }
-        public Index(Position position, IExpression target, IExpression key)
-        {
-            Position = position;
-            Target = target;
-            Key = key;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
     abstract class Literal<T>
     {
         public T Value { get; }
@@ -186,16 +131,6 @@ namespace Crisp.Ast
         public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
-    class LiteralList : IExpression
-    {
-        public List<IExpression> Items { get; set; }
-        public LiteralList(List<IExpression> items)
-        {
-            Items = items;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
     enum OperatorBinaryTag
     {
         Add,
@@ -211,7 +146,6 @@ namespace Crisp.Ast
         Or,
         Eq,
         Neq,
-        Is,
     }
 
     class OperatorBinary : IExpression
@@ -257,28 +191,6 @@ namespace Crisp.Ast
         {
             Expressions = expressions;
         }
-    }
-
-    class Refinement : IExpression
-    {
-        public IExpression Target { get; }
-        public Identifier Name { get; }
-        public Refinement(IExpression target, Identifier name)
-        {
-            Target = target;
-            Name = name;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
-    }
-
-    class Self : IExpression
-    {
-        public Position Position { get; }
-        public Self(Position position)
-        {
-            Position = position;
-        }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Let : IExpression

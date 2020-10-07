@@ -3,6 +3,50 @@
 // Purpose: Integration testing of Crisp functionality that also serves as a
 // guide to Crisp (for now).
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Code to manage running tests.
+///////////////////////////////////////////////////////////////////////////////
+
+let nTests = 0
+let nErrors = 0
+let showPassedTest = true
+
+
+let displaySummary = fn () {
+    write("\n", nTests - nErrors, " out of ", nTests, " tests passed.\n")
+    write("There are ", nErrors, " errors. ")
+    write(if nErrors == 0 { ":-)" } else { "D-:" }, "\n")
+}
+
+let pass = fn (message) {
+    nTests = nTests + 1
+    write("[OK] `", message, "`\n")
+}
+
+let fail = fn (message) {
+    nTests = nTests + 1
+    nErrors = nErrors + 1
+    write("[FAILED] `", message, "`\n")
+}
+
+let assert = fn (condition, message) {
+    if !condition {
+        fail(message)
+    } else if showPassedTest {
+        pass(message)
+	}
+}
+
+let assertEq = fn (actual, expected, message) {
+    nTests = nTests + 1
+    if actual != expected {
+        write("[FAILED] ", message, ": expected `", expected, "` got `",
+            actual, "`\n")
+        nErrors = nErrors + 1
+    } else if showPassedTest {
+        write("[OK] ", message, "\n")
+	}
+}
 
 //
 // As you might have guessed, // starts a comment.  Comments are ignored and
@@ -21,176 +65,176 @@
 // Basic Literals
 ///////////////////////////////////////////////////////////////////////////////
 
-let testLiterals = fn (t) {
+let testLiterals = fn () {
     // Crisp has literal expressions for numbers, strings, and Boolean values.
 
     // Strings are delimited by double quotes. They are the .NET string type
     // internally.
-    t.assertEq("hi", "hi", "string literal")
+    assertEq("hi", "hi", "string literal")
 
     // All number values are .NET double (64 bit float) internally.
-    t.assertEq(123, 123, "integer number literal")
-    t.assertEq(1.5, 1.5, "fractional number literal")
+    assertEq(123, 123, "integer number literal")
+    assertEq(1.5, 1.5, "fractional number literal")
 
     // Boolean values are given by keywords true and false representing the
     // obvious values.  They are the .NET bool type internally.
-    t.assert(true, "true literal")
-    t.assertEq(false, false, "false literal")
+    assert(true, "true literal")
+    assertEq(false, false, "false literal")
 
     // The keyword null evaluates to the null object value, which is a singleton
     // value that is not equal to any other value.
-    t.assertEq(null, null, "null literal")
+    assertEq(null, null, "null literal")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Operators
 ///////////////////////////////////////////////////////////////////////////////
 
-let testOperators = fn (t) {
+let testOperators = fn () {
     // More complex expressions can be created with operators.
 
     // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `%`.
-    t.assertEq(1.0 + 2.5,  3.5, "addition")
-    t.assertEq(5.5 - 2.0,  3.5, "subtraction")
-    t.assertEq(2.5 * 3.0,  7.5, "multiplication")
-    t.assertEq(12.5 % 5.0, 2.5, "modulo")
-    t.assertEq(15.0 / 5.0, 3.0, "division #1")
-    t.assertEq(1.0 / 2.0,  0.5, "division #2")
-    t.assertEq(-0.5, 0.5-1.0, "negation")
+    assertEq(1.0 + 2.5,  3.5, "addition")
+    assertEq(5.5 - 2.0,  3.5, "subtraction")
+    assertEq(2.5 * 3.0,  7.5, "multiplication")
+    assertEq(12.5 % 5.0, 2.5, "modulo")
+    assertEq(15.0 / 5.0, 3.0, "division #1")
+    assertEq(1.0 / 2.0,  0.5, "division #2")
+    assertEq(-0.5, 0.5-1.0, "negation")
 
     // The arithmetic operators have the usual precedence levels.
-    t.assertEq(1 + 2 * 3,  7, "addition and multiplication")
-    t.assertEq(10 - 2 * 3, 4, "subtraction and multiplication")
-    t.assertEq(1 + 15 / 3, 6, "addition and division")
-    t.assertEq(1 + 8 % 3,  3, "addition and modulo")
-    t.assertEq(-2 + 4, 2, "leading negatives")
+    assertEq(1 + 2 * 3,  7, "addition and multiplication")
+    assertEq(10 - 2 * 3, 4, "subtraction and multiplication")
+    assertEq(1 + 15 / 3, 6, "addition and division")
+    assertEq(1 + 8 % 3,  3, "addition and modulo")
+    assertEq(-2 + 4, 2, "leading negatives")
 
     // Grouping with parenthesis will change order of evaluation.
-    t.assertEq((1 + 2) * 3,   9, "addition grouped and multiplication")
-    t.assertEq((10 - 2) * 3, 24, "subtraction grouped and multiplication")
+    assertEq((1 + 2) * 3,   9, "addition grouped and multiplication")
+    assertEq((10 - 2) * 3, 24, "subtraction grouped and multiplication")
 
     // All relation operators evaluate to a boolean value.
-    t.assertEq(1 == 1,          true, "int equality true")
-    t.assertEq(1 == 2,         false, "int equality false")
-    t.assertEq(1.5 == 1.5,      true, "float equality true")
-    t.assertEq(1.5 == 2.0,     false, "float equality false")
-    t.assertEq(false == false,  true, "bool equality true")
-    t.assertEq(false == true , false, "bool equality false")
-    t.assertEq("hey" == "hey",  true, "string equality true")
-    t.assertEq("hey" == "HEY", false, "string equality false")
+    assertEq(1 == 1,          true, "int equality true")
+    assertEq(1 == 2,         false, "int equality false")
+    assertEq(1.5 == 1.5,      true, "float equality true")
+    assertEq(1.5 == 2.0,     false, "float equality false")
+    assertEq(false == false,  true, "bool equality true")
+    assertEq(false == true , false, "bool equality false")
+    assertEq("hey" == "hey",  true, "string equality true")
+    assertEq("hey" == "HEY", false, "string equality false")
 
     // == is a strict equality operator. There are no conversions done.
-    t.assertEq(false == 0, false, "false and zero are not equal")
+    assertEq(false == 0, false, "false and zero are not equal")
 
     // null is equal to itself but not to other values.
-    t.assert(null == null, "null equals itself")
-    t.assertEq(null == 0, false, "null and zero are not equal")
+    assert(null == null, "null equals itself")
+    assertEq(null == 0, false, "null and zero are not equal")
 
     // != is the inequality operator
-    t.assertEq(1 != 1,         false, "int inequality false")
-    t.assertEq(1 != 2,          true, "int inequality true")
-    t.assertEq(1.5 != 1.5,     false, "float inequality false")
-    t.assertEq(1.5 != 2.0,      true, "float inequality true")
-    t.assertEq(false != false, false, "bool inequality false")
-    t.assertEq(false != true,   true, "bool inequality true")
-    t.assertEq("hey" != "hey", false, "string inequality false")
-    t.assertEq("hey" != "HEY",  true, "string inequality true")
+    assertEq(1 != 1,         false, "int inequality false")
+    assertEq(1 != 2,          true, "int inequality true")
+    assertEq(1.5 != 1.5,     false, "float inequality false")
+    assertEq(1.5 != 2.0,      true, "float inequality true")
+    assertEq(false != false, false, "bool inequality false")
+    assertEq(false != true,   true, "bool inequality true")
+    assertEq("hey" != "hey", false, "string inequality false")
+    assertEq("hey" != "HEY",  true, "string inequality true")
 
     // != is also a strict inequality operator. There are no conversions done.
-    t.assertEq(false != 0, true, "false and zero are inequal")
+    assertEq(false != 0, true, "false and zero are inequal")
 
     // == and != are lower than arithmetic in precedence.
-    t.assertEq(1  +  2 * 3 == 7, true, "= precedence")
-    t.assertEq(1  +  2 * 3 != 9, true, "!= precedence")
+    assertEq(1  +  2 * 3 == 7, true, "= precedence")
+    assertEq(1  +  2 * 3 != 9, true, "!= precedence")
 
     // There are also the normal relational operators.  These only work for
     // number valued objects.
-    t.assertEq(1 < 2,   true, "Int less than #1")
-    t.assertEq(2 < 2,  false, "Int less than #2")
-    t.assertEq(1 <= 2,  true, "Int less than or equal #1")
-    t.assertEq(2 <= 2,  true, "Int less than or equal #2")
-    t.assertEq(3 <= 2, false, "Int less than or equal #3")
-    t.assertEq(3 > 2,   true, "Int greater than #1")
-    t.assertEq(1 > 2,  false, "Int greater than #2")
-    t.assertEq(3 >= 2,  true, "Int greater than or equal #1")
-    t.assertEq(3 >= 3,  true, "Int greater than or equal #2")
-    t.assertEq(3 >= 4, false, "Int greater than or equal #3")
+    assertEq(1 < 2,   true, "Int less than #1")
+    assertEq(2 < 2,  false, "Int less than #2")
+    assertEq(1 <= 2,  true, "Int less than or equal #1")
+    assertEq(2 <= 2,  true, "Int less than or equal #2")
+    assertEq(3 <= 2, false, "Int less than or equal #3")
+    assertEq(3 > 2,   true, "Int greater than #1")
+    assertEq(1 > 2,  false, "Int greater than #2")
+    assertEq(3 >= 2,  true, "Int greater than or equal #1")
+    assertEq(3 >= 3,  true, "Int greater than or equal #2")
+    assertEq(3 >= 4, false, "Int greater than or equal #3")
 
-    t.assertEq(1.5 < 2.0,   true, "Float less than #1")
-    t.assertEq(2.0 < 2.0,  false, "Float less than #2")
-    t.assertEq(1.5 <= 2.0,  true, "Float less than or equal #1")
-    t.assertEq(2.0 <= 2.0,  true, "Float less than or equal #2")
-    t.assertEq(3.0 <= 2.5, false, "Float less than or equal #3")
-    t.assertEq(3.0 > 2.5,   true, "Float greater than #1")
-    t.assertEq(1.5 > 2.0,  false, "Float greater than #2")
-    t.assertEq(3.0 >= 2.5,  true, "Float greater than or equal #1")
-    t.assertEq(3.5 >= 3.5,  true, "Float greater than or equal #2")
-    t.assertEq(3.5 >= 4.0, false, "Float greater than or equal #3")
+    assertEq(1.5 < 2.0,   true, "Float less than #1")
+    assertEq(2.0 < 2.0,  false, "Float less than #2")
+    assertEq(1.5 <= 2.0,  true, "Float less than or equal #1")
+    assertEq(2.0 <= 2.0,  true, "Float less than or equal #2")
+    assertEq(3.0 <= 2.5, false, "Float less than or equal #3")
+    assertEq(3.0 > 2.5,   true, "Float greater than #1")
+    assertEq(1.5 > 2.0,  false, "Float greater than #2")
+    assertEq(3.0 >= 2.5,  true, "Float greater than or equal #1")
+    assertEq(3.5 >= 3.5,  true, "Float greater than or equal #2")
+    assertEq(3.5 >= 4.0, false, "Float greater than or equal #3")
 
-    t.assertEq(1 < 2.5,   true, "Int left float right less than #1")
-    t.assertEq(2 < 2.0,  false, "Int left float right less than #2")
-    t.assertEq(1 <= 2.0,  true, "Int left float right less than or equal #1")
-    t.assertEq(2 <= 2.0,  true, "Int left float right less than or equal #2")
-    t.assertEq(3 <= 2.5, false, "Int left float right less than or equal #3")
-    t.assertEq(3 > 2.5,   true, "Int left float right greater than #1")
-    t.assertEq(1 > 2.0,  false, "Int left float right greater than #2")
-    t.assertEq(3 >= 2.5,  true, "Int left float right greater than or equal #1")
-    t.assertEq(3 >= 3.0,  true, "Int left float right greater than or equal #2")
-    t.assertEq(3 >= 4.0, false, "Int left float right greater than or equal #3")
+    assertEq(1 < 2.5,   true, "Int left float right less than #1")
+    assertEq(2 < 2.0,  false, "Int left float right less than #2")
+    assertEq(1 <= 2.0,  true, "Int left float right less than or equal #1")
+    assertEq(2 <= 2.0,  true, "Int left float right less than or equal #2")
+    assertEq(3 <= 2.5, false, "Int left float right less than or equal #3")
+    assertEq(3 > 2.5,   true, "Int left float right greater than #1")
+    assertEq(1 > 2.0,  false, "Int left float right greater than #2")
+    assertEq(3 >= 2.5,  true, "Int left float right greater than or equal #1")
+    assertEq(3 >= 3.0,  true, "Int left float right greater than or equal #2")
+    assertEq(3 >= 4.0, false, "Int left float right greater than or equal #3")
 
-    t.assertEq(1.5 < 2,   true, "Float left int right less than #1")
-    t.assertEq(2.0 < 2,  false, "Float left int right less than #2")
-    t.assertEq(1.5 <= 2,  true, "Float left int right less than or equal #1")
-    t.assertEq(2.0 <= 2,  true, "Float left int right less than or equal #2")
-    t.assertEq(3.0 <= 2, false, "Float left int right less than or equal #3")
-    t.assertEq(3.0 > 2,   true, "Float left int right greater than #1")
-    t.assertEq(1.5 > 2,  false, "Float left int right greater than #2")
-    t.assertEq(3.0 >= 2,  true, "Float left int right greater than or equal #1")
-    t.assertEq(3.0 >= 3,  true, "Float left int right greater than or equal #2")
-    t.assertEq(3.5 >= 4, false, "Float left int right greater than or equal #3")
+    assertEq(1.5 < 2,   true, "Float left int right less than #1")
+    assertEq(2.0 < 2,  false, "Float left int right less than #2")
+    assertEq(1.5 <= 2,  true, "Float left int right less than or equal #1")
+    assertEq(2.0 <= 2,  true, "Float left int right less than or equal #2")
+    assertEq(3.0 <= 2, false, "Float left int right less than or equal #3")
+    assertEq(3.0 > 2,   true, "Float left int right greater than #1")
+    assertEq(1.5 > 2,  false, "Float left int right greater than #2")
+    assertEq(3.0 >= 2,  true, "Float left int right greater than or equal #1")
+    assertEq(3.0 >= 3,  true, "Float left int right greater than or equal #2")
+    assertEq(3.5 >= 4, false, "Float left int right greater than or equal #3")
 
     // Relational operators have higher precedence over equality operators
-    t.assert(1 <  2 == 2 >  1, "Equal / relational precedence #1")
-    t.assert(1 <= 2 == 2 >= 1, "Equal / relational precedence #2")
-    t.assert(2 >  1 == 1 <  2, "Equal / relational precedence #3")
-    t.assert(2 >= 1 == 1 <= 2, "Equal / relational precedence #4")
+    assert(1 <  2 == 2 >  1, "Equal / relational precedence #1")
+    assert(1 <= 2 == 2 >= 1, "Equal / relational precedence #2")
+    assert(2 >  1 == 1 <  2, "Equal / relational precedence #3")
+    assert(2 >= 1 == 1 <= 2, "Equal / relational precedence #4")
 
     // The logical operators are the usual &&, ||, and ! for and, or, and not.
-    t.assertEq(true  && true,  true,  "And #1")
-    t.assertEq(true  && false, false, "And #2")
-    t.assertEq(false && true,  false, "And #3")
-    t.assertEq(false && false, false, "And #4")
+    assertEq(true  && true,  true,  "And #1")
+    assertEq(true  && false, false, "And #2")
+    assertEq(false && true,  false, "And #3")
+    assertEq(false && false, false, "And #4")
 
-    t.assertEq(true  || true,  true,  "Or #1")
-    t.assertEq(true  || false, true,  "Or #2")
-    t.assertEq(false || true,  true,  "Or #3")
-    t.assertEq(false || false, false, "Or #4")
+    assertEq(true  || true,  true,  "Or #1")
+    assertEq(true  || false, true,  "Or #2")
+    assertEq(false || true,  true,  "Or #3")
+    assertEq(false || false, false, "Or #4")
 
-    t.assertEq(!true, false, "Not #1")
-    t.assertEq(!false, true, "Not #2")
-    t.assertEq(!false || true, true, "Leading not")
+    assertEq(!true, false, "Not #1")
+    assertEq(!false, true, "Not #2")
+    assertEq(!false || true, true, "Leading not")
 
     // && has lower precedence than equality and inequality.
-    t.assert(1 != 2 && 2 == 2, "and precedence #1")
-    t.assert(2 == 2 && 1 != 2, "and precedence #2")
+    assert(1 != 2 && 2 == 2, "and precedence #1")
+    assert(2 == 2 && 1 != 2, "and precedence #2")
 
     // || is lower in precedence than &&.
-    t.assertEq(true || false && false, true, "or precedence #1")
-    t.assertEq((true || false) && false, false, "or precedence #1")
+    assertEq(true || false && false, true, "or precedence #1")
+    assertEq((true || false) && false, false, "or precedence #1")
 
     // All values have a truth value.  false and null are false, everything else
     // is considered true.
-    t.assertEq(!null, true, "Null considered false #1")
-    t.assertEq(null || true, true, "Null considered false #2")
-    t.assertEq(null && true, false, "Null considered false #3")
-    t.assertEq(!1, false, "Objects considered true.")
+    assertEq(!null, true, "Null considered false #1")
+    assertEq(null || true, true, "Null considered false #2")
+    assertEq(null && true, false, "Null considered false #3")
+    assertEq(!1, false, "Objects considered true.")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Variables Blocks
 ///////////////////////////////////////////////////////////////////////////////
 
-let testVariablesAndBlocks = fn (t) {
+let testVariablesAndBlocks = fn () {
 
     // Variables are declared with the keyword "var" and the assignment operator:
     // "=".  A variable must be declared before it is used or else there will be
@@ -199,15 +243,15 @@ let testVariablesAndBlocks = fn (t) {
     // Identifiers must start with a letter and after that letters or digits
     // are valid.
     let x = 123
-    t.assertEq(x, 123, "variable declaration")
+    assertEq(x, 123, "variable declaration")
   
     // A variable may be updated with the assignment operator.
     x = x + 1
-    t.assertEq(x, 124, "variable assignment")
+    assertEq(x, 124, "variable assignment")
   
     // Assignments are an expression that return the value assigned to the
     // variable.
-    t.assertEq(x = 2 * x, 248, "assignment expression value")
+    assertEq(x = 2 * x, 248, "assignment expression value")
 
     //
     // "{" and "}" delimit a block.  Within a block multiple expressions can
@@ -224,38 +268,38 @@ let testVariablesAndBlocks = fn (t) {
     // similar things happens with the end token.  It can't be used to continue
     // the 1+2 expression.
     //
-    t.assertEq( { 5*6  1+2 } , 3, "Block expression return value")
+    assertEq( { 5*6  1+2 } , 3, "Block expression return value")
   
     // Blocks can contain one expression.
-    t.assertEq( { 2+3 }, 5, "Single expression block.")
+    assertEq( { 2+3 }, 5, "Single expression block.")
   
     // Empty blocks return null.
-    t.assertEq( { } , null, "Empty block")
+    assertEq( { } , null, "Empty block")
   
     // blocks also introduce a new scope for variable declarations.  You can 
     // "shadow" variables in outer scopes.
     {
         let y = 100
         let x = 2 * y
-        t.assertEq(y, 100, "block variable")
-        t.assertEq(x, 200, "block variable shadowing")
+        assertEq(y, 100, "block variable")
+        assertEq(x, 200, "block variable shadowing")
     }
-    t.assertEq(x, 248, "variable unshadowed")
+    assertEq(x, 248, "variable unshadowed")
 }
 
 // Variables declared in the top scope are global variables.
 let globalVar = 1234
 
-let testGlobalVariables = fn (t) {
+let testGlobalVariables = fn () {
     let localVar = 4321
-    t.assertEq(globalVar + localVar, 5555, "global variable")
+    assertEq(globalVar + localVar, 5555, "global variable")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Branching
 ///////////////////////////////////////////////////////////////////////////////
 
-let testBranching = fn (t) {
+let testBranching = fn () {
     // The usual if / else is present.  The syntax is
     //     "if" expr block ( "else" "if" expr block )* ("else" block)?
     //
@@ -265,19 +309,19 @@ let testBranching = fn (t) {
     // alternative wasn't given then it defaults to null.
 
     // ifs are expressions.
-    t.assertEq(if true { 123 }, 123, "If true expression")
+    assertEq(if true { 123 }, 123, "If true expression")
 
     // If there is no else and the condition expression is falsy, then the
     // result is null.
-    t.assertEq(if false { 123 }, null, "If false expression")
+    assertEq(if false { 123 }, null, "If false expression")
 
     // If there is an else, and the condition expression is falsy, then the
     // result is the alternative expression.
-    t.assertEq(if false { 123 } else { 321 }, 321, "If / else false expression")
+    assertEq(if false { 123 } else { 321 }, 321, "If / else false expression")
 
     // Any valid expression can go in the condition, consequent, and
     // alternative.
-    t.assertEq(
+    assertEq(
         if { let result = 1 + 2  result == 3 } {
             let x = 4
             let y = 2
@@ -293,16 +337,16 @@ let testBranching = fn (t) {
         let x = null
         let message = "using if to test for null"
         if x {
-            t.fail(message)
+            fail(message)
         } else {
-            t.pass(message)
+            pass(message)
 		}
     }
 
     // You can do if else chains
     {
         let name = "Tom"
-        t.assertEq(
+        assertEq(
             if name == "Jerry" { 1 }
             else if name == "Susan" { 2 }
             else if name == "Tom" { 3 }
@@ -316,7 +360,7 @@ let testBranching = fn (t) {
 // Looping
 ///////////////////////////////////////////////////////////////////////////////
 
-let testLooping = fn (t) {
+let testLooping = fn () {
 
     // The usual while loop is present.  The syntax is
     //     while <condition> <block>
@@ -332,7 +376,7 @@ let testLooping = fn (t) {
             sum = sum + n
             n = n + 1
         }
-        t.assertEq(sum, 5050, "While loop")
+        assertEq(sum, 5050, "While loop")
     }
 
 
@@ -342,12 +386,12 @@ let testLooping = fn (t) {
         while false {
             n = n + 1
 		}
-        t.assertEq(n, 100, "Never executing while loop")
+        assertEq(n, 100, "Never executing while loop")
     }
 
     // A while always evaluates to null, as they are used for their side
     // effects.
-    t.assertEq(while false { 0 }, null, "While evals to null")
+    assertEq(while false { 0 }, null, "While evals to null")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -375,10 +419,10 @@ let factorial = fn (n) {
 }
 
 let testFunctions = fn (t) {
-    t.assertEq(nothing(), null, "Empty function")
-    t.assertEq(square(3), 9, "Function declaration")
-    t.assertEq(divides(5, 35), true, "Named functions")
-    t.assertEq(factorial(10), 3628800, "Recursive functions")
+    assertEq(nothing(), null, "Empty function")
+    assertEq(square(3), 9, "Function declaration")
+    assertEq(divides(5, 35), true, "Named functions")
+    assertEq(factorial(10), 3628800, "Recursive functions")
 
     // Functions also do closures.  An inner variable can hide an outer
     // variable as long as it defined somewhere in the same scope as the 
@@ -387,9 +431,9 @@ let testFunctions = fn (t) {
         let a = "outer"
         {
             let getA = fn () { a }
-            t.assertEq(getA(), "outer", "Closure test #1")
+            assertEq(getA(), "outer", "Closure test #1")
             let a = "inner"
-            t.assertEq(getA(), "inner", "Closure test #2")
+            assertEq(getA(), "inner", "Closure test #2")
         }
     }
 }
@@ -398,7 +442,7 @@ let testFunctions = fn (t) {
 // More Logical
 ///////////////////////////////////////////////////////////////////////////////
 
-let testLogicalAndOr = fn (t) {
+let testLogicalAndOr = fn () {
     let createCounter = fn () {
         let n = 0
         fn () { n = n + 1}
@@ -406,186 +450,26 @@ let testLogicalAndOr = fn (t) {
     let counter = createCounter()
 
     // The "&&" operator short circuits in the expected way.
-    t.assertEq(false && counter() == 1, false, "and short circuits #1")
-    t.assertEq(counter(), 1, "and short circuits #2")
-    t.assertEq(true && counter() == 2, true, "and short circuits #3")
-    t.assertEq(counter(), 3, "and short circuits #4")
+    assertEq(false && counter() == 1, false, "and short circuits #1")
+    assertEq(counter(), 1, "and short circuits #2")
+    assertEq(true && counter() == 2, true, "and short circuits #3")
+    assertEq(counter(), 3, "and short circuits #4")
 
     // The "||" operator short circuits in the expected way.
     counter = createCounter()
-    t.assertEq(true || counter() == 1, true, "or short circuits #1")
-    t.assertEq(counter(), 1, "or short circuits #2")
-    t.assertEq(false || counter() == 2, true, "or short circuits #3")
-    t.assertEq(counter(), 3, "or short circuits #4")
+    assertEq(true || counter() == 1, true, "or short circuits #1")
+    assertEq(counter(), 1, "or short circuits #2")
+    assertEq(false || counter() == 2, true, "or short circuits #3")
+    assertEq(counter(), 3, "or short circuits #4")
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Objects
-///////////////////////////////////////////////////////////////////////////////
+testLiterals()
+testOperators()
+testVariablesAndBlocks()
+testGlobalVariables()
+testBranching()
+testLooping()
+testFunctions()
+testLogicalAndOr()
 
-let testObjects = fn (t) {
-    // New objects can be created with the # operator.  # creates a new
-    // object using the original object as a prototype.  The "Object" name is
-    // bound to an object which is the prototype of all objects.
-    //     Objects may have properties.  Properties values can be defined using
-    // a .identifer or an [ ] indexer.
-    let person = #Object
-    person.name = #Object
-    person.name.first = "John"
-    person.name["last"] = "Smith"
-    person["age"] = 40
-
-    // Object properties can be retrieved with the index operator.  The
-    // property name must be passed in as a string.
-    t.assertEq(person["age"], 40, "Object indexing get #1")
-    t.assertEq(person["name"]["first"], "John", "Object indexing get #2")
-
-    // Object properties can be updated and added using the index operator
-    // and an assignment operator.
-    person["weight"] = 250
-    person["name"]["middle"] = "James"
-    t.assertEq(person["weight"], 250, "Object index set #1")
-    t.assertEq(person["name"]["middle"], "James", "Object index set #2")
-
-    // If the object"s key is a valid identfier then a property"s value can
-    // be got with a "." operator.  It can also be set the same way.  This,
-    // of course, is easier to use than the index operator.
-    person.height = 5.5
-    person.name.title = "Dr."
-    t.assertEq(person.height, 5.5, "Dot operator #1")
-    t.assertEq(person.name.title, "Dr.", "Dot operator #2")
-
-    // In fact the key to an object property can be any other object, but
-    // then you're stuck with using the index operator.  That is objects
-    // are maps / dictionaries / associative arrays.  You can also
-    // add properties to objects other than user defined ones.
-    person[false] = 2.5
-    let f = fn (x) { 2 * x }
-    f.description = "a function that doubles"
-    t.assertEq(person[false], 2.5, "Index operator bool key")
-    t.assertEq(f.description, "a function that doubles", "Property on a function")
-    t.assertEq(f(2), 4, "Function call that has a property")
-
-    // If a key isn't in an object, then retrieving it returns null.
-    t.assertEq(person.gender, null, "object key not set")
-
-    // The "is" operator tests if two objects are the same object or if the
-    // right hand side object is in the left hand side object's prototype
-    // chain.  The Object, Number, String, Null, Bool, and Function names are
-    // all bound to the prototype of their respective types.
-    let IsObject = #Object
-    let isNumber = 0
-    let isString = ""
-    let isNull = null
-    let isBool = true
-    let isFunction = fn () { }
-
-    t.assert(IsObject is Object, "is object")
-    t.assert(isNumber is Object, "number is object")
-    t.assert(isString is Object, "string is object")
-    t.assert(isNull is Object, "null is object")
-    t.assert(isBool is Object, "bool is object")
-    t.assert(isFunction is Object, "function is object")
-
-    t.assert(IsObject is IsObject, "is object itself")
-    t.assert(#IsObject is IsObject, "child IsObject is IsObject")
-    t.assert(isNumber is Number, "is number")
-    t.assert(isString is String, "is string")
-    t.assert(isNull is Null, "is null")
-    t.assert(isBool is Bool, "is bool")
-    t.assert(isFunction is Function, "is function")
-
-    t.assertEq(0 is Bool, false, "is negative result")
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Lists
-///////////////////////////////////////////////////////////////////////////////
-
-let testLists = fn (t) {
-    // List objects are dynamically sized arrays.  They are created a literal
-    // syntax and are indexed in the usual way starting at zero.
-    let emptyList = []
-    let list = [3*2, "hello", false, null, #Object, fn (x) { x }]
-
-    t.assertEq(list[0], 6, "list indexing #1")
-    t.assertEq(list[2], false, "list indexing #2")
-    t.assertEq(list[5](100), 100, "list indexing #3")
-
-    list[3] = true
-    t.assertEq(list[3], true, "list update")
-
-    // Lists have `length` and `add` methods.
-    t.assertEq(emptyList.length(), 0, "length of empty list")
-    t.assertEq(list.length(), 6, "length of non-empty list")
-    
-    list.add("new item")
-    t.assertEq(list.length(), 7, "length of non-empty list #2")
-    t.assertEq(list[6], "new item", "list indexing #4")
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Code to manage running tests.
-///////////////////////////////////////////////////////////////////////////////
-
-let Test = #Object
-    
-Test.init = fn (showPassedTest) {
-    self.nTests = 0
-    self.nErrors = 0
-    self.showPassedTest = showPassedTest
-    self
-}
-
-Test.displaySummary = fn () {
-    write("\n", self.nTests - self.nErrors, " out of ", self.nTests, " tests passed.\n")
-    write("There are ", self.nErrors, " errors. ")
-    write(if self.nErrors == 0 { ":-)" } else { "D-:" }, "\n")
-}
-
-Test.pass = fn (message) {
-    self.nTests = self.nTests + 1
-    write("[OK] `", message, "`\n")
-}
-
-Test.fail = fn (message) {
-    self.nTests = self.nTests + 1
-    self.nErrors = self.nErrors + 1
-    write("[FAILED] `", message, "`\n")
-}
-
-Test.assert = fn (condition, message) {
-    if !condition {
-        self.fail(message)
-    } else if self.showPassedTest {
-        self.pass(message)
-	}
-}
-
-Test.assertEq = fn (actual, expected, message) {
-    self.nTests = self.nTests + 1
-    if actual != expected {
-        write("[FAILED] ", message, ": expected `", expected, "` got `",
-            actual, "`\n")
-        self.nErrors = self.nErrors + 1
-    } else if self.showPassedTest {
-        write("[OK] ", message, "\n")
-	}
-}
-
-{
-    let test = #Test.init(true)
-
-    testLiterals(test)
-    testOperators(test)
-    testVariablesAndBlocks(test)
-    testGlobalVariables(test)
-    testBranching(test)
-    testLooping(test)
-    testFunctions(test)
-    testLogicalAndOr(test)
-    testObjects(test)
-    testLists(test)
-
-    test.displaySummary()
-}
+displaySummary()
