@@ -34,8 +34,8 @@ namespace Crisp.Parsing
             current = GetChar(code, i);
             peek = GetChar(code, i + 1);
             position = current.HasValue
-                ? new Position(line: 1, column: 1)
-                : new Position(line: 1, column: 0);
+                ? new Position(Line: 1, Column: 1)
+                : new Position(Line: 1, Column: 0);
             markPosition = position;
         }
 

@@ -9,6 +9,11 @@ namespace Crisp.Runtime
 
     delegate Thunk Function(object[] arguments, Continuation continuation);
 
+    record Null
+    {
+        public override string ToString() => "null";
+    }
+
     static class InterpreterCps
     {
         public static object Evaluate(IExpression expression, Environment environment)

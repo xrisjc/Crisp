@@ -1,30 +1,11 @@
 ﻿namespace Crisp.Parsing
 {
-    class Position
+    record Position(int Line, int Column)
     {
-        public int Line { get; }
+        public Position IncreaseColumn() => this with { Column = Column + 1 };
 
-        public int Column { get; }
+        public Position IncreaseLine() => new Position(Line + 1, 1);
 
-        public Position(int line, int column)
-        {
-            Line = line;
-            Column = column;
-        }
-
-        public Position IncreaseColumn()
-        {
-            return new Position(Line, Column + 1);
-        }
-
-        public Position IncreaseLine()
-        {
-            return new Position(Line + 1, column: 1);
-        }
-
-        public override string ToString()
-        {
-            return $"{Line}:{Column}";
-        }
+        public override string ToString() => $"{Line}:{Column}";
     }
 }
