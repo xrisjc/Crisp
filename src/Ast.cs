@@ -5,26 +5,6 @@ namespace Crisp.Ast
 {
     interface IExpression
     {
-        T Accept<T>(IExpressionVisitor<T> visitor);
-    }
-
-    interface IExpressionVisitor<T>
-    {
-        T Visit(AssignmentIdentifier ai);
-        T Visit(Block b);
-        T Visit(Call c);
-        T Visit(Conditional c);
-        T Visit(Function f);
-        T Visit(Identifier i);
-        T Visit(Let v);
-        T Visit(LiteralBool lb);
-        T Visit(LiteralNull ln);
-        T Visit(LiteralNumber ln);
-        T Visit(LiteralString ls);
-        T Visit(OperatorBinary ob);
-        T Visit(OperatorUnary ou);
-        T Visit(While w);
-        T Visit(Write w);
     }
 
     class AssignmentIdentifier : IExpression
@@ -36,7 +16,6 @@ namespace Crisp.Ast
             Target = target;
             Value = value;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Block : IExpression
@@ -46,7 +25,6 @@ namespace Crisp.Ast
         {
             Body = body;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Call : IExpression
@@ -63,7 +41,6 @@ namespace Crisp.Ast
             Target = target;
             Arguments = arguments;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Conditional : IExpression
@@ -75,7 +52,6 @@ namespace Crisp.Ast
             Branches = branches;
             ElseBlock = elseBlock;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Function : IExpression
@@ -87,7 +63,6 @@ namespace Crisp.Ast
             Parameters = parameters;
             Body = body;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Identifier : IExpression
@@ -99,7 +74,6 @@ namespace Crisp.Ast
             Position = position;
             Name = name;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     abstract class Literal<T>
@@ -111,24 +85,20 @@ namespace Crisp.Ast
     class LiteralBool : Literal<bool>, IExpression
     {
         public LiteralBool(bool value) : base(value) { }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class LiteralNull : IExpression
     {
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class LiteralNumber : Literal<double>, IExpression
     {
         public LiteralNumber(double value) : base(value) { }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class LiteralString : Literal<string>, IExpression
     {
         public LiteralString(string value) : base(value) { }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     enum OperatorBinaryTag
@@ -161,7 +131,6 @@ namespace Crisp.Ast
             Left = left;
             Right = right;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     enum OperatorUnaryTag
@@ -181,7 +150,6 @@ namespace Crisp.Ast
             Op = op;
             Expression = expression;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Program
@@ -202,7 +170,6 @@ namespace Crisp.Ast
             Name = name;
             InitialValue = initialValue;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class While : IExpression
@@ -214,7 +181,6 @@ namespace Crisp.Ast
             Guard = guard;
             Body = body;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 
     class Write : IExpression
@@ -224,6 +190,5 @@ namespace Crisp.Ast
         {
             Arguments = arguments;
         }
-        public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.Visit(this);
     }
 }
