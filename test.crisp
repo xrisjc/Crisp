@@ -473,3 +473,12 @@ testFunctions()
 testLogicalAndOr()
 
 displaySummary()
+
+
+let tailCall = fn (a, i, n) {
+    //write("tailCall(", a, ", ", i, ", ", n, ")\n")
+    if i <= 0 { a }
+    else { tailCall(a+i, i-1, n) }
+}
+let N = 20000
+write(tailCall(0, N, N), "\n")

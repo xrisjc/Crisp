@@ -84,7 +84,7 @@ namespace Crisp.Runtime
             return new Null();
         }
 
-        public object Visit(Function function)
+        public object Visit(Ast.Function function)
         {
             var closure = Environment;
 

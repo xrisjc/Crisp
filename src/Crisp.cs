@@ -23,19 +23,12 @@ namespace Crisp
             }
         }
 
-        static void Load(string filename, Interpreter interpreter)
+        static void Load(string filename, Runtime.Environment environment)
         {
             var code = File.ReadAllText(filename);
             var program = Parser.Parse(code);
             foreach (var expr in program.Expressions)
-                interpreter.Evaluate(expr);
-        }
-
-        static Interpreter InitInterpreter()
-        {
-            var globals = new Runtime.Environment();
-            var interpreter = new Interpreter(globals);
-            return interpreter;
+                InterpreterCps.Evaluate(expr, environment);
         }
 
         public static void Repl(TextReader reader, TextWriter writer)
@@ -65,7 +58,7 @@ namespace Crisp
                 };
             }
 
-            bool RunCommand((string, string) command, Interpreter interpreter)
+            bool RunCommand((string, string) command, Runtime.Environment environment)
             {
                 switch (command)
                 {
@@ -75,7 +68,7 @@ namespace Crisp
                             var program = Parser.Parse(code);
                             var result = new Null();
                             foreach (var expr in program.Expressions)
-                                writer.WriteLine(interpreter.Evaluate(expr));
+                                writer.WriteLine(InterpreterCps.Evaluate(expr, environment));
                         }
                         catch (CrispException e)
                         {
@@ -94,13 +87,13 @@ namespace Crisp
                 return false;
             }
 
-            var interpreter = InitInterpreter();
+            var environment = new Runtime.Environment();
             var done = false;
             while (!done)
             {
                 var input = Prompt() ?? "";
                 var command = ParseInput(input);
-                done = RunCommand(command, interpreter);
+                done = RunCommand(command, environment);
             }
             writer.WriteLine("goodbye");
         }
@@ -109,8 +102,7 @@ namespace Crisp
         {
             try
             {
-                var interpreter = InitInterpreter();
-                Load(filename, interpreter);
+                Load(filename, new Runtime.Environment());
             }
             catch (CrispException e)
             {
