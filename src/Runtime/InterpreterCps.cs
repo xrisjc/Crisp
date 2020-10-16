@@ -100,35 +100,16 @@ namespace Crisp.Runtime
                         });
 
                 case Conditional c:
-                    {
-                        Thunk t;
-
-                        if (c.ElseBlock != null)
-                            t = () => Evaluate(c.ElseBlock, environment, continuation);
-                        else
-                            t = () => continuation(new Null());
-
-                        for (var i = c.Branches.Count - 1; i >= 0; i--)
-                        {
-                            var (condition, consequence) = c.Branches[i];
-                            var lastT = t;
-                            t = () => Evaluate(
-                                condition,
+                    return () => Evaluate(
+                        c.Condition,
+                        environment,
+                        conditionResult =>
+                            () => Evaluate(
+                                IsTruthy(conditionResult)
+                                    ? c.Consequence
+                                    : c.Alternative,
                                 environment,
-                                conditionResult =>
-                                {
-                                    if (IsTruthy(conditionResult))
-                                        return () => Evaluate(
-                                            consequence,
-                                            environment,
-                                            continuation);
-                                    else
-                                        return lastT;
-                                });
-                        }
-
-                        return t;
-                    }
+                                continuation));
 
                 case Ast.Function af:
                     {

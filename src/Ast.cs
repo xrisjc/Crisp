@@ -13,7 +13,11 @@ namespace Crisp.Ast
 
     record Call(Position Position, IExpression Target, List<IExpression> Arguments) : IExpression;
 
-    record Conditional(List<(IExpression, Block)> Branches, Block? ElseBlock) : IExpression;
+    record Conditional(
+        IExpression Condition,
+        IExpression Consequence,
+        IExpression Alternative)
+        : IExpression;
 
     record Function(List<Identifier> Parameters, Block Body) : IExpression;
 

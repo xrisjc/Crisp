@@ -101,27 +101,26 @@ namespace Crisp.Parsing
 
         IExpression If()
         {
-            (IExpression, Block) Branch()
-            {
-                var condition = Expression();
-                var consequence = ExpectBlock();
-                return (condition, consequence);
-            }
+            var condition = Expression();
+            var consequence = ExpectBlock();
 
-            var branches = new List<(IExpression, Block)>();
-
-            branches.Add(Branch());
-
-            while (Current.Tag == TokenTag.Else && Peek.Tag == TokenTag.If)
+            IExpression alternative;
+            if (Current.Tag == TokenTag.Else && Peek.Tag == TokenTag.If)
             {
                 NextToken();
                 NextToken();
-                branches.Add(Branch());
+                alternative = If();
             }
-
-            var elseBlock = Match(TokenTag.Else) ? ExpectBlock() : null;
-
-            return new Conditional(branches, elseBlock);
+            else if (Match(TokenTag.Else))
+            {
+                alternative = ExpectBlock();
+            }
+            else
+            {
+                alternative = new LiteralNull();
+            }
+            
+            return new Conditional(condition, consequence, alternative);
         }
 
         IExpression While()
