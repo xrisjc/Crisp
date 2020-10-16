@@ -55,28 +55,11 @@ namespace Crisp.Runtime
                             return () => continuation(result);
                         });
 
-                case Block b when b.Body.Count == 0:
-                    return () => continuation(new Null());
-
                 case Block b:
-                    {
-                        var localEnvironment = new Environment(environment);
-
-                        var lastExpression = b.Body[b.Body.Count - 1];
-                        Thunk t = () => Evaluate(lastExpression, localEnvironment, continuation);
-
-                        for (var i = b.Body.Count - 2; i >= 0; i--)
-                        {
-                            var expr = b.Body[i];
-                            var lastT = t;
-                            t = () => Evaluate(
-                                expr,
-                                localEnvironment,
-                                _ => lastT);
-                        }
-
-                        return t;
-                    }
+                    return () => Evaluate(
+                        b.Body,
+                        new Environment(environment),
+                        continuation);
 
                 case Call c:
                     return () => Evaluate(
@@ -110,6 +93,12 @@ namespace Crisp.Runtime
                                     : c.Alternative,
                                 environment,
                                 continuation));
+
+                case ExpressionPair ep:
+                    return () => Evaluate(
+                        ep.Head,
+                        environment,
+                        _ => () => Evaluate(ep.Tail, environment, continuation));
 
                 case Ast.Function af:
                     {

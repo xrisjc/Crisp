@@ -130,13 +130,13 @@ namespace Crisp.Parsing
             return new While(guard, body);
         }
 
-        Block ExpectBlock()
+        IExpression ExpectBlock()
         {
             Expect(TokenTag.LBrace);
             return Block();
         }
 
-        Block Block()
+        IExpression Block()
         {
             var body = new List<IExpression>();
             while (!Match(TokenTag.RBrace))
@@ -144,7 +144,20 @@ namespace Crisp.Parsing
                 var expr = Expression();
                 body.Add(expr);
             }
-            return new Block(body);
+
+            if (body.Count == 0)
+                return new LiteralNull();
+            else if (body.Count == 1)
+                return body[0];
+            else
+            {
+                var e = body[body.Count - 1];
+                for (var i = body.Count - 2; i >= 0; i--)
+                {
+                    e = new ExpressionPair(body[i], e);
+                }
+                return new Block(e);
+            }
         }
 
         List<Identifier> Parameters()

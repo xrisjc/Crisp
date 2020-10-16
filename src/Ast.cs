@@ -7,9 +7,11 @@ namespace Crisp.Ast
     {
     }
 
+    record ExpressionPair(IExpression Head, IExpression Tail) : IExpression;
+
     record AssignmentIdentifier(Identifier Target, IExpression Value) : IExpression;
 
-    record Block(List<IExpression> Body) : IExpression;
+    record Block(IExpression Body) : IExpression;
 
     record Call(Position Position, IExpression Target, List<IExpression> Arguments) : IExpression;
 
@@ -19,7 +21,7 @@ namespace Crisp.Ast
         IExpression Alternative)
         : IExpression;
 
-    record Function(List<Identifier> Parameters, Block Body) : IExpression;
+    record Function(List<Identifier> Parameters, IExpression Body) : IExpression;
 
     record Identifier(Position Position, string Name) : IExpression;
 
@@ -71,7 +73,7 @@ namespace Crisp.Ast
 
     record Let(Identifier Name, IExpression InitialValue) : IExpression;
 
-    record While(IExpression Guard, Block Body) : IExpression;
+    record While(IExpression Guard, IExpression Body) : IExpression;
 
     record Write(List<IExpression> Arguments) : IExpression;
 }
