@@ -7,7 +7,9 @@ namespace Crisp.Runtime
 
     delegate Thunk? Continuation(object result);
 
-    delegate Thunk Function(object[] arguments, Continuation continuation);
+    delegate Thunk Function(object argument, Continuation continuation);
+
+    delegate Thunk Procedure(Continuation continuation);
 
     record Null
     {
@@ -61,27 +63,6 @@ namespace Crisp.Runtime
                         new Environment(environment),
                         continuation);
 
-                case Call c:
-                    return () => Evaluate(
-                        c.Target,
-                        environment,
-                        result =>
-                        {
-                            if (result is Function rf)
-                            {
-                                var arguments = new object[c.Arguments.Count];
-                                for (var i = 0; i < arguments.Length; i++)
-                                    arguments[i] = Evaluate(c.Arguments[i], environment);
-                                return () => rf(arguments, continuation);
-                            }
-                            else
-                            {
-                                throw new RuntimeErrorException(
-                                    c.Position,
-                                    $"Cannot call non-callable object <{result}>.");
-                            }
-                        });
-
                 case Conditional c:
                     return () => Evaluate(
                         c.Condition,
@@ -101,31 +82,35 @@ namespace Crisp.Runtime
                         _ => () => Evaluate(ep.Tail, environment, continuation));
 
                 case Ast.Function af:
-                    {
-                        var closure = environment;
-
-                        Function rf = (object[] arguments, Continuation continuation) =>
+                    return () => continuation(
+                        new Function((object argument, Continuation continuation) =>
                         {
-                            var environment = new Environment(closure);
-                            var parameters = af.Parameters;
-                            for (int i = 0; i < parameters.Count; i++)
-                            {
-                                object value;
-                                if (i < arguments.Length)
-                                    value = arguments[i];
-                                else
-                                    value = new Null();
-                                
-                                if (!environment.Create(parameters[i].Name, value))
-                                    throw new RuntimeErrorException(
-                                        parameters[i].Position,
-                                        $"Parameter {parameters[i].Name} already bound.");
-                            }
-                            return () => Evaluate(af.Body, environment, continuation);
-                        };
+                            var localEnvironment = new Environment(environment);
+                            localEnvironment.Create(af.Parameter.Name, argument);
+                            return () => Evaluate(af.Body, localEnvironment, continuation);
+                        }));
 
-                        return () => continuation(rf);
-                    };
+                case FunctionCall fc:
+                    return () => Evaluate(
+                        fc.Target,
+                        environment,
+                        target =>
+                        {
+                            if (target is Function rf)
+                            {
+                                return () => Evaluate(
+                                    fc.Argument,
+                                    environment,
+                                    argument =>
+                                        () => rf(argument, continuation));
+                            }
+                            else
+                            {
+                                throw new RuntimeErrorException(
+                                    fc.Position,
+                                    $"Cannot call non-callable object <{target}>.");
+                            }
+                        });
 
                 case Identifier id:
                     return () => continuation(
@@ -158,9 +143,6 @@ namespace Crisp.Runtime
                                     $"Identifier <{l.Name.Name}> is already bound");
                             return continuation(result);
                         });
-
-                case Program p:
-                    return () => Evaluate(p.Body, environment, continuation);
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
                     return () => Evaluate(
@@ -256,6 +238,35 @@ namespace Crisp.Runtime
                                             op.Position,
                                             $"Operator {op.Op} cannot be applied to values `{result}`"),
                                 }));
+
+                case Ast.Procedure p:
+                    return () => continuation(
+                        new Procedure((Continuation continuation) =>
+                            () => Evaluate(
+                                p.Body,
+                                environment,
+                                continuation)));
+
+                case ProcedureCall pc:
+                    return () => Evaluate(
+                        pc.Target,
+                        environment,
+                        target =>
+                        {
+                            if (target is Procedure rp)
+                            {
+                                return () => rp(continuation);
+                            }
+                            else
+                            {
+                                throw new RuntimeErrorException(
+                                    pc.Position,
+                                    $"Cannot call non-callable object <{target}>.");
+                            }
+                        });
+
+                case Program p:
+                    return () => Evaluate(p.Body, environment, continuation);
 
                 case While w:
                     return () => Evaluate(

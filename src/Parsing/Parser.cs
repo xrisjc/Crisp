@@ -109,11 +109,20 @@ namespace Crisp.Parsing
                 initialValue);
         }
 
-        Function Function()
+        IExpression Function()
         {
             var parameters = Parameters();
             var body = ExpectBlock();
-            return new Function(parameters, body);
+
+            if (parameters.Count == 0)
+                return new Procedure(body);
+            else
+            {
+                var fn = new Function(parameters[parameters.Count - 1], body);
+                for (var i = parameters.Count - 2; i >= 0; i--)
+                    fn = new Function(parameters[i], fn);
+                return fn;
+            }
         }
 
         IExpression If()
@@ -299,7 +308,20 @@ namespace Crisp.Parsing
             while (true)
             {
                 if (Match(TokenTag.LParen) is Token tokenCall)
-                    left = new Call(tokenCall.Position, left, Arguments(TokenTag.RParen));
+                {
+                    if (Match(TokenTag.RParen))
+                        left = new ProcedureCall(tokenCall.Position, left);
+                    else
+                    {
+                        do
+                        {
+                            var argument = Expression();
+                            left = new FunctionCall(tokenCall.Position, left, argument);
+                        }
+                        while (Match(TokenTag.Comma));
+                        Expect(TokenTag.RParen);
+                    }
+                }
                 else
                     break;
             }

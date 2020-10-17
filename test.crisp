@@ -418,7 +418,7 @@ let factorial = fn (n) {
     else { n * factorial(n - 1) }
 }
 
-let testFunctions = fn (t) {
+let testFunctions = fn () {
     assertEq(nothing(), null, "Empty function")
     assertEq(square(3), 9, "Function declaration")
     assertEq(divides(5, 35), true, "Named functions")
