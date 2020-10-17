@@ -52,7 +52,7 @@ namespace Crisp.Runtime
                                 throw new RuntimeErrorException(
                                     ai.Target.Position,
                                     $"Cannot assign, <{ai.Target.Name}> is unbound");
-                            return () => continuation(result);
+                            return continuation(result);
                         });
 
                 case Block b:
@@ -156,7 +156,7 @@ namespace Crisp.Runtime
                                 throw new RuntimeErrorException(
                                     l.Name.Position,
                                     $"Identifier <{l.Name.Name}> is already bound");
-                            return () => continuation(result);
+                            return continuation(result);
                         });
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
@@ -171,7 +171,7 @@ namespace Crisp.Runtime
                                     environment,
                                     right => continuation(IsTruthy(right)));
                             else
-                                return () => continuation(false);
+                                return continuation(false);
                         });
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.Or:
@@ -181,7 +181,7 @@ namespace Crisp.Runtime
                         left =>
                         {
                             if (IsTruthy(left))
-                                return () => continuation(true);
+                                return continuation(true);
                             else
                                 return () => Evaluate(
                                     op.Right,
@@ -196,7 +196,7 @@ namespace Crisp.Runtime
                         left => Evaluate(
                             op.Right,
                             environment,
-                            right => () => continuation(left.Equals(right))));
+                            right => continuation(left.Equals(right))));
 
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.Neq:
                     return () => Evaluate(
@@ -205,7 +205,7 @@ namespace Crisp.Runtime
                         left => Evaluate(
                             op.Right,
                             environment,
-                            right => () => continuation(!left.Equals(right))));
+                            right => continuation(!left.Equals(right))));
 
                 case OperatorBinary op:
                     return () => Evaluate(
@@ -216,7 +216,7 @@ namespace Crisp.Runtime
                                 op.Right,
                                 environment,
                                 right =>
-                                    () => continuation(
+                                    continuation(
                                         (op.Tag, left, right) switch
                                         {
                                             (OperatorBinaryTag.Add,  double l, double r) => l + r,
@@ -238,14 +238,14 @@ namespace Crisp.Runtime
                     return () => Evaluate(
                         op.Expression,
                         environment,
-                        result => () => continuation(!IsTruthy(result)));
+                        result => continuation(!IsTruthy(result)));
 
                 case OperatorUnary op:
                     return () => Evaluate(
                         op.Expression,
                         environment,
                         result =>
-                            () => continuation(
+                            continuation(
                                 (op.Op, result) switch
                                 {
                                     (OperatorUnaryTag.Neg, double n) => -n,
