@@ -418,11 +418,21 @@ let factorial = fn (n) {
     else { n * factorial(n - 1) }
 }
 
+let tailCall = fn (a, i, n) {
+    if i <= 0 { a }
+    else { tailCall(a + i, i - 1, n) }
+}
+
+let addTogether = fn (x, y, z) { x + y + z }
+
 let testFunctions = fn () {
     assertEq(nothing(), null, "Empty function")
     assertEq(square(3), 9, "Function declaration")
     assertEq(divides(5, 35), true, "Named functions")
     assertEq(factorial(10), 3628800, "Recursive functions")
+    let N = 100000
+    assertEq(tailCall(0, N, N), 5000050000, "tail call elimination")
+    assertEq(addTogether(100)(200)(300), 600, "function currying")
 
     // Functions also do closures.  An inner variable can hide an outer
     // variable as long as it defined somewhere in the same scope as the 
@@ -473,12 +483,3 @@ testFunctions()
 testLogicalAndOr()
 
 displaySummary()
-
-
-let tailCall = fn (a, i, n) {
-    //write("tailCall(", a, ", ", i, ", ", n, ")\n")
-    if i <= 0 { a }
-    else { tailCall(a+i, i-1, n) }
-}
-let N = 20000
-write(tailCall(0, N, N), "\n")
