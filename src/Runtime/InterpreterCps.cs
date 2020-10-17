@@ -258,12 +258,20 @@ namespace Crisp.Runtime
                                 }));
 
                 case While w:
-                    return () =>
-                    {
-                        while (IsTruthy(Evaluate(w.Guard, environment)))
-                            Evaluate(w.Body, environment);
-                        return () => continuation(new Null());
-                    };
+                    return () => Evaluate(
+                        w.Guard,
+                        environment,
+                        guardResult =>
+                        {
+                            if (IsTruthy(guardResult))
+                                return () => Evaluate(
+                                    w.Body,
+                                    environment,
+                                    _ => () => Evaluate(w, environment, continuation));
+                            else
+                                return continuation(new Null());
+                        });
+
 
                 case Write w:
                     return () =>
