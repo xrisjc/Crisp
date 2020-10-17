@@ -401,8 +401,24 @@ namespace Crisp.Parsing
         IExpression Write()
         {
             Expect(TokenTag.LParen);
-            var arguments = Arguments(TokenTag.RParen);
-            return new Write(arguments);
+            if (Match(TokenTag.RParen))
+                throw new SyntaxErrorException(
+                    $"write requires at least one argument",
+                    Current.Position);
+            var stack = new Stack<IExpression>();
+            do
+            {
+                var value = Expression();
+                stack.Push(value);
+            }
+            while (Match(TokenTag.Comma));
+            Expect(TokenTag.RParen);
+
+            IExpression write = new Write(stack.Pop());
+            while (stack.Count > 0)
+                write = new ExpressionPair(new Write(stack.Pop()), write);
+
+            return write;
         }
 
         static string ParseString(string lexeme, Position position)

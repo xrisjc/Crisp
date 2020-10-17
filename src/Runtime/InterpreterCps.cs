@@ -37,15 +37,15 @@ namespace Crisp.Runtime
         static bool IsTruthy(object obj)
             => obj switch { bool x => x, Null _ => false, _ => true };
 
-        private static Thunk Evaluate(
+        static Thunk Evaluate(
             IExpression expression,
             Environment environment,
             Continuation continuation)
         {
-            switch (expression)
+            return expression switch
             {
-                case AssignmentIdentifier ai:
-                    return () => Evaluate(
+                AssignmentIdentifier ai =>
+                    () => Evaluate(
                         ai.Value,
                         environment,
                         result =>
@@ -55,16 +55,16 @@ namespace Crisp.Runtime
                                     ai.Target.Position,
                                     $"Cannot assign, <{ai.Target.Name}> is unbound");
                             return continuation(result);
-                        });
+                        }),
 
-                case Block b:
-                    return () => Evaluate(
+                Block b =>
+                    () => Evaluate(
                         b.Body,
                         new Environment(environment),
-                        continuation);
+                        continuation),
 
-                case Conditional c:
-                    return () => Evaluate(
+                Conditional c =>
+                    () => Evaluate(
                         c.Condition,
                         environment,
                         conditionResult =>
@@ -73,25 +73,25 @@ namespace Crisp.Runtime
                                     ? c.Consequence
                                     : c.Alternative,
                                 environment,
-                                continuation));
+                                continuation)),
 
-                case ExpressionPair ep:
-                    return () => Evaluate(
+                ExpressionPair ep =>
+                    () => Evaluate(
                         ep.Head,
                         environment,
-                        _ => () => Evaluate(ep.Tail, environment, continuation));
+                        _ => () => Evaluate(ep.Tail, environment, continuation)),
 
-                case Ast.Function af:
-                    return () => continuation(
+                Ast.Function af =>
+                    () => continuation(
                         new Function((object argument, Continuation continuation) =>
                         {
                             var localEnvironment = new Environment(environment);
                             localEnvironment.Create(af.Parameter.Name, argument);
                             return () => Evaluate(af.Body, localEnvironment, continuation);
-                        }));
+                        })),
 
-                case FunctionCall fc:
-                    return () => Evaluate(
+                FunctionCall fc =>
+                    () => Evaluate(
                         fc.Target,
                         environment,
                         target =>
@@ -110,29 +110,29 @@ namespace Crisp.Runtime
                                     fc.Position,
                                     $"Cannot call non-callable object <{target}>.");
                             }
-                        });
+                        }),
 
-                case Identifier id:
-                    return () => continuation(
+                Identifier id =>
+                    () => continuation(
                         environment.Get(id.Name) ??
                             throw new RuntimeErrorException(
                                 id.Position,
-                                $"Identifier <{id.Name}> unbound"));
+                                $"Identifier <{id.Name}> unbound")),
                 
-                case LiteralBool lb:
-                    return () => continuation(lb.Value);
+                LiteralBool lb =>
+                    () => continuation(lb.Value),
 
-                case LiteralNull ln:
-                    return () => continuation(new Null());
+                LiteralNull =>
+                    () => continuation(new Null()),
 
-                case LiteralNumber ln:
-                    return () => continuation(ln.Value);
+                LiteralNumber ln =>
+                    () => continuation(ln.Value),
 
-                case LiteralString ls:
-                    return () => continuation(ls.Value);
+                LiteralString ls =>
+                    () => continuation(ls.Value),
 
-                case Let l:
-                    return () => Evaluate(
+                Let l =>
+                    () => Evaluate(
                         l.InitialValue,
                         environment,
                         result =>
@@ -142,10 +142,10 @@ namespace Crisp.Runtime
                                     l.Name.Position,
                                     $"Identifier <{l.Name.Name}> is already bound");
                             return continuation(result);
-                        });
+                        }),
 
-                case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
-                    return () => Evaluate(
+                OperatorBinary op when op.Tag == OperatorBinaryTag.And =>
+                    () => Evaluate(
                         op.Left,
                         environment,
                         left =>
@@ -157,10 +157,10 @@ namespace Crisp.Runtime
                                     right => continuation(IsTruthy(right)));
                             else
                                 return continuation(false);
-                        });
+                        }),
 
-                case OperatorBinary op when op.Tag == OperatorBinaryTag.Or:
-                    return () => Evaluate(
+                OperatorBinary op when op.Tag == OperatorBinaryTag.Or =>
+                    () => Evaluate(
                         op.Left,
                         environment,
                         left =>
@@ -172,28 +172,28 @@ namespace Crisp.Runtime
                                     op.Right,
                                     environment,
                                     right => continuation(IsTruthy(right)));
-                        });
+                        }),
 
-                case OperatorBinary op when op.Tag == OperatorBinaryTag.Eq:
-                    return () => Evaluate(
+                OperatorBinary op when op.Tag == OperatorBinaryTag.Eq =>
+                    () => Evaluate(
                         op.Left,
                         environment,
                         left => Evaluate(
                             op.Right,
                             environment,
-                            right => continuation(left.Equals(right))));
+                            right => continuation(left.Equals(right)))),
 
-                case OperatorBinary op when op.Tag == OperatorBinaryTag.Neq:
-                    return () => Evaluate(
+                OperatorBinary op when op.Tag == OperatorBinaryTag.Neq =>
+                    () => Evaluate(
                         op.Left,
                         environment,
                         left => Evaluate(
                             op.Right,
                             environment,
-                            right => continuation(!left.Equals(right))));
+                            right => continuation(!left.Equals(right)))),
 
-                case OperatorBinary op:
-                    return () => Evaluate(
+                OperatorBinary op =>
+                    () => Evaluate(
                         op.Left,
                         environment,
                         left =>
@@ -217,16 +217,16 @@ namespace Crisp.Runtime
                                                     op.Position,
                                                     $"Operator {op.Tag} cannot be applied to values " +
                                                     $"<{left}> and <{right}>"),
-                                        })));
+                                        }))),
 
-                case OperatorUnary op when op.Op == OperatorUnaryTag.Not:
-                    return () => Evaluate(
+                OperatorUnary op when op.Op == OperatorUnaryTag.Not =>
+                    () => Evaluate(
                         op.Expression,
                         environment,
-                        result => continuation(!IsTruthy(result)));
+                        result => continuation(!IsTruthy(result))),
 
-                case OperatorUnary op:
-                    return () => Evaluate(
+                OperatorUnary op =>
+                    () => Evaluate(
                         op.Expression,
                         environment,
                         result =>
@@ -237,18 +237,18 @@ namespace Crisp.Runtime
                                     _ => throw new RuntimeErrorException(
                                             op.Position,
                                             $"Operator {op.Op} cannot be applied to values `{result}`"),
-                                }));
+                                })),
 
-                case Ast.Procedure p:
-                    return () => continuation(
+                Ast.Procedure p =>
+                    () => continuation(
                         new Procedure((Continuation continuation) =>
                             () => Evaluate(
                                 p.Body,
                                 environment,
-                                continuation)));
+                                continuation))),
 
-                case ProcedureCall pc:
-                    return () => Evaluate(
+                ProcedureCall pc =>
+                    () => Evaluate(
                         pc.Target,
                         environment,
                         target =>
@@ -263,13 +263,13 @@ namespace Crisp.Runtime
                                     pc.Position,
                                     $"Cannot call non-callable object <{target}>.");
                             }
-                        });
+                        }),
 
-                case Program p:
-                    return () => Evaluate(p.Body, environment, continuation);
+                Program p =>
+                    () => Evaluate(p.Body, environment, continuation),
 
-                case While w:
-                    return () => Evaluate(
+                While w =>
+                    () => Evaluate(
                         w.Guard,
                         environment,
                         guardResult =>
@@ -281,20 +281,21 @@ namespace Crisp.Runtime
                                     _ => () => Evaluate(w, environment, continuation));
                             else
                                 return continuation(new Null());
-                        });
+                        }),
 
+                Write w =>
+                    () => Evaluate(
+                        w.Value,
+                        environment,
+                        value =>
+                        {
+                            Console.Write(value);
+                            return continuation(new Null());
+                        }),
 
-                case Write w:
-                    return () =>
-                    {
-                        foreach (var e in w.Arguments)
-                            Console.Write(Evaluate(e, environment));
-                        return () => continuation(new Null());
-                    };
-
-                default:
-                    throw new NotImplementedException();
-            }
+                _ =>
+                    throw new NotImplementedException(),
+            };
         }
     }
 }
