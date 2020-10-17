@@ -305,25 +305,20 @@ namespace Crisp.Parsing
         IExpression Call()
         {
             var left = Primary();
-            while (true)
+            while (Match(TokenTag.LParen) is Token tokenCall)
             {
-                if (Match(TokenTag.LParen) is Token tokenCall)
-                {
-                    if (Match(TokenTag.RParen))
-                        left = new ProcedureCall(tokenCall.Position, left);
-                    else
-                    {
-                        do
-                        {
-                            var argument = Expression();
-                            left = new FunctionCall(tokenCall.Position, left, argument);
-                        }
-                        while (Match(TokenTag.Comma));
-                        Expect(TokenTag.RParen);
-                    }
-                }
+                if (Match(TokenTag.RParen))
+                    left = new ProcedureCall(tokenCall.Position, left);
                 else
-                    break;
+                {
+                    do
+                    {
+                        var argument = Expression();
+                        left = new FunctionCall(tokenCall.Position, left, argument);
+                    }
+                    while (Match(TokenTag.Comma));
+                    Expect(TokenTag.RParen);
+                }
             }
             return left;
         }
@@ -380,22 +375,6 @@ namespace Crisp.Parsing
             }
 
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
-        }
-
-        List<IExpression> Arguments(TokenTag endToken)
-        {
-            var arguments = new List<IExpression>();
-            if (!Match(endToken))
-            {
-                do
-                {
-                    var argument = Expression();
-                    arguments.Add(argument);
-                }
-                while (Match(TokenTag.Comma));
-                Expect(endToken);
-            }
-            return arguments;
         }
 
         IExpression Write()
