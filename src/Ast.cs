@@ -69,7 +69,7 @@ namespace Crisp.Ast
         IExpression Expression)
         : IExpression;
 
-    record Program(List<IExpression> Expressions);
+    record Program(IExpression Body) : IExpression;
 
     record Let(Identifier Name, IExpression InitialValue) : IExpression;
 

@@ -39,15 +39,32 @@ namespace Crisp.Parsing
 
         Program Program()
         {
-            var expressions = new List<IExpression>();
+            var body = ExpressionList(TokenTag.EndOfInput);
+            return new Program(body);
+        }
 
-            while (!Match(TokenTag.EndOfInput))
+        IExpression ExpressionList(TokenTag stopToken)
+        {
+            var body = new List<IExpression>();
+            while (!Match(stopToken))
             {
                 var expr = Expression();
-                expressions.Add(expr);
+                body.Add(expr);
             }
 
-            return new Program(expressions);
+            if (body.Count == 0)
+                return new LiteralNull();
+            else if (body.Count == 1)
+                return body[0];
+            else
+            {
+                var e = body[body.Count - 1];
+                for (var i = body.Count - 2; i >= 0; i--)
+                {
+                    e = new ExpressionPair(body[i], e);
+                }
+                return e;
+            }
         }
 
         IExpression Expression()
@@ -138,26 +155,8 @@ namespace Crisp.Parsing
 
         IExpression Block()
         {
-            var body = new List<IExpression>();
-            while (!Match(TokenTag.RBrace))
-            {
-                var expr = Expression();
-                body.Add(expr);
-            }
-
-            if (body.Count == 0)
-                return new LiteralNull();
-            else if (body.Count == 1)
-                return body[0];
-            else
-            {
-                var e = body[body.Count - 1];
-                for (var i = body.Count - 2; i >= 0; i--)
-                {
-                    e = new ExpressionPair(body[i], e);
-                }
-                return new Block(e);
-            }
+            var body = ExpressionList(TokenTag.RBrace);
+            return new Block(body);
         }
 
         List<Identifier> Parameters()

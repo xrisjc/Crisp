@@ -159,6 +159,9 @@ namespace Crisp.Runtime
                             return continuation(result);
                         });
 
+                case Program p:
+                    return () => Evaluate(p.Body, environment, continuation);
+
                 case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
                     return () => Evaluate(
                         op.Left,

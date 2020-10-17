@@ -27,8 +27,7 @@ namespace Crisp
         {
             var code = File.ReadAllText(filename);
             var program = Parser.Parse(code);
-            foreach (var expr in program.Expressions)
-                InterpreterCps.Evaluate(expr, environment);
+            InterpreterCps.Evaluate(program, environment);
         }
 
         public static void Repl(TextReader reader, TextWriter writer)
@@ -66,9 +65,8 @@ namespace Crisp
                         try
                         {
                             var program = Parser.Parse(code);
-                            var result = new Null();
-                            foreach (var expr in program.Expressions)
-                                writer.WriteLine(InterpreterCps.Evaluate(expr, environment));
+                            var result = InterpreterCps.Evaluate(program, environment);
+                            writer.WriteLine(result);
                         }
                         catch (CrispException e)
                         {
