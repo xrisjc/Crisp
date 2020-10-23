@@ -48,7 +48,7 @@
                 return token;
             else
                 throw new SyntaxErrorException(
-                    $"exepected, but didn't match, token {tag}",
+                    $"expected, but didn't match, token {tag}",
                     Current.Position);
         }
     }
