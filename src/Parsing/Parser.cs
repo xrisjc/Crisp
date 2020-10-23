@@ -54,15 +54,11 @@ namespace Crisp.Parsing
 
             if (body.Count == 0)
                 return new LiteralNull();
-            else if (body.Count == 1)
-                return body[0];
             else
             {
-                var e = body[body.Count - 1];
-                for (var i = body.Count - 2; i >= 0; i--)
-                {
-                    e = new ExpressionPair(body[i], e);
-                }
+                var e = body[^1];
+                for (var i = 2; i <= body.Count; i++)
+                    e = new ExpressionPair(body[^i], e);
                 return e;
             }
         }
