@@ -114,9 +114,9 @@ namespace Crisp.Parsing
                 return new Procedure(body);
             else
             {
-                var fn = new Function(parameters[parameters.Count - 1], body);
-                for (var i = parameters.Count - 2; i >= 0; i--)
-                    fn = new Function(parameters[i], fn);
+                var fn = new Function(parameters[^1], body);
+                for (var i = 2; i <= parameters.Count; i++)
+                    fn = new Function(parameters[^i], fn);
                 return fn;
             }
         }
