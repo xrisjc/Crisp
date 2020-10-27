@@ -1,5 +1,4 @@
 using Crisp.Parsing;
-using System.Collections.Generic;
 
 namespace Crisp.Ast
 {
@@ -85,5 +84,5 @@ namespace Crisp.Ast
 
     record While(IExpression Guard, IExpression Body) : IExpression;
 
-    record Write(List<IExpression> Arguments) : IExpression;
+    record Write(IExpression Value) : IExpression;
 }
