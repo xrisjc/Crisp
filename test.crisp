@@ -12,24 +12,24 @@ let nErrors = 0
 let showPassedTest = true
 
 
-let displaySummary = fn () {
+let displaySummary() {
     write("\n", nTests - nErrors, " out of ", nTests, " tests passed.\n")
     write("There are ", nErrors, " errors. ")
     write(if nErrors == 0 { ":-)" } else { "D-:" }, "\n")
 }
 
-let pass = fn (message) {
+let pass(message) {
     nTests = nTests + 1
     write("[OK] `", message, "`\n")
 }
 
-let fail = fn (message) {
+let fail(message) {
     nTests = nTests + 1
     nErrors = nErrors + 1
     write("[FAILED] `", message, "`\n")
 }
 
-let assert = fn (condition, message) {
+let assert(condition, message) {
     if !condition {
         fail(message)
     } else if showPassedTest {
@@ -37,7 +37,7 @@ let assert = fn (condition, message) {
 	}
 }
 
-let assertEq = fn (actual, expected, message) {
+let assertEq(actual, expected, message) {
     nTests = nTests + 1
     if actual != expected {
         write("[FAILED] ", message, ": expected `", expected, "` got `",
@@ -65,7 +65,7 @@ let assertEq = fn (actual, expected, message) {
 // Basic Literals
 ///////////////////////////////////////////////////////////////////////////////
 
-let testLiterals = fn () {
+let testLiterals() {
     // Crisp has literal expressions for numbers, strings, and Boolean values.
 
     // Strings are delimited by double quotes. They are the .NET string type
@@ -90,7 +90,7 @@ let testLiterals = fn () {
 // Operators
 ///////////////////////////////////////////////////////////////////////////////
 
-let testOperators = fn () {
+let testOperators() {
     // More complex expressions can be created with operators.
 
     // Crisp has the usual arithmetic operators `+`, `-`, `*`, `/`, and `%`.
@@ -234,7 +234,7 @@ let testOperators = fn () {
 // Variables Blocks
 ///////////////////////////////////////////////////////////////////////////////
 
-let testVariablesAndBlocks = fn () {
+let testVariablesAndBlocks() {
 
     // Variables are declared with the keyword "var" and the assignment operator:
     // "=".  A variable must be declared before it is used or else there will be
@@ -299,7 +299,7 @@ let testGlobalVariables = fn () {
 // Branching
 ///////////////////////////////////////////////////////////////////////////////
 
-let testBranching = fn () {
+let testBranching() {
     // The usual if / else is present.  The syntax is
     //     "if" expr block ( "else" "if" expr block )* ("else" block)?
     //
@@ -360,7 +360,7 @@ let testBranching = fn () {
 // Looping
 ///////////////////////////////////////////////////////////////////////////////
 
-let testLooping = fn () {
+let testLooping() {
 
     // The usual while loop is present.  The syntax is
     //     while <condition> <block>
@@ -423,7 +423,7 @@ let rec tailCall (a, i, n) {
     else { tailCall(a + i, i - 1, n) }
 }
 
-let tailCallCounter = fn () {
+let tailCallCounter() {
     let a = 0
     let N = 100000
     let i = N
@@ -442,7 +442,7 @@ let tailCallCounter = fn () {
 
 let addTogether = fn (x, y, z) { x + y + z }
 
-let testFunctions = fn () {
+let testFunctions() {
     assertEq(nothing(), null, "Empty function")
     assertEq(square(3), 9, "Function declaration")
     assertEq(divides(5, 35), true, "Named functions")
@@ -470,7 +470,7 @@ let testFunctions = fn () {
 // More Logical
 ///////////////////////////////////////////////////////////////////////////////
 
-let testLogicalAndOr = fn () {
+let testLogicalAndOr() {
     let createCounter = fn () {
         let n = 0
         fn () { n = n + 1}

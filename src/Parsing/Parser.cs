@@ -99,9 +99,16 @@ namespace Crisp.Parsing
 
         IExpression Let()
         {
+            IExpression InitialValue()
+            {
+                if (CurrentIs(TokenTag.LParen))
+                    return Function();
+                Expect(TokenTag.Assignment);
+                return Expression();
+            }
+            
             var name = Expect(TokenTag.Identifier);
-            Expect(TokenTag.Assignment);
-            var initialValue = Expression();
+            var initialValue = InitialValue();
             var body = ExpressionList(TokenTag.RParen, TokenTag.RBrace, TokenTag.EndOfInput);
             return new Let(
                 new Identifier(name.Position, name.Lexeme),
