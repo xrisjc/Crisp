@@ -2,36 +2,45 @@ using System.Collections.Generic;
 
 namespace Crisp.Runtime
 {
-    class Environment
+    interface IEnvironment
     {
-        Environment? outer;
-        Dictionary<string, object> values = new Dictionary<string, object>();
+        object? Get(string name);
+        bool Set(string name, object value);
+    }
 
-        public Environment(Environment? outer = null)
+    class EnvironmentEmpty : IEnvironment
+    {
+        public object? Get(string name) => null;
+        public bool Set(string name, object value) => false;
+    }
+
+    class EnvironmentExtended : IEnvironment
+    {
+        readonly string name;
+        object value;
+        readonly IEnvironment outer;
+        public EnvironmentExtended(string name, object value, IEnvironment outer)
         {
+            this.name = name;
+            this.value = value;
             this.outer = outer;
         }
-
         public object? Get(string name)
         {
-            for (Environment? e = this; e != null; e = e.outer)
-                if (e.values.TryGetValue(name, out var value))
-                    return value;
-            return null;           
+            if (this.name == name)
+                return value;
+            else
+                return outer.Get(name);
         }
-
         public bool Set(string name, object value)
         {
-            for (Environment? e = this; e != null; e = e.outer)
-                if (e.values.ContainsKey(name))
-                {
-                    e.values[name] = value;
-                    return true;
-                }
-            return false;
+            if (this.name == name)
+            {
+                this.value = value;
+                return true;
+            }
+            else
+                return outer.Set(name, value);
         }
-
-        public bool Create(string name, object value) =>
-            values.TryAdd(name, value);
-   }
+    }
 }

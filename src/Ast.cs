@@ -6,17 +6,19 @@ namespace Crisp.Ast
     {
     }
 
-    record ExpressionPair(IExpression Head, IExpression Tail) : IExpression;
-
     record AssignmentIdentifier(Identifier Target, IExpression Value) : IExpression;
 
     record Block(IExpression Body) : IExpression;
 
-    record Conditional(
+    record Conditional
+    (
         IExpression Condition,
         IExpression Consequence,
-        IExpression Alternative)
-        : IExpression;
+        IExpression Alternative
+    )
+    : IExpression;
+
+    record ExpressionPair(IExpression Head, IExpression Tail) : IExpression;
 
     record Function(Identifier Parameter, IExpression Body) : IExpression;
 
@@ -25,14 +27,22 @@ namespace Crisp.Ast
         IExpression Target,
         IExpression Argument): IExpression;
 
-    record Procedure(IExpression Body) : IExpression;
+    class Identifier : IExpression
+    {
+        public Position Position { get; }
+        
+        public string Name { get; }
 
-    record ProcedureCall(
-        Position Position,
-        IExpression Target)
-        : IExpression;
+        public int Depth { get; set; }
+        
+        public Identifier(Position position, string name)
+        {
+            Position = position;
+            Name = name;
+        }
+    }
 
-    record Identifier(Position Position, string Name) : IExpression;
+    record Let(Identifier Name, IExpression InitialValue, IExpression Body) : IExpression;
 
     record LiteralBool(bool Value) :  IExpression;
 
@@ -78,9 +88,14 @@ namespace Crisp.Ast
         IExpression Expression)
         : IExpression;
 
-    record Program(IExpression Body) : IExpression;
+    record Procedure(IExpression Body) : IExpression;
 
-    record Let(Identifier Name, IExpression InitialValue) : IExpression;
+    record ProcedureCall(
+        Position Position,
+        IExpression Target)
+        : IExpression;
+
+    record Program(IExpression Body) : IExpression;
 
     record While(IExpression Guard, IExpression Body) : IExpression;
 

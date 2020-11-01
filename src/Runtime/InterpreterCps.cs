@@ -18,7 +18,7 @@ namespace Crisp.Runtime
 
     static class InterpreterCps
     {
-        public static object Evaluate(IExpression expression, Environment environment)
+        public static object Evaluate(IExpression expression, IEnvironment environment)
         {
             object value = new Null();
             var thunk = Evaluate(
@@ -39,7 +39,7 @@ namespace Crisp.Runtime
 
         static Thunk Evaluate(
             IExpression expression,
-            Environment environment,
+            IEnvironment environment,
             Continuation continuation)
         {
             return expression switch
@@ -60,7 +60,7 @@ namespace Crisp.Runtime
                 Block b =>
                     () => Evaluate(
                         b.Body,
-                        new Environment(environment),
+                        environment,
                         continuation),
 
                 Conditional c =>
@@ -85,8 +85,7 @@ namespace Crisp.Runtime
                     () => continuation(
                         new Function((object argument, Continuation continuation) =>
                         {
-                            var localEnvironment = new Environment(environment);
-                            localEnvironment.Create(af.Parameter.Name, argument);
+                            var localEnvironment = new EnvironmentExtended(af.Parameter.Name, argument, environment);
                             return () => Evaluate(af.Body, localEnvironment, continuation);
                         })),
 
@@ -118,6 +117,16 @@ namespace Crisp.Runtime
                             throw new RuntimeErrorException(
                                 id.Position,
                                 $"Identifier <{id.Name}> unbound")),
+
+                Let l =>
+                    () => Evaluate(
+                        l.InitialValue,
+                        environment,
+                        result =>
+                        {
+                            var letEnvironment = new EnvironmentExtended(l.Name.Name, result, environment);
+                            return () => Evaluate(l.Body, letEnvironment, continuation);
+                        }),
                 
                 LiteralBool lb =>
                     () => continuation(lb.Value),
@@ -130,19 +139,6 @@ namespace Crisp.Runtime
 
                 LiteralString ls =>
                     () => continuation(ls.Value),
-
-                Let l =>
-                    () => Evaluate(
-                        l.InitialValue,
-                        environment,
-                        result =>
-                        {
-                            if (!environment.Create(l.Name.Name, result))
-                                throw new RuntimeErrorException(
-                                    l.Name.Position,
-                                    $"Identifier <{l.Name.Name}> is already bound");
-                            return continuation(result);
-                        }),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.And =>
                     () => Evaluate(

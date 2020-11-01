@@ -21,9 +21,19 @@
             Peek = scanner.NextToken();
         }
 
+        public bool CurrentIs(TokenTag tag) => Current.Tag == tag;
+
+        public bool CurrentIs(params TokenTag[] tags)
+        {
+            foreach (var tag in tags)
+                if (CurrentIs(tag))
+                    return true;
+            return false;
+        }
+
         public Token? Match(TokenTag tag)
         {
-            if (Current.Tag == tag)
+            if (CurrentIs(tag))
             {
                 var token = Current;
                 NextToken();

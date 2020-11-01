@@ -23,7 +23,7 @@ namespace Crisp
             }
         }
 
-        static void Load(string filename, Runtime.Environment environment)
+        static void Load(string filename, IEnvironment environment)
         {
             var code = File.ReadAllText(filename);
             var program = Parser.Parse(code);
@@ -57,7 +57,7 @@ namespace Crisp
                 };
             }
 
-            bool RunCommand((string, string) command, Runtime.Environment environment)
+            bool RunCommand((string, string) command, IEnvironment environment)
             {
                 switch (command)
                 {
@@ -85,7 +85,7 @@ namespace Crisp
                 return false;
             }
 
-            var environment = new Runtime.Environment();
+            IEnvironment environment = new EnvironmentEmpty();
             var done = false;
             while (!done)
             {
@@ -100,7 +100,7 @@ namespace Crisp
         {
             try
             {
-                Load(filename, new Runtime.Environment());
+                Load(filename, new EnvironmentEmpty());
             }
             catch (CrispException e)
             {

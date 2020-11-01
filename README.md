@@ -14,7 +14,7 @@ A toy programming language interpreter.
           | block
           | assignment ;
 
-    let -> "let" id "=" expr ;
+    let -> "let" id "=" expr+ ;
 
     block -> "{" expr_sequence "}" ;
 
