@@ -82,12 +82,7 @@ namespace Crisp.Runtime
                         _ => () => Evaluate(ep.Tail, environment, continuation)),
 
                 Ast.Function af =>
-                    () => continuation(
-                        new Function((object argument, Continuation continuation) =>
-                        {
-                            var localEnvironment = new EnvironmentExtended(af.Parameter.Name, argument, environment);
-                            return () => Evaluate(af.Body, localEnvironment, continuation);
-                        })),
+                    () => continuation(CreateFunction(af.Parameter.Name, af.Body, environment)),
 
                 FunctionCall fc =>
                     () => Evaluate(
@@ -127,6 +122,18 @@ namespace Crisp.Runtime
                             var letEnvironment = new EnvironmentExtended(l.Name.Name, result, environment);
                             return () => Evaluate(l.Body, letEnvironment, continuation);
                         }),
+
+                LetRec lr when lr.Callable is Ast.Function lrf =>
+                    () => Evaluate(
+                        lr.Body,
+                        LetRecExtend(lr.Name, lrf.Parameter.Name, lrf.Body, environment),
+                        continuation),
+
+                LetRec lr when lr.Callable is Ast.Procedure lrp =>
+                    () => Evaluate(
+                        lr.Body,
+                        LetRecExtend(lr.Name, lrp.Body, environment),
+                        continuation),
                 
                 LiteralBool lb =>
                     () => continuation(lb.Value),
@@ -236,12 +243,7 @@ namespace Crisp.Runtime
                                 })),
 
                 Ast.Procedure p =>
-                    () => continuation(
-                        new Procedure((Continuation continuation) =>
-                            () => Evaluate(
-                                p.Body,
-                                environment,
-                                continuation))),
+                    () => continuation(CreateProcedure(p.Body, environment)), 
 
                 ProcedureCall pc =>
                     () => Evaluate(
@@ -292,6 +294,35 @@ namespace Crisp.Runtime
                 _ =>
                     throw new NotImplementedException(),
             };
+        }
+
+        static Function CreateFunction(string parameter, IExpression body, IEnvironment environment)
+        {
+            return (object argument, Continuation continuation) =>
+            {
+                var localEnvironment = new EnvironmentExtended(parameter, argument, environment);
+                return () => Evaluate(body, localEnvironment, continuation);
+            };
+        }
+
+        static Procedure CreateProcedure(IExpression body, IEnvironment environment)
+        {
+            return (Continuation continuation) =>
+                () => Evaluate(body, environment, continuation);
+        }
+
+        static IEnvironment LetRecExtend(string name, string parameter, IExpression body, IEnvironment environment)
+        {
+            var extendedEnvironment = new EnvironmentExtended(name, new Null(), environment);
+            extendedEnvironment.Value = CreateFunction(parameter, body, extendedEnvironment);
+            return extendedEnvironment;
+        }
+
+        static IEnvironment LetRecExtend(string name, IExpression body, IEnvironment environment)
+        {
+            var extendedEnvironment = new EnvironmentExtended(name, new Null(), environment);
+            extendedEnvironment.Value = CreateProcedure(body, extendedEnvironment);
+            return extendedEnvironment;
         }
     }
 }

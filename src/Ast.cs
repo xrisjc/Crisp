@@ -44,6 +44,8 @@ namespace Crisp.Ast
 
     record Let(Identifier Name, IExpression InitialValue, IExpression Body) : IExpression;
 
+    record LetRec(string Name, IExpression Callable, IExpression Body) : IExpression;
+
     record LiteralBool(bool Value) :  IExpression;
 
     record LiteralNull() : IExpression;

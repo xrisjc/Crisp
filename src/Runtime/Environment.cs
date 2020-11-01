@@ -16,31 +16,31 @@ namespace Crisp.Runtime
 
     class EnvironmentExtended : IEnvironment
     {
-        readonly string name;
-        object value;
-        readonly IEnvironment outer;
+        public string Name { get; }
+        public object Value { get; set; }
+        public IEnvironment Outer { get; }
         public EnvironmentExtended(string name, object value, IEnvironment outer)
         {
-            this.name = name;
-            this.value = value;
-            this.outer = outer;
+            Name = name;
+            Value = value;
+            Outer = outer;
         }
         public object? Get(string name)
         {
-            if (this.name == name)
-                return value;
+            if (Name == name)
+                return Value;
             else
-                return outer.Get(name);
+                return Outer.Get(name);
         }
         public bool Set(string name, object value)
         {
-            if (this.name == name)
+            if (Name == name)
             {
-                this.value = value;
+                Value = value;
                 return true;
             }
             else
-                return outer.Set(name, value);
+                return Outer.Set(name, value);
         }
     }
 }

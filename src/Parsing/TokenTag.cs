@@ -30,6 +30,7 @@
         Number,
         Or,
         RBrace,
+        Rec,
         RParen,
         String,
         Subtract,

@@ -16,6 +16,8 @@ A toy programming language interpreter.
 
     let -> "let" id "=" expr+ ;
 
+    let_rec -> "let" "rec" id params block expr+ ;
+
     block -> "{" expr_sequence "}" ;
 
     function -> "fn" params block ;

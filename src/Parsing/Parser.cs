@@ -68,7 +68,10 @@ namespace Crisp.Parsing
         {
             if (Match(TokenTag.Let))
             {
-                return Let();
+                if (Match(TokenTag.Rec))
+                    return LetRec();
+                else
+                    return Let();
             }
 
             if (Match(TokenTag.Fn))
@@ -104,6 +107,14 @@ namespace Crisp.Parsing
                 new Identifier(name.Position, name.Lexeme),
                 initialValue,
                 body);
+        }
+
+        IExpression LetRec()
+        {
+            var name = Expect(TokenTag.Identifier).Lexeme;
+            var callable = Function();
+            var body = ExpressionList(TokenTag.RParen, TokenTag.RBrace, TokenTag.EndOfInput);
+            return new LetRec(name, callable, body);
         }
 
         IExpression Function()

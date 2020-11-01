@@ -21,6 +21,7 @@ namespace Crisp.Parsing
                 ["if"]       = TokenTag.If,
                 ["let"]      = TokenTag.Let,
                 ["null"]     = TokenTag.Null,
+                ["rec"]      = TokenTag.Rec,
                 ["true"]     = TokenTag.True,
                 ["while"]    = TokenTag.While,
                 ["write"]    = TokenTag.Write,
