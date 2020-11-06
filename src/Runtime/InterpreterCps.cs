@@ -1,13 +1,14 @@
 using System;
+using System.Collections.Immutable;
 using Crisp.Ast;
 
 namespace Crisp.Runtime
 {
     delegate Thunk? Thunk();
 
-    delegate Thunk? Continuation(object result);
+    delegate Thunk? Continuation(Cell result);
 
-    delegate Thunk Function(object argument, Continuation continuation);
+    delegate Thunk Function(Cell argument, Continuation continuation);
 
     delegate Thunk Procedure(Continuation continuation);
 
@@ -18,9 +19,11 @@ namespace Crisp.Runtime
 
     static class InterpreterCps
     {
-        public static object Evaluate(IExpression expression, IEnvironment environment)
+        public static Cell Evaluate(
+            IExpression expression,
+            ImmutableList<Cell> environment)
         {
-            object value = new Null();
+            var value = new Cell();
             var thunk = Evaluate(
                 expression,
                 environment,
@@ -34,10 +37,10 @@ namespace Crisp.Runtime
             return value;
         }
 
-        static bool IsTruthy(object obj)
-            => obj switch { bool x => x, Null _ => false, _ => true };
-
-        static Thunk Evaluate(IExpression expression, IEnvironment environment, Continuation continuation)
+        static Thunk Evaluate(
+            IExpression expression,
+            ImmutableList<Cell> environment,
+            Continuation continuation)
         {
             return expression switch
             {
@@ -46,15 +49,10 @@ namespace Crisp.Runtime
                         ai.Value,
                         environment,
                         result =>
-                            environment.Set(ai.Target.Name, result) switch
-                            {
-                                true =>
-                                    () => continuation(result),
-                                false => 
-                                    throw new RuntimeErrorException(
-                                        ai.Target.Position,
-                                        $"Cannot assign, <{ai.Target.Name}> is unbound"),
-                            }),
+                        {
+                            environment[ai.Target.Depth].Value = result.Value;
+                            return () => continuation(result);
+                        }),
 
                 Block b =>
                     () => Evaluate(
@@ -68,7 +66,7 @@ namespace Crisp.Runtime
                         environment,
                         conditionResult =>
                             () => Evaluate(
-                                IsTruthy(conditionResult) switch
+                                conditionResult.IsTruthy() switch
                                 {
                                     true => c.Consequence,
                                     false => c.Alternative,
@@ -83,14 +81,14 @@ namespace Crisp.Runtime
                         _ => () => Evaluate(ep.Tail, environment, continuation)),
 
                 Ast.Function af =>
-                    () => continuation(CreateFunction(af.Parameter.Name, af.Body, environment)),
+                    () => continuation(new Cell(CreateFunction(af.Parameter.Name, af.Body, environment))),
 
                 FunctionCall fc =>
                     () => Evaluate(
                         fc.Target,
                         environment,
                         target =>
-                            target switch
+                            target.Value switch
                             {
                                 Function rf =>
                                     () => Evaluate(
@@ -104,11 +102,7 @@ namespace Crisp.Runtime
                             }),
 
                 Identifier id =>
-                    () => continuation(
-                        environment.Get(id.Name) ??
-                            throw new RuntimeErrorException(
-                                id.Position,
-                                $"Identifier <{id.Name}> unbound")),
+                    () => continuation(environment[id.Depth]),
 
                 Let l =>
                     () => Evaluate(
@@ -117,7 +111,7 @@ namespace Crisp.Runtime
                         result =>
                             () => Evaluate(
                                 l.Body,
-                                new EnvironmentExtended(l.Name.Name, result, environment),
+                                environment.Add(result),
                                 continuation)),
 
                 LetRec lr when lr.Callable is Ast.Function lrf =>
@@ -133,31 +127,31 @@ namespace Crisp.Runtime
                         continuation),
                 
                 LiteralBool lb =>
-                    () => continuation(lb.Value),
+                    () => continuation(new Cell(lb.Value)),
 
                 LiteralNull =>
-                    () => continuation(new Null()),
+                    () => continuation(new Cell()),
 
                 LiteralNumber ln =>
-                    () => continuation(ln.Value),
+                    () => continuation(new Cell(ln.Value)),
 
                 LiteralString ls =>
-                    () => continuation(ls.Value),
+                    () => continuation(new Cell(ls.Value)),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.And =>
                     () => Evaluate(
                         op.Left,
                         environment,
                         left =>
-                            IsTruthy(left) switch
+                            left.IsTruthy() switch
                             {
                                 true =>
                                     () => Evaluate(
                                         op.Right,
                                         environment,
-                                        right => continuation(IsTruthy(right))),
+                                        right => continuation(new Cell(right.IsTruthy()))),
                                 false =>
-                                    () => continuation(false),
+                                    () => continuation(new Cell(false)),
                             }),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.Or =>
@@ -165,15 +159,15 @@ namespace Crisp.Runtime
                         op.Left,
                         environment,
                         left =>
-                            IsTruthy(left) switch
+                            left.IsTruthy() switch
                             {
                                 true =>
-                                    () => continuation(true),
+                                    () => continuation(new Cell(true)),
                                 false =>
                                     () => Evaluate(
                                         op.Right,
                                         environment,
-                                        right => continuation(IsTruthy(right))),
+                                        right => continuation(new Cell(right.IsTruthy()))),
                             }),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.Eq =>
@@ -183,7 +177,7 @@ namespace Crisp.Runtime
                         left => Evaluate(
                             op.Right,
                             environment,
-                            right => continuation(left.Equals(right)))),
+                            right => continuation(new Cell(left.Equals(right))))),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.Neq =>
                     () => Evaluate(
@@ -192,7 +186,7 @@ namespace Crisp.Runtime
                         left => Evaluate(
                             op.Right,
                             environment,
-                            right => continuation(!left.Equals(right)))),
+                            right => continuation(new Cell(!left.Equals(right))))),
 
                 OperatorBinary op =>
                     () => Evaluate(
@@ -204,7 +198,7 @@ namespace Crisp.Runtime
                                 environment,
                                 right =>
                                     continuation(
-                                        (op.Tag, left, right) switch
+                                        new Cell((op.Tag, left.Value, right.Value) switch
                                         {
                                             (OperatorBinaryTag.Add,  double l, double r) => l + r,
                                             (OperatorBinaryTag.Sub,  double l, double r) => l - r,
@@ -219,13 +213,13 @@ namespace Crisp.Runtime
                                                     op.Position,
                                                     $"Operator {op.Tag} cannot be applied to values " +
                                                     $"<{left}> and <{right}>"),
-                                        }))),
+                                        })))),
 
                 OperatorUnary op when op.Op == OperatorUnaryTag.Not =>
                     () => Evaluate(
                         op.Expression,
                         environment,
-                        result => continuation(!IsTruthy(result))),
+                        result => continuation(new Cell(!result.IsTruthy()))),
 
                 OperatorUnary op =>
                     () => Evaluate(
@@ -233,30 +227,30 @@ namespace Crisp.Runtime
                         environment,
                         result =>
                             continuation(
-                                (op.Op, result) switch
+                                new Cell((op.Op, result.Value) switch
                                 {
                                     (OperatorUnaryTag.Neg, double n) => -n,
                                     _ => throw new RuntimeErrorException(
                                             op.Position,
                                             $"Operator {op.Op} cannot be applied to values `{result}`"),
-                                })),
+                                }))),
 
                 Ast.Procedure p =>
-                    () => continuation(CreateProcedure(p.Body, environment)), 
+                    () => continuation(new Cell(CreateProcedure(p.Body, environment))),
 
                 ProcedureCall pc =>
                     () => Evaluate(
                         pc.Target,
                         environment,
                         target =>
-                            target switch
+                            target.Value switch
                             {
                                 Procedure rp =>
                                     () => rp(continuation),
-                                _ =>
-                                throw new RuntimeErrorException(
-                                    pc.Position,
-                                    $"Cannot call non-callable object <{target}>."),
+                                object invalidTarget =>
+                                    throw new RuntimeErrorException(
+                                        pc.Position,
+                                        $"Cannot call non-callable object <{invalidTarget}>."),
                             }),
 
                 Program p =>
@@ -267,7 +261,7 @@ namespace Crisp.Runtime
                         w.Guard,
                         environment,
                         guardResult =>
-                            IsTruthy(guardResult) switch
+                            guardResult.IsTruthy() switch
                             {
                                 true =>
                                     () => Evaluate(
@@ -275,7 +269,7 @@ namespace Crisp.Runtime
                                         environment,
                                         _ => () => Evaluate(w, environment, continuation)),
                                 false =>
-                                    () => continuation(new Null())
+                                    () => continuation(new Cell()),
                             }),
 
                 Write w =>
@@ -284,8 +278,8 @@ namespace Crisp.Runtime
                         environment,
                         value =>
                         {
-                            Console.Write(value);
-                            return continuation(new Null());
+                            Console.Write(value.Value);
+                            return continuation(new Cell());
                         }),
 
                 _ =>
@@ -293,34 +287,43 @@ namespace Crisp.Runtime
             };
         }
 
-
-
-        static Function CreateFunction(string parameter, IExpression body, IEnvironment environment)
+        static Function CreateFunction(
+            string parameter,
+            IExpression body,
+            ImmutableList<Cell> environment)
         {
-            return (object argument, Continuation continuation) =>
-            {
-                var localEnvironment = new EnvironmentExtended(parameter, argument, environment);
-                return () => Evaluate(body, localEnvironment, continuation);
-            };
+            return (Cell argument, Continuation continuation) =>
+                () => Evaluate(body, environment.Add(argument), continuation);
         }
 
-        static Procedure CreateProcedure(IExpression body, IEnvironment environment)
+        static Procedure CreateProcedure(
+            IExpression body,
+            ImmutableList<Cell> environment)
         {
             return (Continuation continuation) =>
                 () => Evaluate(body, environment, continuation);
         }
 
-        static IEnvironment LetRecExtend(string name, string parameter, IExpression body, IEnvironment environment)
+        static ImmutableList<Cell> LetRecExtend(
+            string name,
+            string parameter,
+            IExpression body,
+            ImmutableList<Cell> environment)
         {
-            var extendedEnvironment = new EnvironmentExtended(name, new Null(), environment);
-            extendedEnvironment.Value = CreateFunction(parameter, body, extendedEnvironment);
+            var cell = new Cell();
+            var extendedEnvironment = environment.Add(cell);
+            cell.Value = CreateFunction(parameter, body, extendedEnvironment);
             return extendedEnvironment;
         }
 
-        static IEnvironment LetRecExtend(string name, IExpression body, IEnvironment environment)
+        static ImmutableList<Cell> LetRecExtend(
+            string name,
+            IExpression body,
+            ImmutableList<Cell> environment)
         {
-            var extendedEnvironment = new EnvironmentExtended(name, new Null(), environment);
-            extendedEnvironment.Value = CreateProcedure(body, extendedEnvironment);
+            var cell = new Cell();
+            var extendedEnvironment = environment.Add(cell);
+            cell.Value = CreateProcedure(body, extendedEnvironment);
             return extendedEnvironment;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Crisp.Ast;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
@@ -29,7 +30,9 @@ namespace Crisp.Parsing
         {
             var scanner = new Scanner(code);
             var parser = new Parser(scanner);
-            return parser.Program();
+            var program = parser.Program();
+            Resolver.Resolve(program, ImmutableList<string>.Empty);
+            return program;
         }
 
         public Parser(Scanner scanner)
