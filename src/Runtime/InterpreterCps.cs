@@ -37,10 +37,7 @@ namespace Crisp.Runtime
         static bool IsTruthy(object obj)
             => obj switch { bool x => x, Null _ => false, _ => true };
 
-        static Thunk Evaluate(
-            IExpression expression,
-            IEnvironment environment,
-            Continuation continuation)
+        static Thunk Evaluate(IExpression expression, IEnvironment environment, Continuation continuation)
         {
             return expression switch
             {
@@ -49,13 +46,15 @@ namespace Crisp.Runtime
                         ai.Value,
                         environment,
                         result =>
-                        {
-                            if (!environment.Set(ai.Target.Name, result))
-                                throw new RuntimeErrorException(
-                                    ai.Target.Position,
-                                    $"Cannot assign, <{ai.Target.Name}> is unbound");
-                            return continuation(result);
-                        }),
+                            environment.Set(ai.Target.Name, result) switch
+                            {
+                                true =>
+                                    () => continuation(result),
+                                false => 
+                                    throw new RuntimeErrorException(
+                                        ai.Target.Position,
+                                        $"Cannot assign, <{ai.Target.Name}> is unbound"),
+                            }),
 
                 Block b =>
                     () => Evaluate(
@@ -69,9 +68,11 @@ namespace Crisp.Runtime
                         environment,
                         conditionResult =>
                             () => Evaluate(
-                                IsTruthy(conditionResult)
-                                    ? c.Consequence
-                                    : c.Alternative,
+                                IsTruthy(conditionResult) switch
+                                {
+                                    true => c.Consequence,
+                                    false => c.Alternative,
+                                },
                                 environment,
                                 continuation)),
 
@@ -89,22 +90,18 @@ namespace Crisp.Runtime
                         fc.Target,
                         environment,
                         target =>
-                        {
-                            if (target is Function rf)
+                            target switch
                             {
-                                return () => Evaluate(
-                                    fc.Argument,
-                                    environment,
-                                    argument =>
-                                        () => rf(argument, continuation));
-                            }
-                            else
-                            {
-                                throw new RuntimeErrorException(
-                                    fc.Position,
-                                    $"Cannot call non-callable object <{target}>.");
-                            }
-                        }),
+                                Function rf =>
+                                    () => Evaluate(
+                                        fc.Argument,
+                                        environment,
+                                        argument => () => rf(argument, continuation)),
+                                _ =>
+                                    throw new RuntimeErrorException(
+                                        fc.Position,
+                                        $"Cannot call non-callable object <{target}>."),
+                            }),
 
                 Identifier id =>
                     () => continuation(
@@ -118,10 +115,10 @@ namespace Crisp.Runtime
                         l.InitialValue,
                         environment,
                         result =>
-                        {
-                            var letEnvironment = new EnvironmentExtended(l.Name.Name, result, environment);
-                            return () => Evaluate(l.Body, letEnvironment, continuation);
-                        }),
+                            () => Evaluate(
+                                l.Body,
+                                new EnvironmentExtended(l.Name.Name, result, environment),
+                                continuation)),
 
                 LetRec lr when lr.Callable is Ast.Function lrf =>
                     () => Evaluate(
@@ -152,30 +149,32 @@ namespace Crisp.Runtime
                         op.Left,
                         environment,
                         left =>
-                        {
-                            if (IsTruthy(left))
-                                return () => Evaluate(
-                                    op.Right,
-                                    environment,
-                                    right => continuation(IsTruthy(right)));
-                            else
-                                return continuation(false);
-                        }),
+                            IsTruthy(left) switch
+                            {
+                                true =>
+                                    () => Evaluate(
+                                        op.Right,
+                                        environment,
+                                        right => continuation(IsTruthy(right))),
+                                false =>
+                                    () => continuation(false),
+                            }),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.Or =>
                     () => Evaluate(
                         op.Left,
                         environment,
                         left =>
-                        {
-                            if (IsTruthy(left))
-                                return continuation(true);
-                            else
-                                return () => Evaluate(
-                                    op.Right,
-                                    environment,
-                                    right => continuation(IsTruthy(right)));
-                        }),
+                            IsTruthy(left) switch
+                            {
+                                true =>
+                                    () => continuation(true),
+                                false =>
+                                    () => Evaluate(
+                                        op.Right,
+                                        environment,
+                                        right => continuation(IsTruthy(right))),
+                            }),
 
                 OperatorBinary op when op.Tag == OperatorBinaryTag.Eq =>
                     () => Evaluate(
@@ -250,18 +249,15 @@ namespace Crisp.Runtime
                         pc.Target,
                         environment,
                         target =>
-                        {
-                            if (target is Procedure rp)
+                            target switch
                             {
-                                return () => rp(continuation);
-                            }
-                            else
-                            {
+                                Procedure rp =>
+                                    () => rp(continuation),
+                                _ =>
                                 throw new RuntimeErrorException(
                                     pc.Position,
-                                    $"Cannot call non-callable object <{target}>.");
-                            }
-                        }),
+                                    $"Cannot call non-callable object <{target}>."),
+                            }),
 
                 Program p =>
                     () => Evaluate(p.Body, environment, continuation),
@@ -271,15 +267,16 @@ namespace Crisp.Runtime
                         w.Guard,
                         environment,
                         guardResult =>
-                        {
-                            if (IsTruthy(guardResult))
-                                return () => Evaluate(
-                                    w.Body,
-                                    environment,
-                                    _ => () => Evaluate(w, environment, continuation));
-                            else
-                                return continuation(new Null());
-                        }),
+                            IsTruthy(guardResult) switch
+                            {
+                                true =>
+                                    () => Evaluate(
+                                        w.Body,
+                                        environment,
+                                        _ => () => Evaluate(w, environment, continuation)),
+                                false =>
+                                    () => continuation(new Null())
+                            }),
 
                 Write w =>
                     () => Evaluate(
@@ -295,6 +292,8 @@ namespace Crisp.Runtime
                     throw new NotImplementedException(),
             };
         }
+
+
 
         static Function CreateFunction(string parameter, IExpression body, IEnvironment environment)
         {
