@@ -26,7 +26,8 @@ namespace Crisp
             {
                 var code = File.ReadAllText(filename);
                 var program = Parser.Parse(code);
-                InterpreterCps.Evaluate(program, ImmutableList<Cell>.Empty);
+                Interpreter.Evaluate(program);
+                // InterpreterCps.Evaluate(program, ImmutableList<Cell>.Empty);
             }
             catch (CrispException e)
             {

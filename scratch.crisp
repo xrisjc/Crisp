@@ -1,0 +1,4 @@
+﻿let x = false
+let y = "hi"
+let z = "no"
+if x { write(y) } else { write(z) }
