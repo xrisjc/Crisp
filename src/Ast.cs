@@ -90,13 +90,6 @@ namespace Crisp.Ast
         IExpression Expression)
         : IExpression;
 
-    record Procedure(IExpression Body) : IExpression;
-
-    record ProcedureCall(
-        Position Position,
-        IExpression Target)
-        : IExpression;
-
     record Program(IExpression Body) : IExpression;
 
     record While(IExpression Guard, IExpression Body) : IExpression;

@@ -73,14 +73,6 @@ namespace Crisp.Parsing
                     Resolve(ou.Expression, symbols);
                     break;
 
-                case Procedure p:
-                    Resolve(p.Body, symbols);
-                    break;
-
-                case ProcedureCall pc:
-                    Resolve(pc.Target, symbols);
-                    break;
-
                 case Program p:
                     Resolve(p.Body, symbols);
                     break;

@@ -33,15 +33,7 @@ namespace Crisp.Runtime
                 return (arg, cont) => Push(stack, expr, env.Add(arg), cont);
             }
 
-            static Action<Action<Cell>> MakeProc(
-                Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)> stack,
-                IExpression expr,
-                ImmutableList<Cell> env)
-            {
-                return cont => Push(stack, expr, env, cont);
-            }
-
-            static ImmutableList<Cell> LetRecFnExtend(
+            static ImmutableList<Cell> LetRecExtend(
                 Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)> stack,
                 IExpression expr,
                 ImmutableList<Cell> env)
@@ -52,17 +44,6 @@ namespace Crisp.Runtime
                 return extendedEnv;
             }
 
-            static ImmutableList<Cell> LetRecProcExtend(
-                Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)> stack,
-                IExpression expr,
-                ImmutableList<Cell> env)
-            {
-                var cell = new Cell();
-                var extendedEnv = env.Add(cell);
-                cell.Value = MakeProc(stack, expr, extendedEnv);
-                return extendedEnv;
-            }
-
             var stack = new Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)>();
 
             Push(stack, program, ImmutableList<Cell>.Empty, _ => { });
@@ -70,8 +51,6 @@ namespace Crisp.Runtime
             while (stack.Count > 0)
             {
                 var (expr, env, cont) = stack.Pop();
-
-                //Console.WriteLine($"{expr}");
 
                 switch (expr)
                 {
@@ -141,19 +120,11 @@ namespace Crisp.Runtime
                             x => Push(stack, l.Body, env.Add(x), cont));
                         break;
 
-                    case LetRec lr when lr.Callable is Ast.Function lrf:
+                    case LetRec lr when lr.Callable is Function lrf:
                         Push(
                             stack,
                             lr.Body,
-                            LetRecFnExtend(stack, lrf.Body, env),
-                            cont);
-                        break;
-
-                    case LetRec lr when lr.Callable is Ast.Procedure lrp:
-                        Push(
-                            stack,
-                            lr.Body,
-                            LetRecProcExtend(stack, lrp.Body, env),
+                            LetRecExtend(stack, lrf.Body, env),
                             cont);
                         break;
 
@@ -285,26 +256,6 @@ namespace Crisp.Runtime
                                                 op.Position,
                                                 $"Operator {op.Op} cannot be applied to values `{x}`"),
                                     })));
-                        break;
-
-                    case Ast.Procedure p:
-                        cont(new Cell(MakeProc(stack, p.Body, env)));
-                        break;
-
-                    case ProcedureCall pc:
-                        Push(
-                            stack,
-                            pc.Target,
-                            env,
-                            x =>
-                            {
-                                if (x.Value is Action<Action<Cell>> rp)
-                                    rp(cont);
-                                else
-                                    throw new RuntimeErrorException(
-                                        pc.Position,
-                                        $"Cannot call non-callable object <{x}>.");
-                            });
                         break;
 
                     case Program p:

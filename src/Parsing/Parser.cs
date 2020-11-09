@@ -129,11 +129,15 @@ namespace Crisp.Parsing
 
         IExpression Function()
         {
+            var parameterPosition = Current.Position;
             var parameters = Parameters();
             var body = ExpectBlock();
 
             if (parameters.Count == 0)
-                return new Procedure(body);
+            {
+                var discard = new Identifier(parameterPosition, "_");
+                return new Function(discard, body);
+            }
             else
             {
                 var fn = new Function(parameters[^1], body);
@@ -327,7 +331,7 @@ namespace Crisp.Parsing
             while (Match(TokenTag.LParen) is Token tokenCall)
             {
                 if (Match(TokenTag.RParen))
-                    left = new ProcedureCall(tokenCall.Position, left);
+                    left = new FunctionCall(tokenCall.Position, left, new LiteralNull());
                 else
                 {
                     do
