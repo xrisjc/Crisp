@@ -17,10 +17,6 @@ namespace Crisp.Parsing
                     Resolve(ai.Target, symbols);
                     break;
 
-                case Block b:
-                    Resolve(b.Body, symbols);
-                    break;
-
                 case Conditional c:
                     Resolve(c.Condition, symbols);
                     Resolve(c.Consequence, symbols);

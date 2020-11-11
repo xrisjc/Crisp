@@ -62,10 +62,6 @@ namespace Crisp.Runtime
                             x => { env[ai.Target.Depth].Value = x.Value; cont(x); });
                         break;
 
-                    case Block b:
-                        Push(stack, b.Body, env, cont);
-                        break;
-
                     case Conditional c:
                         Push(
                             stack,

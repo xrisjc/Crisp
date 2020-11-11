@@ -8,8 +8,6 @@ namespace Crisp.Ast
 
     record AssignmentIdentifier(Identifier Target, IExpression Value) : IExpression;
 
-    record Block(IExpression Body) : IExpression;
-
     record Conditional
     (
         IExpression Condition,

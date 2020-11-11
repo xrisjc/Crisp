@@ -188,7 +188,7 @@ namespace Crisp.Parsing
         {
             var body = ExpressionList(TokenTag.RBrace);
             Expect(TokenTag.RBrace);
-            return new Block(body);
+            return body;
         }
 
         List<Identifier> Parameters()
