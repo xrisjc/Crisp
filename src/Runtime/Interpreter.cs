@@ -8,7 +8,7 @@ namespace Crisp.Runtime
     static class Interpreter
     {
         public static void Evaluate(
-            Program program)
+            IExpression expression)
         {
             static bool Eq(Cell left, Cell right)
                 => (left.Value is Null && right.Value is Null) 
@@ -46,7 +46,7 @@ namespace Crisp.Runtime
 
             var stack = new Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)>();
 
-            Push(stack, program, ImmutableList<Cell>.Empty, _ => { });
+            Push(stack, expression, ImmutableList<Cell>.Empty, _ => { });
 
             while (stack.Count > 0)
             {
@@ -252,10 +252,6 @@ namespace Crisp.Runtime
                                                 op.Position,
                                                 $"Operator {op.Op} cannot be applied to values `{x}`"),
                                     })));
-                        break;
-
-                    case Program p:
-                        Push(stack, p.Body, env, cont);
                         break;
 
                     case While w:

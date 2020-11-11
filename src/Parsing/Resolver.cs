@@ -69,10 +69,6 @@ namespace Crisp.Parsing
                     Resolve(ou.Expression, symbols);
                     break;
 
-                case Program p:
-                    Resolve(p.Body, symbols);
-                    break;
-
                 case While w:
                     Resolve(w.Guard, symbols);
                     Resolve(w.Body, symbols);

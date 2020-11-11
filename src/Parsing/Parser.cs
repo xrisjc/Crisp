@@ -26,7 +26,7 @@ namespace Crisp.Parsing
                 [TokenTag.Subtract] = OperatorBinaryTag.Sub,
             };
 
-        public static Program Parse(string code)
+        public static IExpression Parse(string code)
         {
             var scanner = new Scanner(code);
             var parser = new Parser(scanner);
@@ -40,11 +40,11 @@ namespace Crisp.Parsing
         {
         }
 
-        Program Program()
+        IExpression Program()
         {
             var body = ExpressionList(TokenTag.EndOfInput);
             Expect(TokenTag.EndOfInput);
-            return new Program(body);
+            return body;
         }
 
         IExpression ExpressionList(params TokenTag[] stopTokens)

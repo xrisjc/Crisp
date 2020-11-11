@@ -88,8 +88,6 @@ namespace Crisp.Ast
         IExpression Expression)
         : IExpression;
 
-    record Program(IExpression Body) : IExpression;
-
     record While(IExpression Guard, IExpression Body) : IExpression;
 
     record Write(IExpression Value) : IExpression;
