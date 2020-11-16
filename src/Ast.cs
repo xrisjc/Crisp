@@ -6,15 +6,16 @@ namespace Crisp.Ast
     {
     }
 
-    record AssignmentIdentifier(Identifier Target, IExpression Value) : IExpression;
+    record AssignmentIdentifier(
+        Identifier Target,
+        IExpression Value)
+        : IExpression;
 
-    record Conditional
-    (
+    record Conditional(
         IExpression Condition,
         IExpression Consequence,
-        IExpression Alternative
-    )
-    : IExpression;
+        IExpression Alternative)
+        : IExpression;
 
     record ExpressionPair(
         IExpression Head,
@@ -45,13 +46,20 @@ namespace Crisp.Ast
         IExpression Body)
         : IExpression;
 
-    record LiteralBool(bool Value) :  IExpression;
+    record LiteralBool(
+        bool Value)
+        : IExpression;
 
-    record LiteralNull() : IExpression;
+    record LiteralNull()
+        : IExpression;
 
-    record LiteralNumber(double Value) : IExpression;
+    record LiteralNumber(
+        double Value)
+        : IExpression;
 
-    record LiteralString(string Value) : IExpression;
+    record LiteralString(
+        string Value)
+        : IExpression;
 
     enum OperatorBinaryTag
     {
@@ -89,7 +97,12 @@ namespace Crisp.Ast
         IExpression Expression)
         : IExpression;
 
-    record While(IExpression Guard, IExpression Body) : IExpression;
+    record While(
+        IExpression Guard,
+        IExpression Body)
+        : IExpression;
 
-    record Write(IExpression Value) : IExpression;
+    record Write(
+        IExpression Value)
+        : IExpression;
 }
