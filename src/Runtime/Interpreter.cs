@@ -10,90 +10,83 @@ namespace Crisp.Runtime
         public static void Evaluate(
             IExpression expression)
         {
+            var done = false;
+            var rExpr = expression;
+            var rEnv = ImmutableList<Cell>.Empty;
+            Action<Cell> rCont = _ => { done = true; };
+
             static bool Eq(Cell left, Cell right)
-                => (left.Value is Null && right.Value is Null) 
-                || left.Value.Equals(right.Value);
+            {
+                return (left.Value is Null && right.Value is Null) || left.Value.Equals(right.Value);
+            }
+
             static bool Truthy(Cell cell)
-                => cell.Value switch { bool x => x, Null _ => false, _ => true };
-
-            static void Push<TExpr, TEnv, TCont>(
-                Stack<(TExpr, TEnv, TCont)> stack,
-                TExpr expr,
-                TEnv env,
-                TCont cont)
             {
-                stack.Push((expr, env, cont));
+                return cell.Value switch { bool x => x, Null _ => false, _ => true };
             }
 
-            static Action<Cell, Action<Cell>> MakeFn(
-                Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)> stack,
-                IExpression expr,
-                ImmutableList<Cell> env)
+            void Eval(IExpression expr, ImmutableList<Cell> env, Action<Cell> cont)
             {
-                return (arg, cont) => Push(stack, expr, env.Add(arg), cont);
+                rExpr = expr;
+                rEnv = env;
+                rCont = cont;
             }
 
-            static ImmutableList<Cell> LetRecExtend(
-                Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)> stack,
-                IExpression expr,
-                ImmutableList<Cell> env)
+            Action<Cell, Action<Cell>> MakeFn(IExpression expr, ImmutableList<Cell> env)
+            {
+                return (arg, cont) => Eval(expr, env.Add(arg), cont);
+            }
+
+            ImmutableList<Cell> LetRecExtend(IExpression expr, ImmutableList<Cell> env)
             {
                 var cell = new Cell();
                 var extendedEnv = env.Add(cell);
-                cell.Value = MakeFn(stack, expr, extendedEnv);
+                cell.Value = MakeFn(expr, extendedEnv);
                 return extendedEnv;
             }
 
-            var stack = new Stack<(IExpression, ImmutableList<Cell>, Action<Cell>)>();
 
-            Push(stack, expression, ImmutableList<Cell>.Empty, _ => { });
-
-            while (stack.Count > 0)
+            while (!done)
             {
-                var (expr, env, cont) = stack.Pop();
+                // Copy references into variables for closures.
+                var (expr, env, cont) = (rExpr, rEnv, rCont);
 
                 switch (expr)
                 {
                     case AssignmentIdentifier ai:
-                        Push(
-                            stack,
+                        Eval(
                             ai.Value,
                             env,
                             x => { env[ai.Target.Depth].Value = x.Value; cont(x); });
                         break;
 
                     case Conditional c:
-                        Push(
-                            stack,
+                        Eval(
                             c.Condition,
                             env,
                             x =>
-                                Push(
-                                    stack,
+                                Eval(
                                     Truthy(x) ? c.Consequence : c.Alternative,
                                     env,
                                     cont));
                         break;
 
                     case ExpressionPair ep:
-                        Push(stack, ep.Tail, env, cont);
-                        Push(stack, ep.Head, env, _ => { });
+                        Eval(ep.Head, env, _ => Eval(ep.Tail, env, cont));
                         break;
 
                     case Ast.Function af:
-                        cont(new Cell(MakeFn(stack, af.Body, env)));
+                        cont(new Cell(MakeFn(af.Body, env)));
                         break;
 
                     case FunctionCall fc:
-                        Push(
-                            stack,
+                        Eval(
                             fc.Target,
                             env,
                             x =>
                             {
                                 if (x.Value is Action<Cell, Action<Cell>> rf)
-                                    Push(
-                                        stack,
+                                    Eval(
                                         fc.Argument,
                                         env,
                                         arg => rf(arg, cont));
@@ -109,19 +102,11 @@ namespace Crisp.Runtime
                         break;
 
                     case Let l:
-                        Push(
-                            stack,
-                            l.InitialValue,
-                            env,
-                            x => Push(stack, l.Body, env.Add(x), cont));
+                        Eval(l.InitialValue, env, x => Eval(l.Body, env.Add(x), cont));
                         break;
 
                     case LetRec lr when lr.Callable is Function lrf:
-                        Push(
-                            stack,
-                            lr.Body,
-                            LetRecExtend(stack, lrf.Body, env),
-                            cont);
+                        Eval(lr.Body, LetRecExtend(lrf.Body, env), cont);
                         break;
 
                     case LiteralBool lb:
@@ -141,15 +126,13 @@ namespace Crisp.Runtime
                         break;
 
                     case OperatorBinary op when op.Tag == OperatorBinaryTag.And:
-                        Push(
-                            stack,
+                        Eval(
                             op.Left,
                             env,
                             left =>
                             {
                                 if (Truthy(left))
-                                    Push(
-                                        stack,
+                                    Eval(
                                         op.Right,
                                         env,
                                         right => cont(new Cell(Truthy(right))));
@@ -159,8 +142,7 @@ namespace Crisp.Runtime
                         break;
 
                     case OperatorBinary op when op.Tag == OperatorBinaryTag.Or:
-                        Push(
-                            stack,
+                        Eval(
                             op.Left,
                             env,
                             left =>
@@ -168,8 +150,7 @@ namespace Crisp.Runtime
                                 if (Truthy(left))
                                     cont(new Cell(true));
                                 else
-                                    Push(
-                                        stack,
+                                    Eval(
                                         op.Right,
                                         env,
                                         right => cont(new Cell(Truthy(right))));
@@ -177,37 +158,31 @@ namespace Crisp.Runtime
                         break;
 
                     case OperatorBinary op when op.Tag == OperatorBinaryTag.Eq:
-                        Push(
-                            stack,
+                        Eval(
                             op.Left,
                             env,
-                            left => Push(
-                                stack,
+                            left => Eval(
                                 op.Right,
                                 env,
                                 right => cont(new Cell(Eq(left, right)))));
                         break;
 
                     case OperatorBinary op when op.Tag == OperatorBinaryTag.Neq:
-                        Push(
-                            stack,
+                        Eval(
                             op.Left,
                             env,
-                            left => Push(
-                                stack,
+                            left => Eval(
                                 op.Right,
                                 env,
                                 right => cont(new Cell(!Eq(left, right)))));
                         break;
 
                     case OperatorBinary op:
-                        Push(
-                            stack,
+                        Eval(
                             op.Left,
                             env,
                             left =>
-                                Push(
-                                    stack,
+                                Eval(
                                     op.Right,
                                     env,
                                     right =>
@@ -231,16 +206,14 @@ namespace Crisp.Runtime
                         break;
 
                     case OperatorUnary op when op.Op == OperatorUnaryTag.Not:
-                        Push(
-                            stack,
+                        Eval(
                             op.Expression,
                             env,
                             x => cont(new Cell(!Truthy(x))));
                         break;
 
                     case OperatorUnary op:
-                        Push(
-                            stack,
+                        Eval(
                             op.Expression,
                             env,
                             x =>
@@ -255,16 +228,14 @@ namespace Crisp.Runtime
                         break;
 
                     case While w:
-                        Push(
-                            stack,
+                        Eval(
                             w.Guard,
                             env,
                             x =>
                             {
                                 if (Truthy(x))
                                 {
-                                    Push(stack, w, env, cont);
-                                    Push(stack, w.Body, env, _ => { });
+                                    Eval(w.Body, env, _ => Eval(w, env, cont));
                                 }
                                 else
                                     cont(new Cell());
@@ -272,8 +243,7 @@ namespace Crisp.Runtime
                         break;
 
                     case Write w:
-                        Push(
-                            stack,
+                        Eval(
                             w.Value,
                             env,
                             x => { Console.Write(x); cont(new Cell()); });
