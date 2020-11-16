@@ -16,33 +16,34 @@ namespace Crisp.Ast
     )
     : IExpression;
 
-    record ExpressionPair(IExpression Head, IExpression Tail) : IExpression;
+    record ExpressionPair(
+        IExpression Head,
+        IExpression Tail)
+        : IExpression;
 
-    record Function(Identifier Parameter, IExpression Body) : IExpression;
+    record Function(
+        IExpression Body)
+        : IExpression;
 
     record FunctionCall(
         Position Position,
         IExpression Target,
-        IExpression Argument): IExpression;
+        IExpression Argument)
+        : IExpression;
 
-    class Identifier : IExpression
-    {
-        public Position Position { get; }
-        
-        public string Name { get; }
+    record Identifier(
+        int Depth)
+        : IExpression;
 
-        public int Depth { get; set; }
-        
-        public Identifier(Position position, string name)
-        {
-            Position = position;
-            Name = name;
-        }
-    }
+    record Let(
+        IExpression InitialValue,
+        IExpression Body)
+        : IExpression;
 
-    record Let(Identifier Name, IExpression InitialValue, IExpression Body) : IExpression;
-
-    record LetRec(string Name, IExpression Callable, IExpression Body) : IExpression;
+    record LetRec(
+        IExpression Callable,
+        IExpression Body)
+        : IExpression;
 
     record LiteralBool(bool Value) :  IExpression;
 

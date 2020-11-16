@@ -31,7 +31,6 @@ namespace Crisp.Parsing
             var scanner = new Scanner(code);
             var parser = new Parser(scanner);
             var program = parser.Program();
-            Resolver.Resolve(program, ImmutableList<string>.Empty);
             return program;
         }
 
@@ -42,17 +41,20 @@ namespace Crisp.Parsing
 
         IExpression Program()
         {
-            var body = ExpressionList(TokenTag.EndOfInput);
+            var symbols = ImmutableList<string>.Empty;
+            var body = ExpressionList(symbols, TokenTag.EndOfInput);
             Expect(TokenTag.EndOfInput);
             return body;
         }
 
-        IExpression ExpressionList(params TokenTag[] stopTokens)
+        IExpression ExpressionList(
+            ImmutableList<string> symbols,
+            params TokenTag[] stopTokens)
         {
             var body = new List<IExpression>();
             while (!CurrentIs(stopTokens))
             {
-                var expr = Expression();
+                var expr = Expression(symbols);
                 body.Add(expr);
             }
 
@@ -67,101 +69,115 @@ namespace Crisp.Parsing
             }
         }
 
-        IExpression Expression()
+        IExpression Expression(ImmutableList<string> symbols)
         {
             if (Match(TokenTag.Let))
             {
                 if (Match(TokenTag.Rec))
-                    return LetRec();
+                    return LetRec(symbols);
                 else
-                    return Let();
+                    return Let(symbols);
             }
 
             if (Match(TokenTag.Fn))
             {
-                return Function();
+                return Function(symbols);
             }
 
             if (Match(TokenTag.If))
             {
-                return If();
+                return If(symbols);
             }
 
             if (Match(TokenTag.While))
             {
-                return While();
+                return While(symbols);
             }
 
             if (Match(TokenTag.LBrace))
             {
-                return Block();
+                return Block(symbols);
             }
 
-            return Assignment();
+            return Assignment(symbols);
         }
 
-        IExpression Let()
+        IExpression Let(ImmutableList<string> symbols)
         {
-            IExpression InitialValue()
+            IExpression InitialValue(ImmutableList<string> symbols)
             {
                 if (CurrentIs(TokenTag.LParen))
-                    return Function();
+                    return Function(symbols);
                 Expect(TokenTag.Assignment);
-                return Expression();
+                return Expression(symbols);
             }
             
-            var name = Expect(TokenTag.Identifier);
-            var initialValue = InitialValue();
-            var body = ExpressionList(TokenTag.RParen, TokenTag.RBrace, TokenTag.EndOfInput);
-            return new Let(
-                new Identifier(name.Position, name.Lexeme),
-                initialValue,
-                body);
+            var id = Expect(TokenTag.Identifier);
+            var initialValue = InitialValue(symbols);
+            symbols = symbols.Add(id.Lexeme);
+            var body = ExpressionList(symbols, TokenTag.RParen, TokenTag.RBrace, TokenTag.EndOfInput);
+            return new Let(initialValue, body);
         }
 
-        IExpression LetRec()
+        IExpression LetRec(ImmutableList<string> symbols)
         {
-            var name = Expect(TokenTag.Identifier).Lexeme;
-            var callable = Function();
-            var body = ExpressionList(TokenTag.RParen, TokenTag.RBrace, TokenTag.EndOfInput);
-            return new LetRec(name, callable, body);
+            var id = Expect(TokenTag.Identifier);
+            symbols = symbols.Add(id.Lexeme);
+            var callable = Function(symbols);
+            var body = ExpressionList(symbols, TokenTag.RParen, TokenTag.RBrace, TokenTag.EndOfInput);
+            return new LetRec(callable, body);
         }
 
-        IExpression Function()
+        IExpression Function(ImmutableList<string> symbols)
         {
-            var parameterPosition = Current.Position;
-            var parameters = Parameters();
-            var body = ExpectBlock();
-
-            if (parameters.Count == 0)
+            IEnumerable<string> Parameters()
             {
-                var discard = new Identifier(parameterPosition, "_");
-                return new Function(discard, body);
+                Expect(TokenTag.LParen);
+                if (Match(TokenTag.RParen))
+                {
+                    // Add a "discard" parameter for no parameter function.
+                    yield return "_";
+                }
+                else
+                {
+                    do
+                    {
+                        var id = Expect(TokenTag.Identifier);
+                        yield return id.Lexeme;
+                    }
+                    while (Match(TokenTag.Comma));
+                    Expect(TokenTag.RParen);
+                }
             }
-            else
-            {
-                var fn = new Function(parameters[^1], body);
-                for (var i = 2; i <= parameters.Count; i++)
-                    fn = new Function(parameters[^i], fn);
-                return fn;
-            }
+
+            var parameters = Parameters().ToList();
+            foreach (var p in parameters)
+                symbols = symbols.Add(p);
+            
+            var body = ExpectBlock(symbols);
+
+            var fn = new Function(body);
+            for (var i = 1; i < parameters.Count; i++)
+                fn = new Function(fn);
+            
+            return fn;
         }
 
-        IExpression If()
+        IExpression If(ImmutableList<string> symbols)
         {
-            var condition = Expression();
-            var consequence = ExpectBlock();
+            var condition = Expression(symbols);
+            var consequence = ExpectBlock(symbols);
 
             IExpression alternative;
             if (Current.Tag == TokenTag.Else && Peek.Tag == TokenTag.If)
             {
                 NextToken();
                 NextToken();
-                alternative = If();
+                alternative = If(symbols);
             }
             else if (Match(TokenTag.Else))
             {
-                alternative = ExpectBlock();
+                alternative = ExpectBlock(symbols);
             }
             else
             {
@@ -171,60 +187,35 @@ namespace Crisp.Parsing
             return new Conditional(condition, consequence, alternative);
         }
 
-        IExpression While()
+        IExpression While(ImmutableList<string> symbols)
         {
-            var guard = Expression();
-            var body = ExpectBlock();
+            var guard = Expression(symbols);
+            var body = ExpectBlock(symbols);
             return new While(guard, body);
         }
 
-        IExpression ExpectBlock()
+        IExpression ExpectBlock(ImmutableList<string> symbols)
         {
             Expect(TokenTag.LBrace);
-            return Block();
+            return Block(symbols);
         }
 
-        IExpression Block()
+        IExpression Block(ImmutableList<string> symbols)
         {
-            var body = ExpressionList(TokenTag.RBrace);
+            var body = ExpressionList(symbols, TokenTag.RBrace);
             Expect(TokenTag.RBrace);
             return body;
         }
 
-        List<Identifier> Parameters()
+        IExpression Assignment(ImmutableList<string> symbols)
         {
-            Expect(TokenTag.LParen);
-            if (Match(TokenTag.RParen))
-            {
-                return new List<Identifier>();
-            }
-            else
-            {
-                var parameters = IdentifierList().ToList();
-                Expect(TokenTag.RParen);
-                return parameters;
-            }
-        }
-
-        IEnumerable<Identifier> IdentifierList()
-        {
-            do
-            {
-                var name = Expect(TokenTag.Identifier);
-                yield return new Identifier(name.Position, name.Lexeme);
-            }
-            while (Match(TokenTag.Comma));
-        }
-
-        IExpression Assignment()
-        {
-            var left = LogicalOr();
+            var left = LogicalOr(symbols);
 
             if (Match(TokenTag.Assignment) is Token assignmentToken)
             {
                 if (left is Identifier identifier)
                 {
-                    var right = Expression();
+                    var right = Expression(symbols);
                     return new AssignmentIdentifier(identifier, right);
                 }
 
@@ -236,98 +227,98 @@ namespace Crisp.Parsing
             return left;
         }
 
-        IExpression LogicalOr()
+        IExpression LogicalOr(ImmutableList<string> symbols)
         {
-            var left = LogicalAnd();
+            var left = LogicalAnd(symbols);
             while (Match(TokenTag.Or) is Token token)
             {
                 var op = tokenOp[token.Tag];
-                var right = LogicalAnd();
+                var right = LogicalAnd(symbols);
                 left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
-        IExpression LogicalAnd()
+        IExpression LogicalAnd(ImmutableList<string> symbols)
         {
-            var left = Equality();
+            var left = Equality(symbols);
             while (Match(TokenTag.And) is Token token)
             {
                 var op = tokenOp[token.Tag];
-                var right = Equality();
+                var right = Equality(symbols);
                 left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
-        IExpression Equality()
+        IExpression Equality(ImmutableList<string> symbols)
         {
-            var left = Relation();
+            var left = Relation(symbols);
             while (Match(TokenTag.Equals, TokenTag.InequalTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
-                var right = Relation();
+                var right = Relation(symbols);
                 left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
-        IExpression Relation()
+        IExpression Relation(ImmutableList<string> symbols)
         {
-            var left = Addition();
+            var left = Addition(symbols);
             while (Match(TokenTag.GreaterThan, TokenTag.GreaterThanOrEqualTo, TokenTag.LessThan, TokenTag.LessThanOrEqualTo) is Token token)
             {
                 var op = tokenOp[token.Tag];
-                var right = Addition();
+                var right = Addition(symbols);
                 left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
-        IExpression Addition()
+        IExpression Addition(ImmutableList<string> symbols)
         {
-            var left = Multiplication();
+            var left = Multiplication(symbols);
             while (Match(TokenTag.Add, TokenTag.Subtract) is Token token)
             {
                 var op = tokenOp[token.Tag];
-                var right = Multiplication();
+                var right = Multiplication(symbols);
                 left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
-        IExpression Multiplication()
+        IExpression Multiplication(ImmutableList<string> symbols)
         {
-            var left = Unary();
+            var left = Unary(symbols);
             while (Match(TokenTag.Multiply, TokenTag.Divide, TokenTag.Mod) is Token token)
             {
                 var op = tokenOp[token.Tag];
-                var right = Unary();
+                var right = Unary(symbols);
                 left = new OperatorBinary(token.Position, op, left, right);
             }
             return left;
         }
 
-        IExpression Unary()
+        IExpression Unary(ImmutableList<string> symbols)
         {
             if (Match(TokenTag.Subtract) is Token tokenSubtract)
             {
-                var expression = Unary();
+                var expression = Unary(symbols);
                 return new OperatorUnary(tokenSubtract.Position, OperatorUnaryTag.Neg, expression);
             }
 
             if (Match(TokenTag.Bang) is Token tokenNot)
             {
-                var expression = Unary();
+                var expression = Unary(symbols);
                 return new OperatorUnary(tokenNot.Position, OperatorUnaryTag.Not, expression);
             }
 
-            return Call();
+            return Call(symbols);
         }
 
-        IExpression Call()
+        IExpression Call(ImmutableList<string> symbols)
         {
-            var left = Primary();
+            var left = Primary(symbols);
             while (Match(TokenTag.LParen) is Token tokenCall)
             {
                 if (Match(TokenTag.RParen))
@@ -336,7 +327,7 @@ namespace Crisp.Parsing
                 {
                     do
                     {
-                        var argument = Expression();
+                        var argument = Expression(symbols);
                         left = new FunctionCall(tokenCall.Position, left, argument);
                     }
                     while (Match(TokenTag.Comma));
@@ -346,7 +337,7 @@ namespace Crisp.Parsing
             return left;
         }
 
-        IExpression Primary()
+        IExpression Primary(ImmutableList<string> symbols)
         {
             if (Match(TokenTag.Number) is Token token)
             {
@@ -377,7 +368,14 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.Identifier) is Token tokenIdentifier)
             {
-                return new Identifier(tokenIdentifier.Position, tokenIdentifier.Lexeme);
+                var name = tokenIdentifier.Lexeme;
+                var depth = symbols.FindLastIndex(sym => sym == name);
+                if (depth < 0)
+                    throw new SyntaxErrorException(
+                        $"undefined symbol `{name}`",
+                        tokenIdentifier.Position);
+
+                return new Identifier(depth);
             }
 
             if (Match(TokenTag.Null))
@@ -387,20 +385,20 @@ namespace Crisp.Parsing
 
             if (Match(TokenTag.LParen))
             {
-                var expression = Expression();
+                var expression = Expression(symbols);
                 Expect(TokenTag.RParen);
                 return expression;
             }
 
             if (Match(TokenTag.Write))
             {
-                return Write();
+                return Write(symbols);
             }
 
             throw new SyntaxErrorException($"unexpected token '{Current.Tag}'", Current.Position);
         }
 
-        IExpression Write()
+        IExpression Write(ImmutableList<string> symbols)
         {
             Expect(TokenTag.LParen);
             if (Match(TokenTag.RParen))
@@ -410,7 +408,7 @@ namespace Crisp.Parsing
             var stack = new Stack<IExpression>();
             do
             {
-                var value = Expression();
+                var value = Expression(symbols);
                 stack.Push(value);
             }
             while (Match(TokenTag.Comma));
